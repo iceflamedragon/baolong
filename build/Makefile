@@ -177,6 +177,33 @@ src/line.cpp.s:
 	$(MAKE) -f CMakeFiles/BAOLONG.dir/build.make CMakeFiles/BAOLONG.dir/src/line.cpp.s
 .PHONY : src/line.cpp.s
 
+src/on_Mouse.o: src/on_Mouse.cpp.o
+
+.PHONY : src/on_Mouse.o
+
+# target to build an object file
+src/on_Mouse.cpp.o:
+	$(MAKE) -f CMakeFiles/BAOLONG.dir/build.make CMakeFiles/BAOLONG.dir/src/on_Mouse.cpp.o
+.PHONY : src/on_Mouse.cpp.o
+
+src/on_Mouse.i: src/on_Mouse.cpp.i
+
+.PHONY : src/on_Mouse.i
+
+# target to preprocess a source file
+src/on_Mouse.cpp.i:
+	$(MAKE) -f CMakeFiles/BAOLONG.dir/build.make CMakeFiles/BAOLONG.dir/src/on_Mouse.cpp.i
+.PHONY : src/on_Mouse.cpp.i
+
+src/on_Mouse.s: src/on_Mouse.cpp.s
+
+.PHONY : src/on_Mouse.s
+
+# target to generate assembly for a file
+src/on_Mouse.cpp.s:
+	$(MAKE) -f CMakeFiles/BAOLONG.dir/build.make CMakeFiles/BAOLONG.dir/src/on_Mouse.cpp.s
+.PHONY : src/on_Mouse.cpp.s
+
 src/picture.o: src/picture.cpp.o
 
 .PHONY : src/picture.o
@@ -204,6 +231,33 @@ src/picture.cpp.s:
 	$(MAKE) -f CMakeFiles/BAOLONG.dir/build.make CMakeFiles/BAOLONG.dir/src/picture.cpp.s
 .PHONY : src/picture.cpp.s
 
+src/serial.o: src/serial.cpp.o
+
+.PHONY : src/serial.o
+
+# target to build an object file
+src/serial.cpp.o:
+	$(MAKE) -f CMakeFiles/BAOLONG.dir/build.make CMakeFiles/BAOLONG.dir/src/serial.cpp.o
+.PHONY : src/serial.cpp.o
+
+src/serial.i: src/serial.cpp.i
+
+.PHONY : src/serial.i
+
+# target to preprocess a source file
+src/serial.cpp.i:
+	$(MAKE) -f CMakeFiles/BAOLONG.dir/build.make CMakeFiles/BAOLONG.dir/src/serial.cpp.i
+.PHONY : src/serial.cpp.i
+
+src/serial.s: src/serial.cpp.s
+
+.PHONY : src/serial.s
+
+# target to generate assembly for a file
+src/serial.cpp.s:
+	$(MAKE) -f CMakeFiles/BAOLONG.dir/build.make CMakeFiles/BAOLONG.dir/src/serial.cpp.s
+.PHONY : src/serial.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -219,9 +273,15 @@ help:
 	@echo "... src/line.o"
 	@echo "... src/line.i"
 	@echo "... src/line.s"
+	@echo "... src/on_Mouse.o"
+	@echo "... src/on_Mouse.i"
+	@echo "... src/on_Mouse.s"
 	@echo "... src/picture.o"
 	@echo "... src/picture.i"
 	@echo "... src/picture.s"
+	@echo "... src/serial.o"
+	@echo "... src/serial.i"
+	@echo "... src/serial.s"
 .PHONY : help
 
 

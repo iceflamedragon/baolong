@@ -1,0 +1,27 @@
+[
+{
+  "directory": "/home/bingflame/code_best/baolong/build",
+  "command": "/usr/bin/g++   -I/home/bingflame/code_best/baolong/include -I/home/bingflame/code_best/baolong/src -I/home/bingflame/code_best/baolong/usr/local/lib -I/usr/local/include/libserial -I/usr/include/libserial -isystem /usr/local/include/opencv4  -g   -std=gnu++11 -o CMakeFiles/BAOLONG.dir/main.cpp.o -c /home/bingflame/code_best/baolong/main.cpp",
+  "file": "/home/bingflame/code_best/baolong/main.cpp"
+},
+{
+  "directory": "/home/bingflame/code_best/baolong/build",
+  "command": "/usr/bin/g++   -I/home/bingflame/code_best/baolong/include -I/home/bingflame/code_best/baolong/src -I/home/bingflame/code_best/baolong/usr/local/lib -I/usr/local/include/libserial -I/usr/include/libserial -isystem /usr/local/include/opencv4  -g   -std=gnu++11 -o CMakeFiles/BAOLONG.dir/src/line.cpp.o -c /home/bingflame/code_best/baolong/src/line.cpp",
+  "file": "/home/bingflame/code_best/baolong/src/line.cpp"
+},
+{
+  "directory": "/home/bingflame/code_best/baolong/build",
+  "command": "/usr/bin/g++   -I/home/bingflame/code_best/baolong/include -I/home/bingflame/code_best/baolong/src -I/home/bingflame/code_best/baolong/usr/local/lib -I/usr/local/include/libserial -I/usr/include/libserial -isystem /usr/local/include/opencv4  -g   -std=gnu++11 -o CMakeFiles/BAOLONG.dir/src/picture.cpp.o -c /home/bingflame/code_best/baolong/src/picture.cpp",
+  "file": "/home/bingflame/code_best/baolong/src/picture.cpp"
+},
+{
+  "directory": "/home/bingflame/code_best/baolong/build",
+  "command": "/usr/bin/g++   -I/home/bingflame/code_best/baolong/include -I/home/bingflame/code_best/baolong/src -I/home/bingflame/code_best/baolong/usr/local/lib -I/usr/local/include/libserial -I/usr/include/libserial -isystem /usr/local/include/opencv4  -g   -std=gnu++11 -o CMakeFiles/BAOLONG.dir/src/serial.cpp.o -c /home/bingflame/code_best/baolong/src/serial.cpp",
+  "file": "/home/bingflame/code_best/baolong/src/serial.cpp"
+},
+{
+  "directory": "/home/bingflame/code_best/baolong/build",
+  "command": "/usr/bin/g++   -I/home/bingflame/code_best/baolong/include -I/home/bingflame/code_best/baolong/src -I/home/bingflame/code_best/baolong/usr/local/lib -I/usr/local/include/libserial -I/usr/include/libserial -isystem /usr/local/include/opencv4  -g   -std=gnu++11 -o CMakeFiles/BAOLONG.dir/src/on_Mouse.cpp.o -c /home/bingflame/code_best/baolong/src/on_Mouse.cpp",
+  "file": "/home/bingflame/code_best/baolong/src/on_Mouse.cpp"
+}
+]

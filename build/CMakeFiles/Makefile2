@@ -74,12 +74,12 @@ clean: CMakeFiles/BAOLONG.dir/clean
 CMakeFiles/BAOLONG.dir/all:
 	$(MAKE) -f CMakeFiles/BAOLONG.dir/build.make CMakeFiles/BAOLONG.dir/depend
 	$(MAKE) -f CMakeFiles/BAOLONG.dir/build.make CMakeFiles/BAOLONG.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/bingflame/code_best/baolong/build/CMakeFiles --progress-num=1,2,3,4 "Built target BAOLONG"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/bingflame/code_best/baolong/build/CMakeFiles --progress-num=1,2,3,4,5,6 "Built target BAOLONG"
 .PHONY : CMakeFiles/BAOLONG.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/BAOLONG.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/bingflame/code_best/baolong/build/CMakeFiles 4
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/bingflame/code_best/baolong/build/CMakeFiles 6
 	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/BAOLONG.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/bingflame/code_best/baolong/build/CMakeFiles 0
 .PHONY : CMakeFiles/BAOLONG.dir/rule

@@ -60,47 +60,75 @@ include CMakeFiles/BAOLONG.dir/flags.make
 CMakeFiles/BAOLONG.dir/main.cpp.o: CMakeFiles/BAOLONG.dir/flags.make
 CMakeFiles/BAOLONG.dir/main.cpp.o: ../main.cpp
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/bingflame/code_best/baolong/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/BAOLONG.dir/main.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/BAOLONG.dir/main.cpp.o -c /home/bingflame/code_best/baolong/main.cpp
+	/usr/bin/g++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/BAOLONG.dir/main.cpp.o -c /home/bingflame/code_best/baolong/main.cpp
 
 CMakeFiles/BAOLONG.dir/main.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/BAOLONG.dir/main.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/bingflame/code_best/baolong/main.cpp > CMakeFiles/BAOLONG.dir/main.cpp.i
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/bingflame/code_best/baolong/main.cpp > CMakeFiles/BAOLONG.dir/main.cpp.i
 
 CMakeFiles/BAOLONG.dir/main.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/BAOLONG.dir/main.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/bingflame/code_best/baolong/main.cpp -o CMakeFiles/BAOLONG.dir/main.cpp.s
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/bingflame/code_best/baolong/main.cpp -o CMakeFiles/BAOLONG.dir/main.cpp.s
 
 CMakeFiles/BAOLONG.dir/src/line.cpp.o: CMakeFiles/BAOLONG.dir/flags.make
 CMakeFiles/BAOLONG.dir/src/line.cpp.o: ../src/line.cpp
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/bingflame/code_best/baolong/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/BAOLONG.dir/src/line.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/BAOLONG.dir/src/line.cpp.o -c /home/bingflame/code_best/baolong/src/line.cpp
+	/usr/bin/g++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/BAOLONG.dir/src/line.cpp.o -c /home/bingflame/code_best/baolong/src/line.cpp
 
 CMakeFiles/BAOLONG.dir/src/line.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/BAOLONG.dir/src/line.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/bingflame/code_best/baolong/src/line.cpp > CMakeFiles/BAOLONG.dir/src/line.cpp.i
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/bingflame/code_best/baolong/src/line.cpp > CMakeFiles/BAOLONG.dir/src/line.cpp.i
 
 CMakeFiles/BAOLONG.dir/src/line.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/BAOLONG.dir/src/line.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/bingflame/code_best/baolong/src/line.cpp -o CMakeFiles/BAOLONG.dir/src/line.cpp.s
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/bingflame/code_best/baolong/src/line.cpp -o CMakeFiles/BAOLONG.dir/src/line.cpp.s
 
 CMakeFiles/BAOLONG.dir/src/picture.cpp.o: CMakeFiles/BAOLONG.dir/flags.make
 CMakeFiles/BAOLONG.dir/src/picture.cpp.o: ../src/picture.cpp
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/bingflame/code_best/baolong/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/BAOLONG.dir/src/picture.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/BAOLONG.dir/src/picture.cpp.o -c /home/bingflame/code_best/baolong/src/picture.cpp
+	/usr/bin/g++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/BAOLONG.dir/src/picture.cpp.o -c /home/bingflame/code_best/baolong/src/picture.cpp
 
 CMakeFiles/BAOLONG.dir/src/picture.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/BAOLONG.dir/src/picture.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/bingflame/code_best/baolong/src/picture.cpp > CMakeFiles/BAOLONG.dir/src/picture.cpp.i
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/bingflame/code_best/baolong/src/picture.cpp > CMakeFiles/BAOLONG.dir/src/picture.cpp.i
 
 CMakeFiles/BAOLONG.dir/src/picture.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/BAOLONG.dir/src/picture.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/bingflame/code_best/baolong/src/picture.cpp -o CMakeFiles/BAOLONG.dir/src/picture.cpp.s
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/bingflame/code_best/baolong/src/picture.cpp -o CMakeFiles/BAOLONG.dir/src/picture.cpp.s
+
+CMakeFiles/BAOLONG.dir/src/serial.cpp.o: CMakeFiles/BAOLONG.dir/flags.make
+CMakeFiles/BAOLONG.dir/src/serial.cpp.o: ../src/serial.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/bingflame/code_best/baolong/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/BAOLONG.dir/src/serial.cpp.o"
+	/usr/bin/g++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/BAOLONG.dir/src/serial.cpp.o -c /home/bingflame/code_best/baolong/src/serial.cpp
+
+CMakeFiles/BAOLONG.dir/src/serial.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/BAOLONG.dir/src/serial.cpp.i"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/bingflame/code_best/baolong/src/serial.cpp > CMakeFiles/BAOLONG.dir/src/serial.cpp.i
+
+CMakeFiles/BAOLONG.dir/src/serial.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/BAOLONG.dir/src/serial.cpp.s"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/bingflame/code_best/baolong/src/serial.cpp -o CMakeFiles/BAOLONG.dir/src/serial.cpp.s
+
+CMakeFiles/BAOLONG.dir/src/on_Mouse.cpp.o: CMakeFiles/BAOLONG.dir/flags.make
+CMakeFiles/BAOLONG.dir/src/on_Mouse.cpp.o: ../src/on_Mouse.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/bingflame/code_best/baolong/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/BAOLONG.dir/src/on_Mouse.cpp.o"
+	/usr/bin/g++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/BAOLONG.dir/src/on_Mouse.cpp.o -c /home/bingflame/code_best/baolong/src/on_Mouse.cpp
+
+CMakeFiles/BAOLONG.dir/src/on_Mouse.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/BAOLONG.dir/src/on_Mouse.cpp.i"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/bingflame/code_best/baolong/src/on_Mouse.cpp > CMakeFiles/BAOLONG.dir/src/on_Mouse.cpp.i
+
+CMakeFiles/BAOLONG.dir/src/on_Mouse.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/BAOLONG.dir/src/on_Mouse.cpp.s"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/bingflame/code_best/baolong/src/on_Mouse.cpp -o CMakeFiles/BAOLONG.dir/src/on_Mouse.cpp.s
 
 # Object files for target BAOLONG
 BAOLONG_OBJECTS = \
 "CMakeFiles/BAOLONG.dir/main.cpp.o" \
 "CMakeFiles/BAOLONG.dir/src/line.cpp.o" \
-"CMakeFiles/BAOLONG.dir/src/picture.cpp.o"
+"CMakeFiles/BAOLONG.dir/src/picture.cpp.o" \
+"CMakeFiles/BAOLONG.dir/src/serial.cpp.o" \
+"CMakeFiles/BAOLONG.dir/src/on_Mouse.cpp.o"
 
 # External object files for target BAOLONG
 BAOLONG_EXTERNAL_OBJECTS =
@@ -108,6 +136,8 @@ BAOLONG_EXTERNAL_OBJECTS =
 BAOLONG: CMakeFiles/BAOLONG.dir/main.cpp.o
 BAOLONG: CMakeFiles/BAOLONG.dir/src/line.cpp.o
 BAOLONG: CMakeFiles/BAOLONG.dir/src/picture.cpp.o
+BAOLONG: CMakeFiles/BAOLONG.dir/src/serial.cpp.o
+BAOLONG: CMakeFiles/BAOLONG.dir/src/on_Mouse.cpp.o
 BAOLONG: CMakeFiles/BAOLONG.dir/build.make
 BAOLONG: /usr/local/lib/libopencv_gapi.so.4.8.1
 BAOLONG: /usr/local/lib/libopencv_highgui.so.4.8.1
@@ -125,7 +155,7 @@ BAOLONG: /usr/local/lib/libopencv_flann.so.4.8.1
 BAOLONG: /usr/local/lib/libopencv_imgproc.so.4.8.1
 BAOLONG: /usr/local/lib/libopencv_core.so.4.8.1
 BAOLONG: CMakeFiles/BAOLONG.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/bingflame/code_best/baolong/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Linking CXX executable BAOLONG"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/bingflame/code_best/baolong/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Linking CXX executable BAOLONG"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/BAOLONG.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
