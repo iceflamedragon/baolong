@@ -4,7 +4,8 @@
  *                                             EXAMPLE  CODE
  *
  *                      (c) Copyright 2024; SaiShu.Lcc.; Leo;
- *https://bjsstech.com 版权所属[SASU-北京赛曙科技有限公司]
+ *https://bjsstech.com 版权所属[SASU-北京赛曙科技有
+ 限公司]
  *
  *            The code is for internal use only, not for commercial
  *transactions(开源学习,请勿商用). The code ADAPTS the corresponding hardware
@@ -75,11 +76,11 @@ public:
    *
    */
   struct Params {
-    float speedLow = 0.8;       // 智能车最低速
-    float speedHigh = 0.8;      // 智能车最高速
+    float speedLow = 1.5;       // 智能车最低速
+    float speedHigh = 4;        // 智能车最高速
     float speedBridge = 0.6;    // 坡道速度
     float speedDown = 0.5;      // 特殊区域降速速度
-    float runP1 = 0.9;          // 一阶比例系数：直线控制量
+    float runP1 = 0.91;          // 一阶比例系数：直线控制量
     float runP2 = 0.018;        // 二阶比例系数：弯道控制量
     float runP3 = 0.0;          // 三阶比例系数：弯道控制量
     float turnP = 3.5;          // 一阶比例系数：转弯控制量
@@ -126,7 +127,7 @@ public:
     int pwmDiff = (error * params.turnP) + (error - errorLast) * params.turnD;
     errorLast = error;
 
-    servoPwm = (uint16_t)(PWMSERVOMID + pwmDiff); // PWM转换
+    servoPwm = (uint16_t)(PWMSERVOMID - pwmDiff); // PWM转换
   }
 
   /**

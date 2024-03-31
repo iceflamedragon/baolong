@@ -1,6 +1,6 @@
 {
-    "speedLow": 0.8,
-    "speedHigh": 0.8,
+    "speedLow": 1.4,
+    "speedHigh": 4,
     "speedBridge": 0.6,
     "speedDown": 0.5,
     "runP1": 1.7,

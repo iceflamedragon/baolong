@@ -108,7 +108,7 @@ int main(int argc, char const *argv[]) {
 
   while (1) {
     //[01] 视频源读取
-    motion.params.debug = 0;
+    motion.params.debug = 0; // 1开启窗口，0关闭窗口
     if (motion.params.debug) // 综合显示调试UI窗口
       preTime = chrono::duration_cast<chrono::milliseconds>(
                     chrono::system_clock::now().time_since_epoch())
