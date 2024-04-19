@@ -60,15 +60,15 @@ include CMakeFiles/img2video.dir/flags.make
 CMakeFiles/img2video.dir/tool/img2video.cpp.o: CMakeFiles/img2video.dir/flags.make
 CMakeFiles/img2video.dir/tool/img2video.cpp.o: /home/edgeboard/car/demo/src/tool/img2video.cpp
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/edgeboard/car/demo/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/img2video.dir/tool/img2video.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/img2video.dir/tool/img2video.cpp.o -c /home/edgeboard/car/demo/src/tool/img2video.cpp
+	/usr/bin/clang++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/img2video.dir/tool/img2video.cpp.o -c /home/edgeboard/car/demo/src/tool/img2video.cpp
 
 CMakeFiles/img2video.dir/tool/img2video.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/img2video.dir/tool/img2video.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/edgeboard/car/demo/src/tool/img2video.cpp > CMakeFiles/img2video.dir/tool/img2video.cpp.i
+	/usr/bin/clang++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/edgeboard/car/demo/src/tool/img2video.cpp > CMakeFiles/img2video.dir/tool/img2video.cpp.i
 
 CMakeFiles/img2video.dir/tool/img2video.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/img2video.dir/tool/img2video.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/edgeboard/car/demo/src/tool/img2video.cpp -o CMakeFiles/img2video.dir/tool/img2video.cpp.s
+	/usr/bin/clang++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/edgeboard/car/demo/src/tool/img2video.cpp -o CMakeFiles/img2video.dir/tool/img2video.cpp.s
 
 CMakeFiles/img2video.dir/tool/img2video.cpp.o.requires:
 

@@ -60,15 +60,15 @@ include CMakeFiles/icar.dir/flags.make
 CMakeFiles/icar.dir/src/icar.cpp.o: CMakeFiles/icar.dir/flags.make
 CMakeFiles/icar.dir/src/icar.cpp.o: /home/edgeboard/car/demo/src/src/icar.cpp
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/edgeboard/car/demo/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/icar.dir/src/icar.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/icar.dir/src/icar.cpp.o -c /home/edgeboard/car/demo/src/src/icar.cpp
+	/usr/bin/clang++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/icar.dir/src/icar.cpp.o -c /home/edgeboard/car/demo/src/src/icar.cpp
 
 CMakeFiles/icar.dir/src/icar.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/icar.dir/src/icar.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/edgeboard/car/demo/src/src/icar.cpp > CMakeFiles/icar.dir/src/icar.cpp.i
+	/usr/bin/clang++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/edgeboard/car/demo/src/src/icar.cpp > CMakeFiles/icar.dir/src/icar.cpp.i
 
 CMakeFiles/icar.dir/src/icar.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/icar.dir/src/icar.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/edgeboard/car/demo/src/src/icar.cpp -o CMakeFiles/icar.dir/src/icar.cpp.s
+	/usr/bin/clang++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/edgeboard/car/demo/src/src/icar.cpp -o CMakeFiles/icar.dir/src/icar.cpp.s
 
 CMakeFiles/icar.dir/src/icar.cpp.o.requires:
 

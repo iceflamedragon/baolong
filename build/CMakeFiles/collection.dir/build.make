@@ -60,15 +60,15 @@ include CMakeFiles/collection.dir/flags.make
 CMakeFiles/collection.dir/tool/collection.cpp.o: CMakeFiles/collection.dir/flags.make
 CMakeFiles/collection.dir/tool/collection.cpp.o: /home/edgeboard/car/demo/src/tool/collection.cpp
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/edgeboard/car/demo/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/collection.dir/tool/collection.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/collection.dir/tool/collection.cpp.o -c /home/edgeboard/car/demo/src/tool/collection.cpp
+	/usr/bin/clang++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/collection.dir/tool/collection.cpp.o -c /home/edgeboard/car/demo/src/tool/collection.cpp
 
 CMakeFiles/collection.dir/tool/collection.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/collection.dir/tool/collection.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/edgeboard/car/demo/src/tool/collection.cpp > CMakeFiles/collection.dir/tool/collection.cpp.i
+	/usr/bin/clang++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/edgeboard/car/demo/src/tool/collection.cpp > CMakeFiles/collection.dir/tool/collection.cpp.i
 
 CMakeFiles/collection.dir/tool/collection.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/collection.dir/tool/collection.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/edgeboard/car/demo/src/tool/collection.cpp -o CMakeFiles/collection.dir/tool/collection.cpp.s
+	/usr/bin/clang++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/edgeboard/car/demo/src/tool/collection.cpp -o CMakeFiles/collection.dir/tool/collection.cpp.s
 
 CMakeFiles/collection.dir/tool/collection.cpp.o.requires:
 

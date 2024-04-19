@@ -60,15 +60,15 @@ include CMakeFiles/calibration.dir/flags.make
 CMakeFiles/calibration.dir/tool/calibration.cpp.o: CMakeFiles/calibration.dir/flags.make
 CMakeFiles/calibration.dir/tool/calibration.cpp.o: /home/edgeboard/car/demo/src/tool/calibration.cpp
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/edgeboard/car/demo/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/calibration.dir/tool/calibration.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/calibration.dir/tool/calibration.cpp.o -c /home/edgeboard/car/demo/src/tool/calibration.cpp
+	/usr/bin/clang++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/calibration.dir/tool/calibration.cpp.o -c /home/edgeboard/car/demo/src/tool/calibration.cpp
 
 CMakeFiles/calibration.dir/tool/calibration.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/calibration.dir/tool/calibration.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/edgeboard/car/demo/src/tool/calibration.cpp > CMakeFiles/calibration.dir/tool/calibration.cpp.i
+	/usr/bin/clang++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/edgeboard/car/demo/src/tool/calibration.cpp > CMakeFiles/calibration.dir/tool/calibration.cpp.i
 
 CMakeFiles/calibration.dir/tool/calibration.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/calibration.dir/tool/calibration.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/edgeboard/car/demo/src/tool/calibration.cpp -o CMakeFiles/calibration.dir/tool/calibration.cpp.s
+	/usr/bin/clang++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/edgeboard/car/demo/src/tool/calibration.cpp -o CMakeFiles/calibration.dir/tool/calibration.cpp.s
 
 CMakeFiles/calibration.dir/tool/calibration.cpp.o.requires:
 
