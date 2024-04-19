@@ -41,7 +41,9 @@
 
 using namespace std;
 using namespace cv;
-
+bool app_stopped = false;
+void sigint_handler(int sig);
+shared_ptr<Uart> uart = make_shared<Uart>("/dev/ttyUSB0"); // 初始化串口驱动
 int main(int argc, char const *argv[]) {
   Preprocess preprocess;    // 图像预处理类
   Motion motion;            // 运动控制类
@@ -62,7 +64,7 @@ int main(int argc, char const *argv[]) {
   detection->score = motion.params.score; // AI检测置信度
 
   // USB转串口初始化： /dev/ttyUSB0
-  shared_ptr<Uart> uart = make_shared<Uart>("/dev/ttyUSB0"); // 初始化串口驱动
+
   int ret = uart->open();
   if (ret != 0) {
     printf("[Error] Uart Open failed!\n");
@@ -105,10 +107,12 @@ int main(int argc, char const *argv[]) {
   Scene sceneLast = Scene::NormalScene; // 记录上一次场景状态
   long preTime;
   Mat img;
+  uart->carpid(300, 750, 0, 0); // 调pid，参数分别为p，i，d，是否存入flash
 
+  signal(SIGINT, sigint_handler); // 中断，结束的时候
   while (1) {
     //[01] 视频源读取
-    motion.params.debug = 0; // 1开启窗口，0关闭窗口
+    motion.params.debug = 1; // 1开启窗口，0关闭窗口
     if (motion.params.debug) // 综合显示调试UI窗口
       preTime = chrono::duration_cast<chrono::milliseconds>(
                     chrono::system_clock::now().time_since_epoch())
@@ -138,17 +142,17 @@ int main(int argc, char const *argv[]) {
     }
 
     //[05] 停车区检测
-    if (motion.params.parking) {
-      if (parking.process(detection->results)) {
-        scene = Scene::ParkingScene;
-        if (parking.countExit > 20) {
-          uart->carControl(0, PWMSERVOMID); // 控制车辆停止运动
-          sleep(1);
-          printf("-----> System Exit!!! <-----\n");
-          exit(0); // 程序退出
-        }
-      }
-    }
+    // if (motion.params.parking) {
+    //   if (parking.process(detection->results)) {
+    //     scene = Scene::ParkingScene;
+    //     if (parking.countExit > 20) {
+    //       uart->carControl(0, PWMSERVOMID); // 控制车辆停止运动
+    //       sleep(1);
+    //       printf("-----> System Exit!!! <-----\n");
+    //       exit(0); // 程序退出
+    //     }
+    //   }
+    // }
 
     //[06] 救援区检测
     if ((scene == Scene::NormalScene || scene == Scene::RescueScene) &&
@@ -199,22 +203,26 @@ int main(int argc, char const *argv[]) {
     //[11] 环岛识别与路径规划
     if ((scene == Scene::NormalScene || scene == Scene::RingScene) &&
         motion.params.ring) {
-      if (ring.process(tracking, imgBinary))
+      if (ring.process(tracking, imgBinary)) {
         scene = Scene::RingScene;
-      else
+        cout << "检测到环岛" << endl;
+        while (1)
+          ;
+      } else
         scene = Scene::NormalScene;
     }
 
     //[12] 车辆控制中心拟合
     ctrlCenter.fitting(tracking);
     if (scene != Scene::RescueScene) {
-      if (ctrlCenter.derailmentCheck(tracking)) // 车辆冲出赛道检测（保护车辆）
-      {
-        uart->carControl(0, PWMSERVOMID); // 控制车辆停止运动
-        sleep(1);
-        printf("-----> System Exit!!! <-----\n");
-        exit(0); // 程序退出
-      }
+      // if (ctrlCenter.derailmentCheck(tracking)) //
+      // 车辆冲出赛道检测（保护车辆）
+      // {
+      //   uart->carControl(0, PWMSERVOMID); // 控制车辆停止运动
+      //   sleep(1);
+      //   printf("-----> System Exit!!! <-----\n");
+      //   exit(0); // 程序退出
+      // }
     }
 
     //[13] 车辆运动控制(速度+方向)
@@ -332,4 +340,13 @@ int main(int argc, char const *argv[]) {
   uart->close(); // 串口通信关闭
   capture.release();
   return 0;
+}
+void sigint_handler(int sig) {
+  if (sig == SIGINT) {
+    // Ctrl+C 被按下时执行的代码
+    std::cout << "Ctrl+C 被按下！" << std::endl;
+    app_stopped = true;
+    uart->carControl(0, 750);
+    exit(0);
+  }
 }

@@ -346,37 +346,44 @@ public:
    *
    * @param speed 速度：m/s
    * @param servo 方向：PWM（250~747~1250）
-   */
-  void carpid(int p, int i, int d) {
+   *///flash是否存储到flash
+   //p至少上千
+  void carpid(int p, int i, int d, int flash) {
     if (!isOpen)
       return;
 
     uint8_t buff[11];  // 多发送一个字节
     uint8_t check = 0; // 校验位
-    Bit32Union bit32U;
-    Bit16Union bit16U;
 
-    buff[0] = USB_FRAME_HEAD;   // 通信帧头
-    buff[1] = USB_ADDR_CARCTRL; // 控制模式是1调试模式是2
-    buff[2] = 11;               // 帧长
+    Bit16Union kp;
+    Bit16Union kd;
+    Bit16Union ki;
 
-    bit32U.float32 = speed; // X轴线速度
-    for (int i = 0; i < 4; i++)
-      buff[i + 3] = bit32U.buff[i];
+    buff[0] = USB_FRAME_HEAD; // 通信帧头
+    buff[1] = 2;              // 控制模式是1调试模式是2
+    buff[2] = 11;             // 帧长
 
-    bit16U.uint16 = servo; // Y轴线速度
-    buff[7] = bit16U.buff[0];
-    buff[8] = bit16U.buff[1];
+    kp.int16 = p; // X轴线速度
+    for (int i = 0; i < 2; i++)
+      buff[i + 3] = kp.buff[i];
 
-    for (int i = 0; i < 9; i++)
+    ki.int16 = i; // X轴线速度
+    for (int i = 0; i < 2; i++)
+      buff[i + 5] = ki.buff[i];
+
+    kd.int16 = d; // X轴线速度
+    for (int i = 0; i < 2; i++)
+      buff[i + 7] = kd.buff[i];
+    buff[9] = flash; // 1是存入flash，0是不存
+
+    for (int i = 0; i < 10; i++)
       check += buff[i];
-    buff[9] = check; // 校验位
+    buff[10] = check; // 校验位
 
     // 循环发送数据
     for (size_t i = 0; i < 11; i++)
       transmitByte(buff[i]);
-    cout << "speed" << speed << "direction" << servo << endl;
-  }
+    }
   /**
    * @brief 蜂鸣器音效控制
    *
