@@ -60,15 +60,15 @@ include CMakeFiles/camera.dir/flags.make
 CMakeFiles/camera.dir/tool/camera.cpp.o: CMakeFiles/camera.dir/flags.make
 CMakeFiles/camera.dir/tool/camera.cpp.o: /home/edgeboard/car/demo/src/tool/camera.cpp
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/edgeboard/car/demo/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/camera.dir/tool/camera.cpp.o"
-	/usr/bin/clang++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/camera.dir/tool/camera.cpp.o -c /home/edgeboard/car/demo/src/tool/camera.cpp
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/camera.dir/tool/camera.cpp.o -c /home/edgeboard/car/demo/src/tool/camera.cpp
 
 CMakeFiles/camera.dir/tool/camera.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/camera.dir/tool/camera.cpp.i"
-	/usr/bin/clang++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/edgeboard/car/demo/src/tool/camera.cpp > CMakeFiles/camera.dir/tool/camera.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/edgeboard/car/demo/src/tool/camera.cpp > CMakeFiles/camera.dir/tool/camera.cpp.i
 
 CMakeFiles/camera.dir/tool/camera.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/camera.dir/tool/camera.cpp.s"
-	/usr/bin/clang++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/edgeboard/car/demo/src/tool/camera.cpp -o CMakeFiles/camera.dir/tool/camera.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/edgeboard/car/demo/src/tool/camera.cpp -o CMakeFiles/camera.dir/tool/camera.cpp.s
 
 CMakeFiles/camera.dir/tool/camera.cpp.o.requires:
 

@@ -108,11 +108,16 @@ int main(int argc, char const *argv[]) {
   long preTime;
   Mat img;
   uart->carpid(300, 750, 0, 0); // 调pid，参数分别为p，i，d，是否存入flash
-
+  // clock_t startTime, endTime;     // 统计程序时间
   signal(SIGINT, sigint_handler); // 中断，结束的时候
+  motion.params.debug = 0;        // 1开启窗口，0关闭窗口
   while (1) {
+    preTime = chrono::duration_cast<chrono::milliseconds>(
+                  chrono::system_clock::now().time_since_epoch())
+                  .count();
+    // startTime = clock();
     //[01] 视频源读取
-    motion.params.debug = 1; // 1开启窗口，0关闭窗口
+
     if (motion.params.debug) // 综合显示调试UI窗口
       preTime = chrono::duration_cast<chrono::milliseconds>(
                     chrono::system_clock::now().time_since_epoch())
@@ -335,6 +340,15 @@ int main(int argc, char const *argv[]) {
       printf("-----> System Exit!!! <-----\n");
       exit(0); // 程序退出
     }
+    // endTime = clock();
+    // cout << "the run time is " << (double)(endTime - startTime) /
+    // CLOCKS_PER_SEC
+    //      << "s" << endl;
+    auto startTime = chrono::duration_cast<chrono::milliseconds>(
+                         chrono::system_clock::now().time_since_epoch())
+                         .count();
+    printf(">> FrameTime: %ldms | %.2ffps \n", startTime - preTime,
+           1000.0 / (startTime - preTime));
   }
 
   uart->close(); // 串口通信关闭
