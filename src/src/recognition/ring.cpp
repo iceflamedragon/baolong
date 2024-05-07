@@ -496,9 +496,9 @@ public:
       counterSpurroad = 0;
 
     //--------------------------------临时测试----------------------------------
-    _ringStep = ringStep;
-    _ringEnable = ringEnable;
-    _tmp_ttttt = tmp_ttttt;
+    // _ringStep = ringStep;
+    // _ringEnable = ringEnable;
+    // _tmp_ttttt = tmp_ttttt;
 
     // 返回识别结果
     if (ringStep == RingStep::None)
