@@ -110,7 +110,7 @@ int main(int argc, char const *argv[]) {
   uart->carpid(300, 750, 0, 0); // 调pid，参数分别为p，i，d，是否存入flash
   // clock_t startTime, endTime;     // 统计程序时间
   signal(SIGINT, sigint_handler); // 中断，结束的时候
-  motion.params.debug = 0;        // 1开启窗口，0关闭窗口
+  motion.params.debug = 0;       // 1开启窗口，0关闭窗口
   while (1) {
     preTime = chrono::duration_cast<chrono::milliseconds>(
                   chrono::system_clock::now().time_since_epoch())
@@ -124,8 +124,6 @@ int main(int argc, char const *argv[]) {
                     .count();
     if (!capture.read(img))
       continue;
-    if (motion.params.saveImg && !motion.params.debug) // 存储原始图像
-      savePicture(img);
 
     //[02] 图像预处理
     Mat imgCorrect = preprocess.correction(img);         // 图像矫正
@@ -133,7 +131,11 @@ int main(int argc, char const *argv[]) {
 
     //[03] 启动AI推理
     detection->inference(imgCorrect);
-
+    auto startTime = chrono::duration_cast<chrono::milliseconds>(
+                         chrono::system_clock::now().time_since_epoch())
+                         .count();
+    printf(">> FrameTime: %ldms | %.2ffps \n", startTime - preTime,
+           1000.0 / (startTime - preTime));
     //[04] 赛道识别
     tracking.rowCutUp = motion.params.rowCutUp; // 图像顶部切行（前瞻距离）
     tracking.rowCutBottom =
@@ -147,23 +149,29 @@ int main(int argc, char const *argv[]) {
     }
 
     //[05] 停车区检测
-    // if (motion.params.parking) {
-    //   if (parking.process(detection->results)) {
-    //     scene = Scene::ParkingScene;
-    //     if (parking.countExit > 20) {
-    //       uart->carControl(0, PWMSERVOMID); // 控制车辆停止运动
-    //       sleep(1);
-    //       printf("-----> System Exit!!! <-----\n");
-    //       exit(0); // 程序退出
-    //     }
-    //   }
-    // }
+    if (motion.params.parking) {
+      if (parking.process(detection->results)) {
+        scene = Scene::ParkingScene;
+        if (parking.countExit > 20) {
+          uart->carControl(0, PWMSERVOMID); // 控制车辆停止运动
+          sleep(1);
+          printf("-----> System Exit!!! <-----\n");
+          exit(0); // 程序退出
+        }
+      }
+    }
 
     //[06] 救援区检测
     if ((scene == Scene::NormalScene || scene == Scene::RescueScene) &&
         motion.params.rescue) {
       if (rescue.process(tracking, detection->results))
-        scene = Scene::RescueScene;
+       {
+         scene = Scene::RescueScene;  
+          if(rescue.entryLeft)
+           printf("Rescue Left\n");
+          else
+           printf("Rescue Right\n");
+       }
       else
         scene = Scene::NormalScene;
     }
@@ -181,7 +189,7 @@ int main(int argc, char const *argv[]) {
     if ((scene == Scene::NormalScene || scene == Scene::BridgeScene) &&
         motion.params.bridge) {
       if (bridge.process(tracking, detection->results))
-        scene = Scene::BridgeScene;
+          scene = Scene::BridgeScene;
       else
         scene = Scene::NormalScene;
     }
@@ -196,7 +204,7 @@ int main(int argc, char const *argv[]) {
         scene = Scene::NormalScene;
     }
 
-    //[10] 十字道路识别与路径规划
+   // [10] 十字道路识别与路径规划
     if ((scene == Scene::NormalScene || scene == Scene::CrossScene) &&
         motion.params.cross) {
       if (crossroad.crossRecognition(tracking))
@@ -210,9 +218,7 @@ int main(int argc, char const *argv[]) {
         motion.params.ring) {
       if (ring.process(tracking, imgBinary)) {
         scene = Scene::RingScene;
-        cout << "检测到环岛" << endl;
-        while (1)
-          ;
+
       } else
         scene = Scene::NormalScene;
     }
@@ -220,14 +226,14 @@ int main(int argc, char const *argv[]) {
     //[12] 车辆控制中心拟合
     ctrlCenter.fitting(tracking);
     if (scene != Scene::RescueScene) {
-      // if (ctrlCenter.derailmentCheck(tracking)) //
-      // 车辆冲出赛道检测（保护车辆）
-      // {
-      //   uart->carControl(0, PWMSERVOMID); // 控制车辆停止运动
-      //   sleep(1);
-      //   printf("-----> System Exit!!! <-----\n");
-      //   exit(0); // 程序退出
-      // }
+      if (ctrlCenter.derailmentCheck(tracking)) //
+     // 车辆冲出赛道检测（保护车辆）
+      {
+        uart->carControl(0, PWMSERVOMID); // 控制车辆停止运动
+        sleep(1);
+        printf("-----> System Exit!!! <-----\n");
+        exit(0); // 程序退出
+      }
     }
 
     //[13] 车辆运动控制(速度+方向)
@@ -344,11 +350,6 @@ int main(int argc, char const *argv[]) {
     // cout << "the run time is " << (double)(endTime - startTime) /
     // CLOCKS_PER_SEC
     //      << "s" << endl;
-    auto startTime = chrono::duration_cast<chrono::milliseconds>(
-                         chrono::system_clock::now().time_since_epoch())
-                         .count();
-    printf(">> FrameTime: %ldms | %.2ffps \n", startTime - preTime,
-           1000.0 / (startTime - preTime));
   }
 
   uart->close(); // 串口通信关闭
@@ -360,7 +361,9 @@ void sigint_handler(int sig) {
     // Ctrl+C 被按下时执行的代码
     std::cout << "Ctrl+C 被按下！" << std::endl;
     app_stopped = true;
+    uart->carpid(500, 1000, 500, 0); // 调刹车pid，参数分别为p，i，d，是否存入flash
     uart->carControl(0, 750);
+    
     exit(0);
   }
 }
