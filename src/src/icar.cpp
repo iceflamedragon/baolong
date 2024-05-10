@@ -75,7 +75,7 @@ int main(int argc, char const *argv[]) {
   // USB摄像头初始化
   // if (motion.params.debug)
 
-  capture = VideoCapture(motion.params.video); // 打开本地视频
+  // capture = VideoCapture(motion.params.video); // 打开本地视频
 
   if (!capture.isOpened()) {
     printf("can not open video device!!!\n");
@@ -108,7 +108,9 @@ int main(int argc, char const *argv[]) {
   uart->carpid(300, 750, 0, 0); // 调pid，参数分别为p，i，d，是否存入flash
   // clock_t startTime, endTime;     // 统计程序时间
   signal(SIGINT, sigint_handler); // 中断，结束的时候
-  motion.params.debug = 0;        // 1开启窗口，0关闭窗口
+  motion.params.debug = 1;        // 1开启窗口，0关闭窗口
+  int s1 = 100000;
+  string s2 = ".png";
   while (1) {
     preTime = chrono::duration_cast<chrono::milliseconds>(
                   chrono::system_clock::now().time_since_epoch())
@@ -122,9 +124,16 @@ int main(int argc, char const *argv[]) {
                     .count();
     if (!capture.read(img))
       continue;
+    // if (motion.params.saveImg && !motion.params.debug) // 存储原始图像
+    //   savePicture(img);
+    // if (waitKey(1) == 27) { // 如果用户按下 ESC 键，退出循环
 
+    //   s1++;
+    //   imwrite("./pic/" + to_string(s1) + s2, img);
+    //   cout << "./pic/" + to_string(s1) + s2 << endl;
+    // }
     //[02] 图像预处理
-    Mat imgCorrect = preprocess.correction(img);         // 图像矫正
+    Mat imgCorrect = img;                                // 图像矫正
     Mat imgBinary = preprocess.binaryzation(imgCorrect); // 图像二值化
 
     //[03] 启动AI推理
@@ -221,16 +230,17 @@ int main(int argc, char const *argv[]) {
 
     //[12] 车辆控制中心拟合
     ctrlCenter.fitting(tracking);
-    if (scene != Scene::RescueScene) {
-      if (ctrlCenter.derailmentCheck(tracking)) //
-      // 车辆冲出赛道检测（保护车辆）
-      {
-        uart->carControl(0, PWMSERVOMID); // 控制车辆停止运动
-        sleep(1);
-        printf("-----> System Exit!!! <-----\n");
-        exit(0); // 程序退出
-      }
-    }
+    // 冲出赛道
+    //  if (scene != Scene::RescueScene) {
+    //    if (ctrlCenter.derailmentCheck(tracking)) //
+    //    // 车辆冲出赛道检测（保护车辆）
+    //    {
+    //      uart->carControl(0, PWMSERVOMID); // 控制车辆停止运动
+    //      sleep(1);
+    //      printf("-----> System Exit!!! <-----\n");
+    //      exit(0); // 程序退出
+    //    }
+    //  }
 
     //[13] 车辆运动控制(速度+方向)
     if (!motion.params.debug) // 非调试模式下

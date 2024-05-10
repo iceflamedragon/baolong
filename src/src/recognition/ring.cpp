@@ -126,9 +126,9 @@ public:
     int countWide = 0; // 环岛入口变宽区域行数
     for (int i = 1; i < track.widthBlock.size(); ++i) {
       if (track.widthBlock[i].y > track.widthBlock[i - 1].y &&
-          track.widthBlock[i].y > COLSIMAGE * 0.6 &&
+          track.widthBlock[i].y > COLSIMAGE * 0.5 &&
           track.widthBlock[i].x > 30 &&
-          ((track.stdevLeft > 120 && track.stdevRight < 50) ||
+          ((track.stdevLeft > 100 && track.stdevRight < 30) ||
            ringStep == RingStep::Entering)) // 搜索突然变宽的路径行数
       {
         ++countWide;
