@@ -108,7 +108,7 @@ int main(int argc, char const *argv[]) {
   uart->carpid(300, 750, 0, 0); // 调pid，参数分别为p，i，d，是否存入flash
   // clock_t startTime, endTime;     // 统计程序时间
   signal(SIGINT, sigint_handler); // 中断，结束的时候
-  motion.params.debug = 1;        // 1开启窗口，0关闭窗口
+  motion.params.debug = 0;        // 1开启窗口，0关闭窗口
   int s1 = 100000;
   string s2 = ".png";
   while (1) {
@@ -126,12 +126,14 @@ int main(int argc, char const *argv[]) {
       continue;
     // if (motion.params.saveImg && !motion.params.debug) // 存储原始图像
     //   savePicture(img);
-    // if (waitKey(1) == 27) { // 如果用户按下 ESC 键，退出循环
+    if (waitKey(1) == 27) { // 如果用户按下 ESC 键，退出循环
 
-    //   s1++;
-    //   imwrite("./pic/" + to_string(s1) + s2, img);
-    //   cout << "./pic/" + to_string(s1) + s2 << endl;
-    // }
+      // s1++;
+      // imwrite("./pic/" + to_string(s1) + s2, img);
+      // cout << "./pic/" + to_string(s1) + s2 << endl;
+       uart->carControl(0, PWMSERVOMID);
+       while(1);
+    }
     //[02] 图像预处理
     Mat imgCorrect = img;                                // 图像矫正
     Mat imgBinary = preprocess.binaryzation(imgCorrect); // 图像二值化
@@ -367,8 +369,8 @@ void sigint_handler(int sig) {
     // Ctrl+C 被按下时执行的代码
     std::cout << "Ctrl+C 被按下！" << std::endl;
     app_stopped = true;
-    uart->carpid(500, 1000, 500,
-                 0); // 调刹车pid，参数分别为p，i，d，是否存入flash
+    // uart->carpid(500, 1000, 0,
+    //              0); // 调刹车pid，参数分别为p，i，d，是否存入flash
     uart->carControl(0, 750);
 
     exit(0);
