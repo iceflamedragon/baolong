@@ -354,10 +354,10 @@ int main(int argc, char const *argv[]) {
       printf("-----> System Exit!!! <-----\n");
       exit(0); // 程序退出
     }
-    // endTime = clock();
-    // cout << "the run time is " << (double)(endTime - startTime) /
-    // CLOCKS_PER_SEC
-    //      << "s" << endl;
+    endTime = clock();
+    cout << "the run time is " << (double)(endTime - startTime) /
+    CLOCKS_PER_SEC
+         << "s" << endl;
   }
 
   uart->close(); // 串口通信关闭
