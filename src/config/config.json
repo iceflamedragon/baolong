@@ -10,7 +10,7 @@
     "turnD": 3,
     "debug": true,
     "saveImg": false,
-    "rowCutUp": 90,
+    "rowCutUp": 50,
     "rowCutBottom": 10,
     "bridge": true,
     "danger": true,

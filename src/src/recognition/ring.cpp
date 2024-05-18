@@ -127,18 +127,21 @@ public:
     }
 
     // 判环
-    int countWide = 0; // 环岛入口变宽区域行数
+    int countWide = 0; // 环岛入口变宽区域行数,是变宽的过程
     for (int i = 1; i < track.widthBlock.size(); ++i) {
       if (track.widthBlock[i].y > track.widthBlock[i - 1].y &&
           track.widthBlock[i].y > COLSIMAGE * 0.5 &&
           track.widthBlock[i].x > 30 &&
-          ((track.stdevLeft > 100 && track.stdevRight < 30) ||
-           ringStep == RingStep::Entering)) // 搜索突然变宽的路径行数
+          ((track.stdevLeft > 100 && track.stdevRight < 50) ||
+           ringStep ==
+               RingStep::
+                   Entering)) // 搜索突然变宽的路径行数，根据两边的斜率判断
       {
         ++countWide;
       } else {
         countWide = 0;
       }
+
       // [1] 入环判断
       if ((ringStep == RingStep::None || ringStep == RingStep::Entering) &&
           countWide >= 5 && !track.spurroad.empty()) {
@@ -412,7 +415,7 @@ public:
       // uart->mpu6050_receiveCheck();
       // mpu6050_later = mpu6050;
       // cout << "mpu6050" << mpu6050_later - mpu6050 << endl;
-      if (mpu6050_now - mpu6050_later < 340) // 判断mpu6050然后再出环
+      if (mpu6050_now - mpu6050_later > 320) // 判断mpu6050然后再出环
       {
         if (max(rowBreakpointLeft, rowBreakpointRight) < ROWSIMAGE / 2) {
           ringStep = RingStep::Exiting;

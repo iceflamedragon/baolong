@@ -117,8 +117,9 @@ int main(int argc, char const *argv[]) {
   float mpu6050_later;
   while (1) {
     mpu6050_now = uart->get_mpu6050(); // mpu6050_now就是mpu的数值
-    cout << mpu6050_now << endl;
+    // cout << mpu6050_now << endl;//输出mpu
     ring.setmpu6050(mpu6050_now);
+    crossroad.setmpu6050(mpu6050_now);
     preTime = chrono::duration_cast<chrono::milliseconds>(
                   chrono::system_clock::now().time_since_epoch())
                   .count();

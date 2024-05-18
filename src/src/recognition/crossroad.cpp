@@ -29,7 +29,7 @@
 
 #include "../../include/common.hpp"
 #include "tracking.cpp"
-//#include "ring.cpp"
+// #include "ring.cpp"
 #include <cmath>
 #include <fstream>
 #include <iostream>
@@ -38,20 +38,22 @@
 
 using namespace cv;
 using namespace std;
-//extern RingStep;
-//enum RingStep;
-//RingStep ringStep = RingStep::None; 
-//void reset(void);
+// extern RingStep;
+// enum RingStep;
+// RingStep ringStep = RingStep::None;
+// void reset(void);
+
 class Crossroad {
 public:
   /**
    * @brief 初始化
    *
    */
+
   void reset(void) {
     crossroadType = CrossroadType::None; // 十字道路类型
   }
-
+  void setmpu6050(float mpu6050) { mpu6050_cross = mpu6050; }
   /**
    * @brief 十字道路识别与图像处理
    *
@@ -78,7 +80,7 @@ public:
     //----------------------------------------------------------------------------------------------------
 
     //[01] 左入十字处理
-    cout<<track.stdevRight<<"左入十字角点处理6666666666"<<endl;
+    cout << track.stdevRight << "左入十字角点处理6666666666" << endl;
     if (track.stdevRight > 50) {
       // 通过色块突变-搜索十字类型
       for (int i = 2; i < track.widthBlock.size() - 10; i++) {
@@ -95,7 +97,7 @@ public:
           if (counterRec > 5) {
             crossroadType = CrossroadType::CrossroadLeft; // 左入十字
             _index = 2;
-            cout<<counterRec<<"左入十字11111111111111111111"<<endl;
+            cout << counterRec << "左入十字11111111111111111111" << endl;
             break;
           }
         }
@@ -207,7 +209,7 @@ public:
         }
       }
     }
-
+    uint16_t LFguai = searchBreakRightDown(track.pointsEdgeRight);
     // 直入十字处理
     if (!repaired) // 如果写入十字未成功
     {
@@ -217,7 +219,7 @@ public:
       for (int i = 2; i < track.widthBlock.size() - 10; i++) {
         // 直入十字判断
         if (track.spurroad.size() > 0 &&
-            track.widthBlock[i].y > COLSIMAGE - 5) {
+            track.widthBlock[i].y > COLSIMAGE - 5 && LFguai > 5) {
           counterStrightA++;
         }
         if (counterStrightA) {
@@ -240,8 +242,8 @@ public:
       }*/
       if (crossroadType == CrossroadType::CrossroadStraight) // 直入十字
       {
-        cout<<"发现十字了666666666"<<endl;
-       // ringEnable = true;
+        cout << "发现十字了666666666" << endl;
+        // ringEnable = true;
         int indexSP = 0;
         for (int i = 0; i < track.spurroad.size(); i++) // 挑选准确的岔路点
         {
@@ -377,7 +379,7 @@ public:
 
 private:
   int _index = 0; // 测试
-
+  float mpu6050_cross;
   POINT pointBreakLU;
   POINT pointBreakLD;
   POINT pointBreakRU;

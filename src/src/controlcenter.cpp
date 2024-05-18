@@ -164,11 +164,10 @@ public:
     int controlNum = 1;
 
     for (auto p : centerEdge) {
-      if (p.x < ROWSIMAGE *9/10 ){
-        controlNum += ROWSIMAGE *9/10;
-        controlCenter += p.y * ROWSIMAGE *9/10;
-      } 
-      else {
+      if (p.x < ROWSIMAGE / 4) {
+        controlNum += ROWSIMAGE / 2;
+        controlCenter += p.y * ROWSIMAGE / 2;
+      } else {
         controlNum += (ROWSIMAGE - p.x);
         controlCenter += p.y * (ROWSIMAGE - p.x);
       }
