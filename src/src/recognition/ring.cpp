@@ -29,6 +29,7 @@
  */
 
 #include "../../include/common.hpp"
+#include "../../include/uart.hpp"
 #include "tracking.cpp"
 #include <cmath>
 #include <fstream>
@@ -36,11 +37,13 @@
 #include <opencv2/highgui.hpp>
 #include <opencv2/opencv.hpp>
 
+extern shared_ptr<Uart> uart;
 using namespace cv;
 using namespace std;
 
 class Ring {
 public:
+  void setmpu6050(float mpu6050_now_read) { mpu6050_now = mpu6050_now_read; }
   uint16_t counterShield = 0; // 环岛检测屏蔽计数器：屏蔽车库误检测
 
   /**
@@ -62,10 +65,11 @@ public:
    * @param imagePath 赛道路径图像
    */
   bool process(Tracking &track, Mat &imagePath) {
-    if (counterShield < 40) {
-      counterShield++;
-      return false;
-    }
+    // 暂时注释
+    //  if (counterShield < 40) {
+    //    counterShield++;
+    //    return false;
+    //  }
 
     bool ringEnable = false;                    // 判环标志
     RingType ringTypeTemp = RingType::RingNone; // 环岛类型：临时变量
@@ -172,6 +176,9 @@ public:
              colEnterRing - track.pointsEdgeLeft[i].y >= 3) ||
             (ringTypeTemp == RingType::RingRight &&
              track.pointsEdgeRight[i].y - colEnterRing >= 3)) {
+          // 判断入环成功
+
+          mpu6050_later = mpu6050_now;
           ringEnable = true;
           ringStep = RingStep::Entering;
           ringType = ringTypeTemp;
@@ -402,8 +409,14 @@ public:
       } else {
         ;
       }
-      if (max(rowBreakpointLeft, rowBreakpointRight) < ROWSIMAGE / 2) {
-        ringStep = RingStep::Exiting;
+      // uart->mpu6050_receiveCheck();
+      // mpu6050_later = mpu6050;
+      // cout << "mpu6050" << mpu6050_later - mpu6050 << endl;
+      if (mpu6050_now - mpu6050_later < 340) // 判断mpu6050然后再出环
+      {
+        if (max(rowBreakpointLeft, rowBreakpointRight) < ROWSIMAGE / 2) {
+          ringStep = RingStep::Exiting;
+        }
       }
     }
     // 出环完成
@@ -555,6 +568,8 @@ public:
   }
 
 private:
+  float mpu6050_later;
+  float mpu6050_now;
   uint16_t counterSpurroad = 0; // 岔路计数器
   // 临时测试用参数
   int _ringStep;

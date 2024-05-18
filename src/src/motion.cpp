@@ -76,27 +76,27 @@ public:
    *
    */
   struct Params {
-    float speedLow = 1.5;       // 智能车最低速
-    float speedHigh = 4;        // 智能车最高速
-    float speedBridge = 0.6;    // 坡道速度
-    float speedDown = 0.5;      // 特殊区域降速速度
-    float runP1 = 0;          // 一阶比例系数：直线控制量
-    float runP2 = 0;        // 二阶比例系数：弯道控制量
-    float runP3 = 0.0;          // 三阶比例系数：弯道控制量
-    float turnP = 3.5;          // 一阶比例系数：转弯控制量
-    float turnD = 0;          // 一阶微分系数：转弯控制量
-    bool debug = false;         // 调试模式使能
-    bool saveImg = false;       // 存图使能
-    uint16_t rowCutUp = 10;     // 图像顶部切行
-    uint16_t rowCutBottom = 10; // 图像顶部切行
-    bool bridge = true;         // 坡道区使能
-    bool danger = true;         // 危险区使能
-    bool rescue = true;         // 救援区使能
-    bool racing = true;         // 追逐区使能
-    bool parking = true;        // 停车区使能
-    bool ring = true;           // 环岛使能
-    bool cross = true;          // 十字道路使能
-    float score = 0.5;          // AI检测置信度
+    float speedLow = 1.5;        // 智能车最低速
+    float speedHigh = 4;         // 智能车最高速
+    float speedBridge = 0.6;     // 坡道速度
+    float speedDown = 0.5;       // 特殊区域降速速度
+    float runP1 = 0;             // 一阶比例系数：直线控制量
+    float runP2 = 0;             // 二阶比例系数：弯道控制量
+    float runP3 = 0.0;           // 三阶比例系数：弯道控制量
+    float turnP = 3.5;           // 一阶比例系数：转弯控制量
+    float turnD = 0;             // 一阶微分系数：转弯控制量
+    bool debug = false;          // 调试模式使能
+    bool saveImg = false;        // 存图使能
+    uint16_t rowCutUp = 200;     // 图像顶部切行
+    uint16_t rowCutBottom = 200; // 图像顶部切行
+    bool bridge = true;          // 坡道区使能
+    bool danger = true;          // 危险区使能
+    bool rescue = true;          // 救援区使能
+    bool racing = true;          // 追逐区使能
+    bool parking = true;         // 停车区使能
+    bool ring = true;            // 环岛使能
+    bool cross = true;           // 十字道路使能
+    float score = 0.5;           // AI检测置信度
     string model = "../res/model/yolov3_mobilenet_v1"; // 模型路径
     string video = "../res/samples/demo.mp4";          // 视频路径
     NLOHMANN_DEFINE_TYPE_INTRUSIVE(Params, speedLow, speedHigh, speedBridge,
@@ -127,9 +127,8 @@ public:
     int pwmDiff = (error * params.turnP) + (error - errorLast) * params.turnD;
     errorLast = error;
 
-    servoPwm = (uint16_t)(PWMSERVOMID - pwmDiff); // PWM转换               ~~^~~~~~~~~~~~~~~~~~~~~~~
-
-
+    servoPwm =
+        (uint16_t)(PWMSERVOMID - pwmDiff); // PWM转换 ~~^~~~~~~~~~~~~~~~~~~~~~~
   }
 
   /**

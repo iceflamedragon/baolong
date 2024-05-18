@@ -31,6 +31,7 @@
 #include <string.h>
 #include <thread>
 
+extern float mpu6050_later;
 using namespace LibSerial;
 using namespace std;
 
@@ -51,8 +52,11 @@ private:
    * @brief 串口通信结构体
    *
    */
+
   typedef struct {
-    bool start;                           // 开始接收标志
+    bool start;
+
+    // 开始接收标志
     uint8_t index;                        // 接收序列
     uint8_t buffRead[USB_FRAME_LENMAX];   // 临时缓冲数据
     uint8_t buffFinish[USB_FRAME_LENMAX]; // 校验成功数据
@@ -122,11 +126,11 @@ private:
       serialPort->WriteByte(data); // 写数据到串口
     } catch (const std::runtime_error &) // catch捕获并处理 try 检测到的异常。
     {
-      std::cerr << "The Write() runtime_error." << std::endl;
+      std::cerr << "串口可能掉了" << std::endl;
       return -2;
     } catch (const NotOpen &) // catch捕获并处理 try 检测到的异常。
     {
-      std::cerr << "Port Not Open ..." << std::endl;
+      std::cerr << "未识别到串口" << std::endl;
       return -1;
     }
     serialPort->DrainWriteBuffer(); // 等待，直到写缓冲区耗尽，然后返回。
@@ -235,6 +239,7 @@ public:
    * @brief 串口接收校验
    *
    */
+  Bit32Union mpu6050;
   void receiveCheck(void) {
     if (!isOpen) // 串口是否正常打开
       return;
@@ -279,9 +284,13 @@ public:
 
         if (check == serialStr.buffRead[length - 1]) // 校验和相等
         {
-          memcpy(serialStr.buffFinish, serialStr.buffRead,
-                 USB_FRAME_LENMAX); // 储存接收的数据
-          dataTransform();
+          if (serialStr.buffRead[1] == 3)
+            mpu6050.buff[0] = serialStr.buffRead[3];
+          mpu6050.buff[1] = serialStr.buffRead[4];
+          mpu6050.buff[2] = serialStr.buffRead[5];
+          mpu6050.buff[3] = serialStr.buffRead[6];
+          // memcpy(&mpu6050, &serialStr.buffRead[3], 4); // 储存接收的数据
+          // dataTransform();
         }
 
         serialStr.index = 0;     // 重新开始下一轮数据接收
@@ -290,6 +299,63 @@ public:
     }
   }
 
+  void mpu6050_receiveCheck(void) {
+    if (!isOpen) // 串口是否正常打开
+      return;
+
+    uint8_t resByte = 0;
+    int ret = receiveBytes(resByte, 0);
+    if (ret == 0) {
+      if (resByte == USB_FRAME_HEAD && !serialStr.start) // 监听帧头
+      {
+        serialStr.start = true;                   // 开始接收数据
+        serialStr.buffRead[0] = resByte;          // 获取帧头
+        serialStr.buffRead[2] = USB_FRAME_LENMIN; // 初始化帧长
+        serialStr.index = 1;
+      } else if (serialStr.index == 2) // 接收帧的长度
+      {
+        serialStr.buffRead[serialStr.index] = resByte;
+        serialStr.index++;
+        if (resByte > USB_FRAME_LENMAX ||
+            resByte < USB_FRAME_LENMIN) // 帧长错误
+        {
+          serialStr.buffRead[2] = USB_FRAME_LENMIN; // 重置帧长
+          serialStr.index = 0;
+          serialStr.start = false; // 重新监听帧长
+        }
+      } else if (serialStr.start &&
+                 serialStr.index < USB_FRAME_LENMAX) // 开始接收数据
+      {
+        serialStr.buffRead[serialStr.index] = resByte; // 读取数据
+        serialStr.index++;                             // 索引下移
+      }
+
+      // 帧长接收完毕
+      if ((serialStr.index >= USB_FRAME_LENMAX ||
+           serialStr.index >= serialStr.buffRead[2]) &&
+          serialStr.index > USB_FRAME_LENMIN) // 检测是否接收完数据
+      {
+        uint8_t check = 0; // 初始化校验和
+        uint8_t length = USB_FRAME_LENMIN;
+        length = serialStr.buffRead[2]; // 读取本次数据的长度
+        for (int i = 0; i < length - 1; i++)
+          check += serialStr.buffRead[i]; // 累加校验和
+
+        if (check == serialStr.buffRead[length - 1]) // 校验和相等
+        {
+          mpu6050.buff[0] = serialStr.buffRead[3];
+          mpu6050.buff[1] = serialStr.buffRead[4];
+          mpu6050.buff[2] = serialStr.buffRead[5];
+          mpu6050.buff[3] = serialStr.buffRead[6];
+          // memcpy(&mpu6050, &serialStr.buffRead[3], 4); // 储存接收的数据
+          // dataTransform();
+        }
+
+        serialStr.index = 0;     // 重新开始下一轮数据接收
+        serialStr.start = false; // 重新监听帧头
+      }
+    }
+  }
   /**
    * @brief 串口通信协议数据转换
    */
@@ -383,7 +449,8 @@ public:
     // 循环发送数据
     for (size_t i = 0; i < 11; i++)
       transmitByte(buff[i]);
-    }
+  }
+  float get_mpu6050(void) { return mpu6050.float32; }
   /**
    * @brief 蜂鸣器音效控制
    *

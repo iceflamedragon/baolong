@@ -73,9 +73,6 @@ public:
 
     threshold(imageGray, imageBinary, 0, 255, THRESH_OTSU); //
     // OTSU二值化方法
-    Mat element = getStructuringElement(
-        MORPH_RECT, Size(9, 9)); // 小于8*8方块的白色噪点都会被腐蚀
-    erode(imageBinary, imageBinary, element);
 
     return imageBinary;
   }

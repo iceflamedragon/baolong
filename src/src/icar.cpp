@@ -43,6 +43,7 @@ using namespace std;
 using namespace cv;
 bool app_stopped = false;
 void sigint_handler(int sig);
+
 shared_ptr<Uart> uart = make_shared<Uart>("/dev/ttyUSB0"); // 初始化串口驱动
 int main(int argc, char const *argv[]) {
   Preprocess preprocess;    // 图像预处理类
@@ -108,15 +109,22 @@ int main(int argc, char const *argv[]) {
   uart->carpid(300, 750, 0, 0); // 调pid，参数分别为p，i，d，是否存入flash
   // clock_t startTime, endTime;     // 统计程序时间
   signal(SIGINT, sigint_handler); // 中断，结束的时候
-  motion.params.debug = 0;        // 1开启窗口，0关闭窗口
+  motion.params.debug = 1;        // 1开启窗口，0关闭窗口
+  int motion_start = 1;           // 是否开始运动,1是开始运动
   int s1 = 100000;
   string s2 = ".png";
+  float mpu6050_now;
+  float mpu6050_later;
   while (1) {
+    mpu6050_now = uart->get_mpu6050(); // mpu6050_now就是mpu的数值
+    cout << mpu6050_now << endl;
+    ring.setmpu6050(mpu6050_now);
     preTime = chrono::duration_cast<chrono::milliseconds>(
                   chrono::system_clock::now().time_since_epoch())
                   .count();
     // startTime = clock();
     //[01] 视频源读取
+    // 读取mpu6050
 
     if (motion.params.debug) // 综合显示调试UI窗口
       preTime = chrono::duration_cast<chrono::milliseconds>(
@@ -126,18 +134,22 @@ int main(int argc, char const *argv[]) {
       continue;
     // if (motion.params.saveImg && !motion.params.debug) // 存储原始图像
     //   savePicture(img);
-    if (waitKey(1) == 27) { // 如果用户按下 ESC 键，退出循环
+    // if (waitKey(1) == 27) { // 如果用户按下 ESC 键，退出循环
 
-      // s1++;
-      // imwrite("./pic/" + to_string(s1) + s2, img);
-      // cout << "./pic/" + to_string(s1) + s2 << endl;
-       uart->carControl(0, PWMSERVOMID);
-       while(1);
-    }
+    //   // s1++;
+    //   // imwrite("./pic/" + to_string(s1) + s2, img);
+    //   // cout << "./pic/" + to_string(s1) + s2 << endl;
+    // uart->carControl(0, PWMSERVOMID);
+    //   while (1)
+    //     ;
+    // }
     //[02] 图像预处理
-    Mat imgCorrect = img;                                // 图像矫正
-    Mat imgBinary = preprocess.binaryzation(imgCorrect); // 图像二值化
 
+    Mat imgCorrect = img; // 图像矫正（已停止
+    Mat imgBinary = preprocess.binaryzation(imgCorrect); // 图像二值化
+    Mat element = getStructuringElement(
+        MORPH_RECT, Size(9, 9)); // 小于8*8方块的白色噪点都会被腐蚀
+    erode(imgBinary, imgBinary, element);
     //[03] 启动AI推理
     detection->inference(imgCorrect);
     auto startTime = chrono::duration_cast<chrono::milliseconds>(
@@ -245,7 +257,7 @@ int main(int argc, char const *argv[]) {
     //  }
 
     //[13] 车辆运动控制(速度+方向)
-    if (!motion.params.debug) // 非调试模式下
+    if (motion_start) // 非调试模式下
     {
       if ((scene == Scene::RescueScene && rescue.carStoping) || parking.park ||
           racing.carStoping) // 特殊区域停车
@@ -354,10 +366,10 @@ int main(int argc, char const *argv[]) {
       printf("-----> System Exit!!! <-----\n");
       exit(0); // 程序退出
     }
-    endTime = clock();
-    cout << "the run time is " << (double)(endTime - startTime) /
-    CLOCKS_PER_SEC
-         << "s" << endl;
+    // endTime = clock();
+    // cout << "the run time is " << (double)(endTime - startTime) /
+    // CLOCKS_PER_SEC
+    //      << "s" << endl;
   }
 
   uart->close(); // 串口通信关闭

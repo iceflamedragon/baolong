@@ -62,11 +62,11 @@ public:
     int counterSpurroad = 0;                       // 岔路识别标志
     bool spurroadEnable = false;
 
-    if (rowCutUp > ROWSIMAGE / 4)
-      rowCutUp = ROWSIMAGE / 4;
-    if (rowCutBottom > ROWSIMAGE / 4)
-      rowCutBottom = ROWSIMAGE / 4;
-
+    // if (rowCutUp > ROWSIMAGE / 4)
+    //   rowCutUp = ROWSIMAGE / 4;
+    // if (rowCutBottom > ROWSIMAGE / 4)
+    //   rowCutBottom = ROWSIMAGE / 4;
+    // 顶部和底部切行最多只有四分之一（暂时停止
     if (!isResearch) {
       pointsEdgeLeft.clear();     // 初始化边缘结果
       pointsEdgeRight.clear();    // 初始化边缘结果
@@ -163,7 +163,8 @@ public:
           }
         }
 
-        int limitWidthBlock = COLSIMAGE * 0.8; // 首行色块宽度限制（不能太小）
+        int limitWidthBlock =
+            COLSIMAGE * 0.5; // 首行色块宽度限制（不能太小）SSS
         if (row < ROWSIMAGE * 0.6) {
           limitWidthBlock = COLSIMAGE * 0.4;
         }
