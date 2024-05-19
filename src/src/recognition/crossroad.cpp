@@ -73,15 +73,15 @@ public:
     _index = 0;
 
     if (track.pointsEdgeRight.size() < ROWSIMAGE / 2 ||
-        track.pointsEdgeLeft.size() < ROWSIMAGE / 2) // 十字有效行限制
+        track.pointsEdgeLeft.size() <
+            ROWSIMAGE / 2) // 十字有效行限制,如果识别到的边界过短，则不是十字
       return false;
 
     _index = 1;
     //----------------------------------------------------------------------------------------------------
 
     //[01] 左入十字处理
-    cout << track.stdevRight << "左入十字角点处理6666666666" << endl;
-    if (track.stdevRight > 50) {
+    if (track.stdevRight > 50) { // 通过直线斜率进行判断
       // 通过色块突变-搜索十字类型
       for (int i = 2; i < track.widthBlock.size() - 10; i++) {
         // 左入十字判断
@@ -97,7 +97,7 @@ public:
           if (counterRec > 5) {
             crossroadType = CrossroadType::CrossroadLeft; // 左入十字
             _index = 2;
-            cout << counterRec << "左入十字11111111111111111111" << endl;
+            cout << counterRec << "左入十字" << endl;
             break;
           }
         }
@@ -108,7 +108,7 @@ public:
     if (crossroadType == CrossroadType::CrossroadLeft) // 左入十字
     {
       uint16_t rowBreakRightDown = searchBreakRightDown(
-          track.pointsEdgeRight); // 搜索十字赛道突变行（右下）
+          track.pointsEdgeRight); // 搜索十字赛道突变行（右下），应该就是角点
 
       if (rowBreakRightDown > 0 &&
           track.pointsEdgeRight[rowBreakRightDown].y > 20) {
@@ -219,12 +219,16 @@ public:
       for (int i = 2; i < track.widthBlock.size() - 10; i++) {
         // 直入十字判断
         if (track.spurroad.size() > 0 &&
-            track.widthBlock[i].y > COLSIMAGE - 5 && LFguai > 5) {
+            track.widthBlock[i].y > COLSIMAGE - 5 // 赛道足够宽
+            &&
+            LFguai >
+                5 // ？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？这是什么
+        ) {
           counterStrightA++;
         }
         if (counterStrightA) {
           counterStrightB++;
-          if (counterStrightB > 30) {
+          if (counterStrightB > 30) { // 清零counterStrightA
             counterStrightB = 0;
             counterStrightA = 0;
           }
@@ -239,10 +243,11 @@ public:
       /*if (ringStep == RingStep::None || ringStep == RingStep::Entering)
       {
         crossroadType == CrossroadType::CrossroadStraight;
-      }*/
+      }*///有必要取消吗？？？
+
       if (crossroadType == CrossroadType::CrossroadStraight) // 直入十字
       {
-        cout << "发现十字了666666666" << endl;
+        cout << "直入十字" << endl;
         // ringEnable = true;
         int indexSP = 0;
         for (int i = 0; i < track.spurroad.size(); i++) // 挑选准确的岔路点

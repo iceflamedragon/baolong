@@ -109,7 +109,7 @@ int main(int argc, char const *argv[]) {
   uart->carpid(300, 750, 0, 0); // 调pid，参数分别为p，i，d，是否存入flash
   // clock_t startTime, endTime;     // 统计程序时间
   signal(SIGINT, sigint_handler); // 中断，结束的时候
-  motion.params.debug = 1;        // 1开启窗口，0关闭窗口
+  motion.params.debug = 0;        // 1开启窗口，0关闭窗口
   int motion_start = 1;           // 是否开始运动,1是开始运动
   int s1 = 100000;
   string s2 = ".png";

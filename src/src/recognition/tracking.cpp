@@ -34,9 +34,9 @@ using namespace std;
 
 class Tracking {
 public:
-  vector<POINT> pointsEdgeLeft;     // 赛道左边缘点集
-  vector<POINT> pointsEdgeRight;    // 赛道右边缘点集
-  vector<POINT> widthBlock;         // 色块宽度=终-起（每行）
+  vector<POINT> pointsEdgeLeft;  // 赛道左边缘点集
+  vector<POINT> pointsEdgeRight; // 赛道右边缘点集
+  vector<POINT> widthBlock; // 色块宽度=终-起（每行），应该是赛道的宽度
   vector<POINT> spurroad;           // 保存岔路信息
   double stdevLeft;                 // 边缘斜率方差（左）
   double stdevRight;                // 边缘斜率方差（右）
