@@ -125,7 +125,7 @@ public:
       if (track.pointsEdgeRight[ii].y < COLSIMAGE - 3)
         break;
     }
-
+    int xielv = 0;
     // 判环
     int countWide = 0; // 环岛入口变宽区域行数,是变宽的过程
     for (int i = 1; i < track.widthBlock.size(); ++i) {
@@ -137,16 +137,29 @@ public:
                RingStep::
                    Entering)) // 搜索突然变宽的路径行数，根据两边的斜率判断
       {
-        ++countWide;
-      } else {
-        countWide = 0;
+        xielv++;
+        cout << xielv << endl;
       }
-
+      if (xielv > 1) {
+        if (track.widthBlock[i].y > track.widthBlock[i - 1].y &&
+            track.widthBlock[i].y > COLSIMAGE * 0.5 // 赛道的宽度足够大
+            && track.widthBlock[i].x > 30 &&
+            ((track.stdevLeft > 100 && track.stdevRight < 50) ||
+             ringStep ==
+                 RingStep::
+                     Entering)) // 搜索突然变宽的路径行数，根据两边的斜率判断
+        {
+          ++countWide;
+        } else {
+          countWide = 0;
+        }
+      }
       // [1] 入环判断
       if ((ringStep == RingStep::None || ringStep == RingStep::Entering) &&
           countWide >= 5 && !track.spurroad.empty()) {
         if (ringTypeTemp == RingType::RingNone) // 环岛方向判定
         {
+
           int tmp_flag = 0;
           for (int j = 0; j < track.spurroad.size(); j++) {
             if (track.spurroad[j].x < track.pointsEdgeLeft[i - 5].x) {
@@ -165,12 +178,14 @@ public:
 
             rowRepairLine = i; // 用于环补线的行号
             colRepairLine = track.pointsEdgeLeft[i].x; // 用于环补线的列号
+            xielv=0;//清零标志位
           } else if (track.pointsEdgeRight[i].y >
                      track.pointsEdgeRight[i - 5].y) {
             ringTypeTemp = RingType::RingRight; // 环岛类型：右入环
             colEnterRing = track.pointsEdgeRight[i - 5].y; // 入环点列号
             rowRepairLine = i; // 用于环补线的行号
             colRepairLine = track.pointsEdgeRight[i].x; // 用于环补线的列号
+            xielv=0;//清零标志位
           }
         }
 

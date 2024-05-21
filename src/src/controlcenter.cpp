@@ -164,12 +164,14 @@ public:
     int controlNum = 1;
 
     for (auto p : centerEdge) {
-      if (p.x < ROWSIMAGE / 4) { // 靠近车辆的地方加权更大
-        controlNum += ROWSIMAGE / 2; // 赛道的横坐标的加权，需要跟下面的数相同
-        controlCenter += p.y * ROWSIMAGE / 2; // 需要跟上面的数相同
+      if (p.x < ROWSIMAGE /4) { // 靠近车辆的地方加权更大
+        controlNum +=(ROWSIMAGE/2); // 赛道的横坐标的加权，需要跟下面的数相同
+        controlCenter += p.y * (ROWSIMAGE/2); // 需要跟上面的数相同
       } else {
-        controlNum += (ROWSIMAGE - p.x); // 赛道的横坐标的加权，小于上面的那个
-        controlCenter += p.y * (ROWSIMAGE - p.x);
+        if(ROWSIMAGE - p.x<0)
+        continue;
+        controlNum += (ROWSIMAGE+100 - p.x); // 赛道的横坐标的加权，小于上面的那个
+        controlCenter += p.y * (ROWSIMAGE+100 - p.x);
       }
     }
     if (controlNum > 1) {
