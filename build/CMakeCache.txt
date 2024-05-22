@@ -187,6 +187,9 @@ OpenCV_DIR:PATH=/usr/local/lib/cmake/opencv4
 //pkg-config executable
 PKG_CONFIG_EXECUTABLE:FILEPATH=/usr/bin/pkg-config
 
+//Dependencies for target
+motion_LIB_DEPENDS:STATIC=
+
 //Value Computed by CMake
 patrol_car_BINARY_DIR:STATIC=/home/edgeboard/car/demo/build
 
