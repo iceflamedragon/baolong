@@ -631,6 +631,8 @@ opencv2/opencv.hpp
 /home/edgeboard/car/demo/src/include/common.hpp
 ../../include/uart.hpp
 /home/edgeboard/car/demo/src/include/uart.hpp
+../motion.cpp
+/home/edgeboard/car/demo/src/src/motion.cpp
 tracking.cpp
 /home/edgeboard/car/demo/src/src/recognition/tracking.cpp
 cmath
