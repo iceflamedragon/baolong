@@ -40,7 +40,7 @@ class Rescue {
 public:
   bool carStoping = false;  // 停车标志
   bool carExitting = false; // 出库标志
-
+  
   enum Step {
     None = 0, // AI检测
     Enable,   // 使能（标志识别成功）
@@ -81,7 +81,17 @@ public:
     pointConeRight.clear();
     levelCones = 0;
     indexDebug = 0;
+    static int reflag=0;
+    static int retime=0;
+    static int counterme=0 ;      // 真正用到的标志检测计数器
+    static int stoptime=0;
+    static int chu=0;
+    cout<<"延时点数"<<retime<<endl;
+    if(reflag==1)
+    {
+        retime++;
 
+    }
     switch (step) {
     case Step::None: //[01] 标志检测
       if ((counterImmunity > 200 && again) ||
@@ -96,7 +106,7 @@ public:
         }
         for (int i = 0; i < predict.size(); i++) {
           if (predict[i].type == LABEL_EVIL ||
-              predict[i].type == LABEL_THIEF) // 伤员平民标志检测
+              predict[i].type == LABEL_THIEF) // 小偷强盗标志检测
           {
             counterExit++;
             break;
@@ -105,15 +115,17 @@ public:
 
         if (counterRec || counterExit) {
           counterSession++;
-          if (counterRec > 3 && counterSession <= 8) {
+          if (counterRec > 5 && counterSession <= 8) {  // 原来为3
+            cout<<"判断为左进了666"<<endl;
             step = Step::Enable; // 使能
             entryLeft = true;
             counterRec = 0;
             counterExit = 0;
             counterSession = 0;
-          } else if (counterExit > 3 && counterSession <= 8) {
+          } else if (counterExit > 5 && counterSession <= 8) {  //对右入库分析
             step = Step::Enable; // 使能
-            entryLeft = false;
+            cout<<"判断为右进了666"<<endl<<endl<<endl;
+            entryLeft = false;//非左即右
             counterRec = 0;
             counterExit = 0;
             counterSession = 0;
@@ -141,11 +153,13 @@ public:
         _pointNearCone = getConeLeftDown(track.pointsEdgeLeft,
                                          pointConeLeft); // 搜索右下锥桶
         if (_pointNearCone.x >
-            ROWSIMAGE * 0.4) // 当车辆开始靠近右边锥桶：准备入库
+            ROWSIMAGE * 0.6) // 当车辆开始靠近右边锥桶：准备入库   原先为0.4  0.6有点早
         {
+          reflag=1;
           counterRec++;
           if (counterRec >= 2) {
             step = Step::Enter; // 进站使能
+            cout<<"左进站辣辣辣"<<endl;
             counterRec = 0;
             counterSession = 0;
             counterExit = 0;
@@ -153,20 +167,30 @@ public:
         }
       } else // 右入库
       {
+       // //cout<<"打算右入库22222220"<<endl<<endl<<endl;
         _pointNearCone = getConeRightDown(track.pointsEdgeRight,
                                           pointConeRight); // 搜索左下锥桶
         if (_pointNearCone.x >
-            ROWSIMAGE * 0.4) // 当车辆开始靠近右边锥桶：准备入库
+            ROWSIMAGE * 0.6) // 当车辆开始靠近右边锥桶：准备入库
         {
+          
+           reflag=1;
+          //counterRec++;
           counterRec++;
-          if (counterRec >= 2) {
+          counterme++;
+          cout<<"看到右侧锥桶了"<<counterme<<endl<<endl<<endl;
+        }
+          if (counterme >= 2&&retime>15) {  //原先为2
             step = Step::Enter; // 进站使能
+            reflag=0;
+            cout<<"右进站辣辣辣"<<endl<<endl<<endl;
             counterRec = 0;
+            counterme=0;
             counterSession = 0;
             counterExit = 0;
             pathsEdgeLeft.clear();
             pathsEdgeRight.clear();
-          }
+          
         }
       }
       break;
@@ -174,24 +198,35 @@ public:
     case Step::Enter: //[03] 入库使能
     {
       counterSession++; // 屏蔽期:防止提前入库
-      if (counterSession > 8) {
-        if (track.pointsEdgeLeft.size() > ROWSIMAGE / 2 &&
-            track.pointsEdgeRight.size() > ROWSIMAGE / 2) {
+      if (counterSession > 8) {   //原先为8
+      //cout<<"尊嘟尊嘟尊嘟要入库了啦啦啦啦啦啦啦啦"<<endl<<endl<<endl;
+      /*cout<<"左边线"<<track.pointsEdgeLeft.size()<<endl<<endl;
+      cout<<"右边线"<<track.pointsEdgeRight.size()<<endl<<endl;*/
+       // if (track.pointsEdgeLeft.size() > ROWSIMAGE / 2 &&     //两种不同的转法，不同的延时---主要原因：该条件不同时成立
+         // / track.pointsEdgeRight.size() > ROWSIMAGE / 2) {       //直接用延时----去除差异性
           counterExit++;
-          if (counterExit > 30) {
+          cout<<"停车前的延时"<<counterExit<<endl<<endl;
+          if (counterExit > 30) {  //此处设置为了总的延时
+           //stoptime++;
+          // cout<<"stoptime"<<stoptime<<endl<<endl;
+           //if(stoptime>8)      
+          // {                      ///原先为30
             counterExit = 0;
+            cout<<"停车了老司机5555"<<endl<<endl;
             step = Step::Stop; // 停车使能
             counterRec = 0;
             counterSession = 0;
+          // }
           }
-        }
+        
 
         if (track.pointsEdgeLeft.size() < ROWSIMAGE / 2 &&
             track.pointsEdgeRight.size() < ROWSIMAGE / 2) // 赛道还未丢失
         {
           counterRec++;
-          if (counterRec > 10) {
+          if (counterRec > 15) {
             counterRec = 0;
+            cout<<"维持原先状态进行巡航666"<<endl<<endl<<endl;
             step = Step::Cruise; // 巡航使能
             counterSession = 0;
           }
@@ -344,7 +379,7 @@ public:
     {
       carStoping = true;
       counterRec++;
-      if (counterRec > 40) // 停车：20场 = 2s
+      if (counterRec > 30) // 停车：20场 = 2s  停车时间
       {
         carStoping = false;
         carExitting = true;
@@ -356,8 +391,11 @@ public:
 
     case Step::Exit: //[06] 出站使能
     {
-      carExitting = true;
-      if (pathsEdgeLeft.size() < 1 || pathsEdgeRight.size() < 1) {
+      chu++;
+      carExitting = true;//让电机赋值为负数
+      cout<<"第一次准备出站辣"<<chu<<endl<<endl;
+      if (chu>40) {  //原来为小于1 pathsEdgeLeft.size() < 1 || pathsEdgeRight.size() < 1
+        cout<<"出站完成辣辣"<<endl<<endl;
         step = Step::None; // 出站完成
         carExitting = false;
         again = true; // 第二次进入救援区标志
@@ -365,7 +403,7 @@ public:
       } else {
         track.pointsEdgeLeft = pathsEdgeLeft[pathsEdgeLeft.size() - 1];
         track.pointsEdgeRight = pathsEdgeRight[pathsEdgeRight.size() - 1];
-        pathsEdgeLeft.pop_back();
+        pathsEdgeLeft.pop_back();//回退路线
         pathsEdgeRight.pop_back();
       }
       break;
@@ -466,7 +504,7 @@ private:
   int indexDebug = 0;
 
   uint16_t counterSession = 0;  // 图像场次计数器
-  uint16_t counterRec = 0;      // 标志检测计数器
+  uint16_t counterRec = 0;       // 标志检测计数器  uint16_t counterRec = 0;   
   uint16_t counterExit = 0;     // 标志结束计数器
   uint16_t counterImmunity = 0; // 屏蔽计数器
   Mapping ipm =

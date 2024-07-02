@@ -229,7 +229,7 @@ public:
    */
   void drawImage(Tracking track, Mat &centerImage) {
     // 赛道边缘绘制
-    for (int i = 0; i < track.pointsEdgeLeft.size(); i++) {
+    for (int i = 0; i < track.pointsEdgeLeft.size(); i++) {   ///////i从图像下面开始增加右
       circle(centerImage,
              Point(track.pointsEdgeLeft[i].y, track.pointsEdgeLeft[i].x), 1,
              Scalar(0, 255, 0), -1); // 绿色点
@@ -243,7 +243,7 @@ public:
     // 绘制中心点集
     for (int i = 0; i < centerEdge.size(); i++) {
       circle(centerImage, Point(centerEdge[i].y, centerEdge[i].x), 1,
-             Scalar(0, 0, 255), -1);
+             Scalar(0, 0, 255), -1);//red
     }
 
     // 绘制加权控制中心：方向
@@ -256,7 +256,8 @@ public:
     putText(centerImage, style, Point(COLSIMAGE - 60, dis), FONT_HERSHEY_PLAIN,
             1, Scalar(0, 0, 255), 1); // 赛道类型
 
-    str = "Edge: " + formatDoble2String(track.stdevLeft, 1) + " | " +
+    str = "Edge: " + formatDoble2String(track.stdevLeft, 1) //
+    + " | " +
           formatDoble2String(track.stdevRight, 1);
     putText(centerImage, str, Point(COLSIMAGE - 150, 2 * dis),
             FONT_HERSHEY_PLAIN, 1, Scalar(0, 0, 255), 1); // 斜率：左|右

@@ -43,7 +43,8 @@ using namespace std;
 using namespace cv;
 bool app_stopped = false;
 void sigint_handler(int sig);
-
+int flag = 1;
+int start = 0;                                             // 发车计数器
 shared_ptr<Uart> uart = make_shared<Uart>("/dev/ttyUSB0"); // 初始化串口驱动
 int main(int argc, char const *argv[]) {
   Preprocess preprocess;    // 图像预处理类
@@ -109,13 +110,23 @@ int main(int argc, char const *argv[]) {
   uart->carpid(300, 750, 0, 0); // 调pid，参数分别为p，i，d，是否存入flash
   // clock_t startTime, endTime;     // 统计程序时间
   signal(SIGINT, sigint_handler); // 中断，结束的时候
-  motion.params.debug = 1;        // 1开启窗口，0关闭窗口
-  int motion_start = 1;           // 是否开始运动,1是开始运动
+
   int s1 = 1;
   string s2 = ".jpg";
   float mpu6050_now;
   float mpu6050_later;
+
   while (1) {
+
+    // if(std::cin.rdbuf()->in_avail()>0)
+    // {
+    //   char c =std::cin.get();
+    //   if(c==' ')
+    //   {cout<<"发车"<<endl<<endl<<endl;
+    //   uart->carpid(300, 750, 0, 0); //
+    //   调pid，参数分别为p，i，d，是否存入flash}
+    // }
+    // }
     mpu6050_now = uart->get_mpu6050(); // mpu6050_now就是mpu的数值
     // cout << mpu6050_now << endl;       // 输出mpu
     ring.setmpu6050(mpu6050_now);
@@ -137,17 +148,21 @@ int main(int argc, char const *argv[]) {
     //   savePicture(img);
     if (waitKey(1) == 27) { // 如果用户按下 ESC 键，退出循环
 
-      s1++;
-      imwrite("../res/calibration/temp/" + to_string(s1) + s2, img);
-      cout << "../res/calibration/temp/" + to_string(s1) + s2 << endl;
+      // s1++;
+      // imwrite("../res/calibration/temp/" + to_string(s1) + s2, img);
+      // cout << "../res/calibration/temp/" + to_string(s1) + s2 << endl;
+      uart->carpid(300, 750, 0, 0); // 调pid，参数分别为p，i，d，是否存入flash
+      cout << "fache" << endl << endl << endl << endl << endl;
+
+      // 按键发车
     }
     //[02] 图像预处理
 
     Mat imgCorrect = img; // 图像矫正（已停止
     Mat imgBinary = preprocess.binaryzation(imgCorrect); // 图像二值化
-    // Mat element = getStructuringElement(
-    //     MORPH_RECT, Size(9, 9)); // 小于8*8方块的白色噪点都会被腐蚀
-    // erode(imgBinary, imgBinary, element);
+    Mat element = getStructuringElement(
+        MORPH_RECT, Size(9, 9)); // 小于8*8方块的白色噪点都会被腐蚀
+    erode(imgBinary, imgBinary, element);
     //[03] 启动AI推理
     detection->inference(imgCorrect);
     auto startTime = chrono::duration_cast<chrono::milliseconds>(
@@ -159,22 +174,25 @@ int main(int argc, char const *argv[]) {
     tracking.rowCutUp = motion.params.rowCutUp; // 图像顶部切行（前瞻距离）
     tracking.rowCutBottom =
         motion.params.rowCutBottom; // 图像底部切行（盲区距离）
-    tracking.trackRecognition(imgBinary);
-    if (motion.params.debug) // 综合显示调试UI窗口
+    tracking.trackRecognition(imgBinary); // 扫线
+    if (motion.params.debug)              // 综合显示调试UI窗口
     {
       Mat imgTrack = imgCorrect.clone();
       tracking.drawImage(imgTrack); // 图像绘制赛道识别结果
-      display.setNewWindow(2, "Track", imgTrack);
+      if (flag) {
+        display.setNewWindow(2, "Track", imgTrack);
+      }
     }
 
     //[05] 停车区检测
     if (motion.params.parking) {
       if (parking.process(detection->results)) {
         scene = Scene::ParkingScene;
-        if (parking.countExit > 20) {
+        if (parking.countExit > 10) {       /////刹车时间计数器
+          uart->carpid(500, 1000, 0, 0);    // 刹车pid
           uart->carControl(0, PWMSERVOMID); // 控制车辆停止运动
           sleep(1);
-          printf("-----> System Exit!!! <-----\n");
+          printf("-----> 检测到停车区!!! <-----\n");
           exit(0); // 程序退出
         }
       }
@@ -224,18 +242,19 @@ int main(int argc, char const *argv[]) {
     // [10] 十字道路识别与路径规划
     if ((scene == Scene::NormalScene || scene == Scene::CrossScene) &&
         motion.params.cross) {
-      if (crossroad.crossRecognition(tracking))
+      if (crossroad.crossRecognition(tracking)) {
         scene = Scene::CrossScene;
-      else
+
+      } else
         scene = Scene::NormalScene;
     }
 
     //[11] 环岛识别与路径规划
     if ((scene == Scene::NormalScene || scene == Scene::RingScene) &&
         motion.params.ring) {
-      if (ring.process(tracking, imgBinary)) {
+      if (ring.process(tracking, imgBinary, motion)) {
         scene = Scene::RingScene;
-
+        // ring.
       } else
         scene = Scene::NormalScene;
     }
@@ -255,14 +274,21 @@ int main(int argc, char const *argv[]) {
     //  }
 
     //[13] 车辆运动控制(速度+方向)
-    if (motion_start) // 非调试模式下
+    motion.params.motion_start=1;
+      // cout<<"motion.params.motion_start"<<motion.params.motion_start<<endl;
+    if (motion.params.motion_start) //是否运动
     {
+      cout<<"motion.params.motion_start"<<motion.params.motion_start<<endl;
+
       if ((scene == Scene::RescueScene && rescue.carStoping) || parking.park ||
           racing.carStoping) // 特殊区域停车
         motion.speed = 0;
       else if (scene == Scene::RescueScene && rescue.carExitting) // 倒车出库
+      {
         motion.speed = -motion.params.speedDown;
-      else if (scene == Scene::RescueScene) // 减速
+        cout << "速度值为" << motion.speed << endl;
+
+      } else if (scene == Scene::RescueScene) // 减速
         motion.speedCtrl(true, true, ctrlCenter);
       else if (scene == Scene::BridgeScene) // 坡道速度
         motion.speed = motion.params.speedBridge;
@@ -282,7 +308,9 @@ int main(int argc, char const *argv[]) {
       printf(">> FrameTime: %ldms | %.2ffps \n", startTime - preTime,
              1000.0 / (startTime - preTime));
 
-      display.setNewWindow(1, "Binary", imgBinary);
+      if (flag) {
+        display.setNewWindow(1, "Binary", imgBinary);
+      }
       Mat imgRes =
           Mat::zeros(Size(COLSIMAGE, ROWSIMAGE), CV_8UC3); // 创建全黑图像
 
@@ -334,16 +362,21 @@ int main(int argc, char const *argv[]) {
         break;
       }
 
-      display.setNewWindow(3, getScene(scene),
-                           imgRes);   // 图像绘制特殊场景识别结果
       detection->drawBox(imgCorrect); // 图像绘制AI结果
       ctrlCenter.drawImage(tracking,
                            imgCorrect); // 图像绘制路径计算结果（控制中心）
-      display.setNewWindow(4, "Ctrl", imgCorrect);
-      display.show(); // 显示综合绘图
-      waitKey(10);    // 等待显示
+      if (flag) {
+        display.setNewWindow(3, getScene(scene),
+                             imgRes); // 图像绘制特殊场景识别结果
+        display.setNewWindow(4, "Ctrl", imgCorrect);
+        display.show(); // 显示综合绘图
+      }
+      waitKey(10); // 等待显示
     }
-
+    for (int i = 0; i < tracking.spurroad.size(); i++) {
+      circle(imgCorrect, Point(tracking.spurroad[i].y, tracking.spurroad[i].x),
+             5, Scalar(0, 0, 255), -1); // 红色点画拐点
+    }
     //[15] 状态复位
     if (sceneLast != scene) {
       if (scene == Scene::NormalScene)
@@ -375,6 +408,7 @@ int main(int argc, char const *argv[]) {
   return 0;
 }
 void sigint_handler(int sig) {
+
   if (sig == SIGINT) {
     // Ctrl+C 被按下时执行的代码
     std::cout << "Ctrl+C 被按下！" << std::endl;
@@ -385,4 +419,11 @@ void sigint_handler(int sig) {
 
     exit(0);
   }
+  //   if(start==0&&sig==SIGINT)
+  //   {
+  // uart->carpid(300, 750, 0, 0);
+  // cout<<"fache"<<endl;
+  // start++;
+
+  //   }
 }

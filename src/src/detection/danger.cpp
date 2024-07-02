@@ -56,7 +56,7 @@ public:
     for (int i = 0; i < predict.size(); i++) {
       if ((predict[i].type == LABEL_CONE || predict[i].type == LABEL_BLOCK) &&
           (predict[i].y + predict[i].height) >
-              ROWSIMAGE * 0.4) // AI标志距离计算
+              ROWSIMAGE * 0.2) // AI标志距离计算   更加灵活 原先为0.4
         resultsObs.push_back(predict[i]);
     }
 
@@ -90,6 +90,7 @@ public:
         track.pointsEdgeRight[row].y > resultsObs[index].x &&
         disLeft <= disRight) //[1] 障碍物靠左
     {
+      cout<<"障碍物在左侧"<<endl;
       if (resultsObs[index].type == LABEL_BLOCK) // 黑色路障特殊处理
       {
         curtailTracking(track, false); // 缩减优化车道线（双车道→单车道）
@@ -99,8 +100,7 @@ public:
         points[1] = {resultsObs[index].y + resultsObs[index].height,
                      resultsObs[index].x + resultsObs[index].width};
         points[2] = {(resultsObs[index].y + resultsObs[index].height +
-                      resultsObs[index].y) /
-                         2,
+                      resultsObs[index].y) *3/4, //原先为除以2
                      resultsObs[index].x + resultsObs[index].width};
         if (resultsObs[index].y >
             track.pointsEdgeLeft[track.pointsEdgeLeft.size() - 1].x)
@@ -119,6 +119,7 @@ public:
                track.pointsEdgeRight[row].y > resultsObs[index].x &&
                disLeft > disRight) //[2] 障碍物靠右
     {
+      cout<<"障碍物在右侧"<<endl;
       if (resultsObs[index].type == LABEL_BLOCK) // 黑色路障特殊处理
       {
         curtailTracking(track, true); // 缩减优化车道线（双车道→单车道）

@@ -37,7 +37,7 @@ public:
   vector<POINT> pointsEdgeLeft;  // 赛道左边缘点集
   vector<POINT> pointsEdgeRight; // 赛道右边缘点集
   vector<POINT> widthBlock; // 色块宽度=终-起（每行），应该是赛道的宽度
-  vector<POINT> spurroad;           // 保存岔路信息
+  vector<POINT> spurroad;           ///////// 保存岔路信息，这是拐点
   double stdevLeft;                 // 边缘斜率方差（左）
   double stdevRight;                // 边缘斜率方差（右）
   int validRowsLeft = 0;            // 边缘有效行数（左）
@@ -361,6 +361,7 @@ public:
    * @param trackImage 需要叠加显示的图像
    */
   void drawImage(Mat &trackImage) {
+
     for (int i = 0; i < pointsEdgeLeft.size(); i++) {
       circle(trackImage, Point(pointsEdgeLeft[i].y, pointsEdgeLeft[i].x), 1,
              Scalar(0, 255, 0), -1); // 绿色点
@@ -458,7 +459,7 @@ private:
   }
 
   /**
-   * @brief 边缘有效行计算：左/右
+   * @brief 边缘有效行计算：左/右   ///////我改了有效行的计算
    *
    */
   void validRowsCal(void) {
@@ -467,12 +468,12 @@ private:
     if (pointsEdgeLeft.size() > 1) {
       for (int i = pointsEdgeLeft.size() - 1; i >= 1; i--) {
         if (pointsEdgeLeft[i].y > 2 && pointsEdgeLeft[i - 1].y >= 2) {
-          validRowsLeft = i + 1;
-          break;
+          validRowsLeft ++;////原来是=i+1,其他一样
+          // break;
         }
         if (pointsEdgeLeft[i].y < 2 && pointsEdgeLeft[i - 1].y >= 2) {
-          validRowsLeft = i + 1;
-          break;
+          validRowsLeft ++;
+          // break;
         }
       }
     }
@@ -483,13 +484,13 @@ private:
       for (int i = pointsEdgeRight.size() - 1; i >= 1; i--) {
         if (pointsEdgeRight[i].y <= COLSIMAGE - 2 &&
             pointsEdgeRight[i - 1].y <= COLSIMAGE - 2) {
-          validRowsRight = i + 1;
-          break;
+          validRowsRight ++;
+          // break;
         }
         if (pointsEdgeRight[i].y >= COLSIMAGE - 2 &&
             pointsEdgeRight[i - 1].y < COLSIMAGE - 2) {
-          validRowsRight = i + 1;
-          break;
+          validRowsRight ++;
+          // break;
         }
       }
     }
