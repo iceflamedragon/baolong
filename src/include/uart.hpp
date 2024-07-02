@@ -239,6 +239,7 @@ public:
    * @brief 串口接收校验
    *
    */
+  Bit32Union Distance;
   Bit32Union mpu6050;
   void receiveCheck(void) {
     if (!isOpen) // 串口是否正常打开
@@ -289,6 +290,10 @@ public:
           mpu6050.buff[1] = serialStr.buffRead[4];
           mpu6050.buff[2] = serialStr.buffRead[5];
           mpu6050.buff[3] = serialStr.buffRead[6];
+          Distance.buff[0] = serialStr.buffRead[7];
+          Distance.buff[1] = serialStr.buffRead[8];
+          Distance.buff[2] = serialStr.buffRead[9];
+          Distance.buff[3] = serialStr.buffRead[10];
           // memcpy(&mpu6050, &serialStr.buffRead[3], 4); // 储存接收的数据
           // dataTransform();
         }
@@ -456,6 +461,7 @@ public:
    *
    * @param sound
    */
+  float get_distance(void) { return Distance.int32; }
   void buzzerSound(Buzzer sound) {
     if (!isOpen)
       return;

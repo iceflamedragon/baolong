@@ -56,6 +56,13 @@ private:
   Crossroad c1;
 
 public:
+ int Left_Down_breakpoint = 0;  // 左下拐点行号
+    int Right_Down_breakpoint = 0; // 左下拐点行号
+    int monotonicity_change_line[2]; // 单调性改变点坐标，[0]寸某行，[1]寸某列
+    int monotonicity_change_left_flag = 0;  // 不转折是0
+    int monotonicity_change_right_flag = 0; // 不转折是0
+    int continuity_change_right_flag = 0;   // 连续是0
+    int continuity_change_left_flag = 0;    // 连续是0
   void setmpu6050(float mpu6050_now_read) { mpu6050_now = mpu6050_now_read; }
   uint16_t counterShield = 0; // 环岛检测屏蔽计数器：屏蔽车库误检测
 
@@ -84,14 +91,25 @@ public:
     //    counterShield++;
     //    return false;
     //  }
-    p1 = motion.params.ring_p1;
-    p2 = motion.params.ring_p2;
-    d = motion.params.ring_d;
+
+    /////借鉴的代码
+   
+    // 以下是常规判断法
+
+    // continuity_change_left_flag =
+    //     Continuity_Change_Left(track, ROWSIMAGE - 1 - 5, 30); // 连续性判断
+    // continuity_change_right_flag =
+    //     Continuity_Change_Right(track, ROWSIMAGE - 1 - 5, 30);
+    // monotonicity_change_right_flag =
+    //     Monotonicity_Change_Right(track, ROWSIMAGE - 1 - 10, 30);
+    // monotonicity_change_left_flag =
+    //     Monotonicity_Change_Left(track, ROWSIMAGE - 1 - 10, 30);
+
     bool ringEnable = false;                    // 判环标志
     RingType ringTypeTemp = RingType::RingNone; // 环岛类型：临时变量
-    int rowBreakpointLeft = 0; // 边缘线拐点起始行（左），这是从边缘线上提取的
-    int rowBreakpointRight = 0; // 边缘线拐点起始行（右）这是从边缘线上提取的
-    int colEnterRing = 0; // 入环点（图像列序号）
+    int rowBreakpointLeft = 0;  // 边缘拐点起始行（左）
+    int rowBreakpointRight = 0; // 边缘拐点起始行（右）
+    int colEnterRing = 0;       // 入环点（图像列序号）
     int rowRepairRingside =
         track.widthBlock.size() - 1; // 环一侧，补线起点（行号）
     int rowRepairStraightside =
@@ -102,16 +120,19 @@ public:
     _ringPoint = POINT(0, 0);
 
     // 算环用布线的候选点
-    rowRepairLine = max(rowRepairLine - 5, 0);
+    rowRepairLine = max(rowRepairLine - 5, 0); // 在那其中最下面的点
     if (ringStep == RingStep::Entering && !track.spurroad.empty()) {
       if (ringType == RingType::RingLeft && track.pointsEdgeLeft.size() > 20) {
         for (int j = max(rowRepairLine - 30, 10);
              j < track.pointsEdgeLeft.size() - 10 && j < rowRepairLine + 30 &&
-             track.pointsEdgeLeft[j].x >= track.spurroad[0].x;
+             track.pointsEdgeLeft[j].x >= track.spurroad[0].x; // 在拐点之前
              j++) {
-          if (track.pointsEdgeLeft[j].y > track.pointsEdgeLeft[j - 10].y &&
+          if (track.pointsEdgeLeft[j].y >
+                  track.pointsEdgeLeft[j - 10]
+                      .y && // 比他上下10行都大，为补线候选点
               track.pointsEdgeLeft[j].y > track.pointsEdgeLeft[j + 10].y) {
             rowRepairLine = j;
+            cout<<"算出布线的候选点左"<<endl;
             break;
           }
         }
@@ -124,13 +145,14 @@ public:
           if (track.pointsEdgeRight[j].y < track.pointsEdgeRight[j - 10].y &&
               track.pointsEdgeRight[j].y < track.pointsEdgeRight[j + 10].y) {
             rowRepairLine = j;
+             cout<<"算出布线的候选点右"<<endl;
             break;
           }
         }
       }
     }
 
-    // 搜索赛道左右边缘满足图像边沿的最高处
+    // 搜索赛道左右边缘满足图像边沿的最高处，也就是有效行的开始从下往上
     for (int ii = 0; ii < track.pointsEdgeLeft.size(); ++ii) {
       rowBreakpointLeft = track.pointsEdgeLeft[ii].x;
       if (track.pointsEdgeLeft[ii].y > 2)
@@ -141,257 +163,206 @@ public:
       if (track.pointsEdgeRight[ii].y < COLSIMAGE - 3)
         break;
     }
-    int xielv = 0;
-    // 判环
-    static int countWide = 0; // 环岛入口变宽区域行数,是变宽的过程
-    static int flag = 0;
-    static int time = 0;     // 出环延时
-    static int delay1 = 0;   // 入环延时
-    static int flaghuan = 0; // 出环的时候别再第二次进环
-    static int flagcha = 0;  // 识别到岔路的数量
-                             // static int comein=0;
-    for (int i = 1; i < track.widthBlock.size();
-         ++i) { //////////////////i从图像下面开始增加
-      if (track.widthBlock[i].y > track.widthBlock[i - 1].y &&
-          track.widthBlock[i].y > COLSIMAGE * 0.5 // 赛道的宽度足够大
-          && track.widthBlock[i].x > 30 &&
-          ((track.stdevLeft > 80 &&
-            track.stdevRight < 50) || // 第一个值开始是大于100
-           ringStep == RingStep::Entering)) {
-        xielv++;
-        cout << "xielv1" << xielv << endl;
-      } ///////////这里可以加个else if写右入环
-      else if (track.widthBlock[i].y > track.widthBlock[i - 1].y &&
-               track.widthBlock[i].y > COLSIMAGE * 0.5 // 赛道的宽度足够大
-               && track.widthBlock[i].x > 30 &&
-               ((track.stdevLeft < 50 && track.stdevRight > 100) ||
-                ringStep == RingStep::Entering)) {
-        xielv++;
-        cout << "xielv" << xielv << endl;
-      }
 
-      if (xielv > 3) { // 检测赛道不断变窄
-        if (track.widthBlock[i].y > track.widthBlock[i - 1].y &&
-            track.widthBlock[i].y >
-                COLSIMAGE * 0.5 // 赛道的宽度足够大   i取图中前方的位置
-            && track.widthBlock[i].x > 30 && ///////////////进入的距离判断
-            ((track.stdevLeft > 80 &&
-              track.stdevRight <
-                  50) || //////////////////原来第一个条件是大于100
-             ringStep ==
-                 RingStep::
-                     Entering)) // 搜索突然变宽的路径行数，根据两边的斜率判断
-        {
-          ++countWide;
-          cout << "countwide" << countWide
-               << endl; // 从左边看从120--80  只要判断为圆环就进入环的状态了
-        } /* else {
-           countWide = 0;
-         }*/
-      }
-      // [1] 入环判断
-      // cout<<"countwide"<<countWide<<endl;
-      /*if(!track.spurroad.empty())
+    /////////// 判环,是否进入状态一
+    // 环岛入口变宽区域行数,是变宽的过程
+
+    if (ringStep == RingStep::None) {
+      // 判断左入环
+      // cout<<"kaishipanduan9999999999"<<endl;
+      Left_Down_breakpoint =
+              Find_Left_Down_Point(track, 80, 160);
+      Right_Down_breakpoint =
+                     Find_Right_Down_Point(track, 80, 160);
+      if (Left_Down_breakpoint) // 有左下拐点
       {
-        flagcha++;
-      }*/
-      if (countWide >
-          50) // 上方大于100时这里是大于20
-              // 放宽条件，为了识别到圆环，识别到之后根据岔路点进行延时
-      {
-        flag = 1; // 内存爆掉---找中间量，立flag；
-      }
+        // cout<<"圆环判断出左下拐点"<<endl;
+        continuity_change_right_flag = Continuity_Change_Right(
+            track, Left_Down_breakpoint - 10,
+            Left_Down_breakpoint + 10); // 拐点附近判断连续性
+        continuity_change_left_flag =
+            Continuity_Change_Left(track, ROWSIMAGE - 1 - 5, 50);
+        if (ringTypeTemp == RingType::RingNone) {
+          if (           //判断左入环
+              continuity_change_left_flag != 0 &&  // 左边是不连续的
+              continuity_change_right_flag == 0 && // 左环岛右边是连续的
+              track.validRowsLeft >= 10 &&         // 左边有效行不能少
+              track.validRowsLeft <= 100 &&        // 左边有效行比较少
+              track.validRowsRight >= 140          // 右边丢线较少
+          ) {
 
-      // if (c1.)//CrossroadType::crossroadType == CrossroadType::CrossroadLeft
-      if (!track.spurroad.empty() && flag == 1 && track.stdevRight < 30 &&
-          track.stdevLeft >
-              30) // 防止十字处误判为圆环---将右斜率改变+将延时的条件改变
-      {
-        delay1++;
-        cout << "第一次延时" << delay1
-             << endl; // 延时1500刚刚好   此处延时的目的是碰到岔路之后的延时
-                      // 原先为60
-      }
-
-      // static int omeicn=countWide;
-      //  static int loca=0;//之后要在程序中置0，一般判断为入环后可以维持状态
-      /*if(!track.spurroad.empty())
-      {
-
-      loca++;
-      cout<<"有岔路岔路岔路"<<loca<<endl;//在第一个路口加到180左右
-      }*/
-
-      // cout<<"loca"<<loca<<endl;
-      // cout<<"countwide"<<countWide<<endl;
-      if ((ringStep == RingStep::None || ringStep == RingStep::Entering) &&
-          (flag == 1 && delay1 > 350 && flaghuan == 0 &&
-           !track.spurroad.empty() &&
-           track.stdevRight <
-               30)) { // 判断第一次  之后的两个条件出现的位置不匹配  if ((
-                      // ringStep == RingStep::None ||ringStep ==
-                      // RingStep::Entering) &&////////
-        ////(countWide >=3 && !track.spurroad.empty())) {//判断第一次
-        /// 之后的两个条件出现的位置不匹配
-        /// 加的斜率方差的条件((210<track.stdevLeft&&track.stdevLeft
-        ///< 240)||(140<track.stdevLeft&&track.stdevLeft
-        ///< 180))||(40<track.stdevLeft&&track.stdevLeft <80) )&&
-        // loca=0;
-        countWide = 0;
-        // flagcha=0;
-        cout << "第一次判断成功" << endl;
-        /*if (ringTypeTemp == RingType::RingNone) // 环岛方向判定    原先为条件
-        {
-//第一次入环判断
-          int tmp_flag = 0;
-          for (int j = 0; j < track.spurroad.size(); j++) {
-            if (track.spurroad[j].x < track.pointsEdgeLeft[i - 5].x) {
-              tmp_flag = 1;
-            }
+            // if(monotonicity_change_right_flag ==
+            //       0 );// 右边是单调的
+            // 找左下角点
+            // if (left_down_guai[0] >=
+            //    30) // 条件1很松，在这里判断拐点，位置不对，则是误判，跳出
+            //{
+            ringStep = RingStep::IsRing;
+            ringTypeTemp = RingType::RingLeft; // 环岛类型：左入环
+            std::cout << "判断出左入环" << endl;
+            //} else // 误判，归零
+            //{
+            //  ringStep == RingStep::None;
+            //  cout << "误判环" << endl;
           }
-          if (tmp_flag == 0) {
+        }
 
-            countWide = 0;//原来为0
-            cout<<"因为tmpflag所以continue"<<endl;//如果入环时间太早会触发continue使得无法入环
-            continue;
+        ////判断右入环
+      } else if (Right_Down_breakpoint ) // 有右下拐点
+      {
+        // cout<<"圆环判断出右下拐点"<<endl;
+        continuity_change_left_flag = Continuity_Change_Left(
+            track, Right_Down_breakpoint - 10,
+            Right_Down_breakpoint + 10); // 拐点附近判断连续性
+        continuity_change_left_flag =
+            Continuity_Change_Left(track, ROWSIMAGE - 1 - 5, 50);
+        if (ringTypeTemp == RingType::RingNone) {
+          if (// 左边是单调的          //判断左入环
+              continuity_change_left_flag != 0 &&  // 右边边是不连续的
+              continuity_change_right_flag == 0 && // 右环岛左边是连续的
+              track.validRowsRight >= 10 &&  // 右边有效行不能太少
+              track.validRowsRight <= 100 && // 右边有效行比较少
+              track.validRowsLeft >= 140)    // 左边丢线较少
+          {
+            // monotonicity_change_right_flag ==
+            //       0 && 
+            // 找左下角点
+            // if (left_down_guai[0] >=
+            //    30) // 条件1很松，在这里判断拐点，位置不对，则是误判，跳出
+            //{
+            ringStep = RingStep::IsRing;
+            ringTypeTemp = RingType::RingLeft; // 环岛类型：左入环
+            std::cout << "判断出右入环" << endl;
+            //} else // 误判，归零
+            //{
+            //  ringStep == RingStep::None;
+            //  cout << "误判环" << endl;
           }
+        }
 
-      }*/
-        cout << "圆环第一次判断成功" << endl; // if( !track.spurroad.empty()){
-        if (1) { // 此处为啥出问题？？?   track.pointsEdgeLeft[i].y <
-                 // track.pointsEdgeLeft[i - 5].y
+        ////判断右入环
+      }
+    }
 
-          flaghuan = 1; // 出环的时候别再第二次进环
+    if (ringStep == RingStep::IsRing) // 状态2入环前判断
+    {
+      if (ringTypeTemp == RingType::RingLeft) // 左入环
+      {
+        monotonicity_change_line[0] = Monotonicity_Change_Left(track, 10, 80); // 寻找单调性改变点，x
+        cout<<"monotonicity_change_line//////////////////////////////"<<monotonicity_change_line[0]<<endl;
+        monotonicity_change_line[1] =track.pointsEdgeLeft[monotonicity_change_line[0]].y; // y
+        if (monotonicity_change_line[0] > 180 )
+        {// 当左边不单调点较低，或者左侧的斜率较大
+          ringStep = RingStep::Entering;
+          mpu6050_later = mpu6050_now;
+          cout<<"入环前////////////////////////////////"<<endl;} 
+      } else if (ringTypeTemp == RingType::RingLeft) // 右入环
+      {
+        monotonicity_change_line[0] =
+            Monotonicity_Change_Right(track, 100, 160); // 寻找单调性改变点，x
+        monotonicity_change_line[1] =
+            track.pointsEdgeLeft[monotonicity_change_line[0]].y; // y
+        if (monotonicity_change_line[0] > 180 )
+        {ringStep = RingStep::Entering;
+          mpu6050_later = mpu6050_now;
+          cout<<"入环前//////////////////////////////////"<<endl;} // 当右边不单调点较低，或者斜率较大
+          
+      }
+    }
+
+    // 状态三 入环判断
+    if ((ringStep == RingStep::Entering && !track.spurroad.empty())) ///有
+    {
+      cout<<"进入状态三,入环判断拐点"<<endl;
+      for (int i = 1; i < track.widthBlock.size(); ++i)
+       {cout<<"进入状态三,入环判断"<<endl;
+        if (track.pointsEdgeLeft[i].y < track.pointsEdgeLeft[i - 5].y) {
           ringTypeTemp = RingType::RingLeft; // 环岛类型：左入环
-          cout << "进入左环" << endl;
           colEnterRing = track.pointsEdgeLeft[i - 5].y; // 入环点列号
           _ringPoint.x = track.pointsEdgeLeft[i - 5].x;
           _ringPoint.y = track.pointsEdgeLeft[i - 5].y;
 
           rowRepairLine = i;                         // 用于环补线的行号
           colRepairLine = track.pointsEdgeLeft[i].x; // 用于环补线的列号
-          xielv = 0;                                 // 清零标志位
+          
         } else if (track.pointsEdgeRight[i].y >
                    track.pointsEdgeRight[i - 5].y) {
           ringTypeTemp = RingType::RingRight; // 环岛类型：右入环
           colEnterRing = track.pointsEdgeRight[i - 5].y; // 入环点列号
           rowRepairLine = i; // 用于环补线的行号
           colRepairLine = track.pointsEdgeRight[i].x; // 用于环补线的列号
-          xielv = 0;                                  // 清零标志位
         }
 
         // 内圆检测
-        if (ringTypeTemp ==
-            RingType::RingLeft) { //(ringTypeTemp == RingType::RingLeft &&
-          // colEnterRing - track.pointsEdgeLeft[i].y >= 0) ||
-          // //原来为大于等于三，改为0
-          //(ringTypeTemp == RingType::RingRight &&
-          // track.pointsEdgeRight[i].y - colEnterRing >= 3)
+        if ((ringTypeTemp == RingType::RingLeft &&
+             colEnterRing - track.pointsEdgeLeft[i].y >= 3) ||
+            (ringTypeTemp == RingType::RingRight &&
+             track.pointsEdgeRight[i].y - colEnterRing >= 3))
+
+        {
           // 判断入环成功
-          cout << "要入环辣" << endl;
-          motion.set_direction_pid(p1, p2, d); // 调整圆环pid
-          mpu6050_later = mpu6050_now;         // 检测mpu6050
+          cout<<"内圆检测"<<endl;
+          mpu6050_later = mpu6050_now;
+
           ringEnable = true;
           ringStep = RingStep::Entering;
           ringType = ringTypeTemp;
           if (rowRepairStraightside == track.widthBlock.size() - 1) {
-            rowRepairStraightside = i - countWide; // 原先为减countWide
+            // rowRepairStraightside = i - countWide;
           }
         } else {
-          countWide = 0;
+          // countWide = 0;
         }
-      }
 
-      if ((ringStep == RingStep::None ||
-           ringStep == RingStep::Entering) && ////////
-          countWide > 15000) // 判断第二次    第二个判断成功入环，大于15
-      {
-        cout << "第二次判断" << endl;
-        if (max(rowBreakpointLeft, rowBreakpointRight) < ROWSIMAGE) {
-          cout << "发现拐点" << endl;
-          // 第二次判断
-
-          if (track.pointsEdgeLeft[i].y < track.pointsEdgeLeft[i - 5].y) {
-
-            ringTypeTemp = RingType::RingLeft; // 环岛类型：左入环
-            colEnterRing = track.pointsEdgeLeft[i - 5].y; // 入环点列号
-            _ringPoint.x = track.pointsEdgeLeft[i - 5].x;
-            _ringPoint.y = track.pointsEdgeLeft[i - 5].y;
-
-            rowRepairLine = i; // 用于环补线的行号
-            colRepairLine = track.pointsEdgeLeft[i].x; // 用于环补线的列号
-            xielv = 0;                                 // 清零标志位
-            cout << "判断为RingLeft111111111111111111111111111111" << endl;
-          } else if (track.pointsEdgeRight[i].y >
-                     track.pointsEdgeRight[i - 5].y) {
-            ringTypeTemp = RingType::RingRight; // 环岛类型：右入环
-            colEnterRing = track.pointsEdgeRight[i - 5].y; // 入环点列号
-            rowRepairLine = i; // 用于环补线的行号
-            colRepairLine = track.pointsEdgeRight[i].x; // 用于环补线的列号
-            xielv = 0;                                  // 清零标志位
-            cout << "RingRight" << endl;
-          }
-          // 内圆检测
-          if ((ringTypeTemp == RingType::RingLeft &&
-               colEnterRing - track.pointsEdgeLeft[i].y >= 3) ||
-              (ringTypeTemp == RingType::RingRight &&
-               track.pointsEdgeRight[i].y - colEnterRing >= 3)) {
-            // 判断入环成功
-            motion.set_direction_pid(p1, p2, d); // 调整圆环pid
-            mpu6050_later = mpu6050_now;         // 检测mpu6050
+        /*if(ringStep == RingStep::Entering && ringEnable == false){
             ringEnable = true;
-            cout << "要入环辣2222222222" << endl;
-            ringStep = RingStep::Entering;
-            ringType = ringTypeTemp;
-            if (rowRepairStraightside == track.widthBlock.size() - 1) {
-              rowRepairStraightside = i - countWide;
-            }
-          } else {
-            countWide = 0;
-          }
-        }
-      }
-      /*if(ringStep == RingStep::Entering && ringEnable == false){
-          ringEnable = true;
-          rowRepairStraightside = rowRepairLine;
-      }*/
+            rowRepairStraightside = rowRepairLine;
+        }*/
 
-      if (ringEnable == true && ringStep == RingStep::Entering) {
-        if (ringTypeTemp == RingType::RingLeft) {
-          if (track.pointsEdgeLeft[i].y <= 2 &&
-              i != track.widthBlock.size() - 1) {
-            if (rowRepairRingside == track.widthBlock.size() - 1) {
-              rowRepairRingside = i;
-            }
-            rowYendStraightside = track.pointsEdgeLeft[i].x;
-          } else if (rowRepairRingside != track.widthBlock.size() - 1) {
+        /*if(ringStep == RingStep::Entering && ringEnable == false){
+            ringEnable = true;
+            rowRepairStraightside = rowRepairLine;
+        }*/
 
-            int x = track.pointsEdgeLeft[rowRepairStraightside].x +
-                    (rowYendStraightside -
-                     track.pointsEdgeRight[rowRepairStraightside].x) *
-                        5 / 4;
-            int y = (track.pointsEdgeLeft[rowRepairStraightside].y +
-                     track.pointsEdgeRight[rowRepairStraightside].y) /
-                    2;
+        if (ringEnable == true && ringStep == RingStep::Entering) {
+          if (ringTypeTemp == RingType::RingLeft) {
+            if (track.pointsEdgeLeft[i].y <= 2 &&
+                i != track.widthBlock.size() - 1) {
+              if (rowRepairRingside == track.widthBlock.size() - 1) {
+                rowRepairRingside = i;
+              }
+              rowYendStraightside = track.pointsEdgeLeft[i].x;
+            } else if (rowRepairRingside != track.widthBlock.size() - 1)
 
-            POINT startPoint =
-                track.pointsEdgeRight[rowRepairStraightside]; // 补线：起点
-            POINT midPoint(x, y);                             // 补线：中点
-            POINT endPoint(rowYendStraightside, 0);           // 补线：终点
-            cout << "开始补线" << endl;
-            vector<POINT> input = {startPoint, midPoint, endPoint};
-            vector<POINT> b_modify = Bezier(0.01, input);
-            track.pointsEdgeLeft.resize(rowRepairRingside);
-            track.pointsEdgeRight.resize(rowRepairStraightside);
-            for (int kk = 0; kk < b_modify.size(); ++kk) {
-              track.pointsEdgeRight.emplace_back(b_modify[kk]);
+            {
+
+              int x = track.pointsEdgeLeft[rowRepairStraightside].x +
+                      (rowYendStraightside -
+                       track.pointsEdgeRight[rowRepairStraightside].x) *
+                          5 / 4;
+              int y = (track.pointsEdgeLeft[rowRepairStraightside].y +
+                       track.pointsEdgeRight[rowRepairStraightside].y) /
+                      2;
+
+              POINT startPoint =
+                  track.pointsEdgeRight[rowRepairStraightside]; // 补线：起点
+              POINT midPoint(x, y);                   // 补线：中点
+              POINT endPoint(rowYendStraightside, 0); // 补线：终点
+              std::cout << "开始补线" << endl;
+              vector<POINT> input = {startPoint, midPoint, endPoint};
+              vector<POINT> b_modify = Bezier(0.01, input);
+              track.pointsEdgeLeft.resize(rowRepairRingside);
+              track.pointsEdgeRight.resize(rowRepairStraightside);
+              for (int kk = 0; kk < b_modify.size(); ++kk) {
+                track.pointsEdgeRight.emplace_back(b_modify[kk]);
+              }
+              break;
             }
-            break;
           }
         }
       }
     }
-
+    /*********************状态三判断结束 */
     int tmp_ttttt = 0;
     if (ringEnable == false && ringStep == RingStep::Entering) {
       // 本场没判出环，且没有分叉
@@ -400,7 +371,7 @@ public:
           rowBreakpointRight > ROWSIMAGE / 2) {
 
         rowRepairStraightside = rowRepairLine;
-
+          cout<<"没判断出环布线"<<endl;
         if (ringType == RingType::RingLeft) {
           tmp_ttttt = 1;
           for (int i = rowRepairLine; i < track.pointsEdgeLeft.size() - 1;
@@ -458,6 +429,7 @@ public:
         if (ringType == RingType::RingLeft &&
             track.pointsEdgeRight.size() > 1) {
           tmp_ttttt = 2;
+          cout<<"没判断出环，有分叉"<<endl;
           int x_end = track.pointsEdgeRight[track.pointsEdgeRight.size() - 1].x;
           for (int kkk =
                    track.pointsEdgeRight[track.pointsEdgeRight.size() - 1].x;
@@ -493,11 +465,9 @@ public:
         }
       }
     }
-    // 环中
-    if (ringStep == RingStep::Entering && track.spurroad.empty() &&
-        counterSpurroad >= 3) {
-      ringStep = RingStep::Inside;
-      cout << "目前状态Inside22222222" << endl;
+    // 状态4  环中，正常巡线
+    if (ringStep == RingStep::Entering && mpu6050_now - mpu6050_later >= 60) {
+      ringStep = RingStep::Inside; // 纯粹陀螺仪积分到一定值就正常巡线
     }
     // 出环补线
     if (ringStep == RingStep::Inside) {
@@ -575,30 +545,22 @@ public:
       // uart->mpu6050_receiveCheck();
       // mpu6050_later = mpu6050;
       // cout << "mpu6050" << mpu6050_later - mpu6050 << endl;
-      if (max(rowBreakpointLeft, rowBreakpointRight) <
-          ROWSIMAGE * 3 / 4) { // 拐点在屏幕四份之三一下
-        {
-          ringStep = RingStep::Exiting;
-          cout << "识别到拐点，出环" << endl;
-        }
-      }
-
-      if (mpu6050_now - mpu6050_later > 300) // 判断mpu6050然后再出环
+      if (mpu6050_now - mpu6050_later > 320) // 判断mpu6050然后再出环
       {
-        ringStep = RingStep::Exiting;
-        cout << "mpu太大了" << endl;
+        if (max(rowBreakpointLeft, rowBreakpointRight) < ROWSIMAGE / 2) {
+          ringStep = RingStep::Exiting;
+          distance_later = distance_now; // 开始路程积分
+        }
       }
     }
     // 出环完成
-
+    // 出环完成
     else if (ringStep == RingStep::Exiting) {
-      if (ringType == RingType::RingLeft &&
-          rowBreakpointLeft < ROWSIMAGE * 3 / 4) { // 只能左出环    原来都为2
-        cout << "出环最终阶段" << endl << endl << endl << endl;
+      if (ringType == RingType::RingLeft && rowBreakpointLeft < ROWSIMAGE / 2) {
         POINT p_end(rowBreakpointLeft, 0);
-        POINT p_start(ROWSIMAGE - 50, COLSIMAGE - 30); // 原先为减一
+        POINT p_start(ROWSIMAGE - 50, COLSIMAGE - 1);
         POINT p_mid((ROWSIMAGE - 50 + rowBreakpointLeft) * 3 / 8,
-                    COLSIMAGE / 3); // 原先为除以2
+                    COLSIMAGE / 2);
         vector<POINT> input = {p_start, p_mid, p_end};
         vector<POINT> b_modify = Bezier(0.01, input);
         track.pointsEdgeRight.resize(0);
@@ -606,18 +568,9 @@ public:
         for (int kk = 0; kk < b_modify.size(); ++kk) {
           track.pointsEdgeRight.emplace_back(b_modify[kk]);
         }
-        time++;
-        cout << "累加次数判断" << time << endl;
-        /* if (rowBreakpointRight > ROWSIMAGE*3/4 ) {  //||mpu6050_now -
-         mpu6050_later > 360 ringStep = RingStep::Finish;
-           cout<<"真的出环热"<<endl;
-         }*/
-      }
-      if (time > 35) { //||mpu6050_now - mpu6050_later > 360 rowBreakpointRight
-                       //> ROWSIMAGE*9/10 &&
-        time = 0;
-        ringStep = RingStep::Finish;
-        cout << "真的出环热66666666" << endl;
+        if (rowBreakpointRight > ROWSIMAGE / 2) {
+          ringStep = RingStep::Finish;
+        }
       }
     }
 
@@ -674,15 +627,14 @@ public:
     //     track.pointsEdgeRight.resize(0);
     // }
 
-    // 出环，切回正常循迹
+    // 出环，切回正常循迹        //这里应该依靠路程积分彻底出环
     if (ringStep == RingStep::Finish) {
       if (track.pointsEdgeLeft.size() > 30 &&
           track.pointsEdgeRight.size() > 30 &&
           abs(track.pointsEdgeRight.size() - track.pointsEdgeLeft.size() <
               track.pointsEdgeRight.size() / 3) &&
-          track.spurroad.empty()) {
+          track.spurroad.empty() && (distance_now - distance_later >= 1000)) {
         ringStep = RingStep::None;
-        motion.reset_direction_pid(); // 切回巡线的pid   需要有圆环pid
       }
     }
 
@@ -722,9 +674,11 @@ public:
 
     for (int i = 0; i < track.spurroad.size(); i++) {
       circle(ringImage, Point(track.spurroad[i].y, track.spurroad[i].x), 5,
-             Scalar(0, 0, 255), -1); // 红色点
+             Scalar(0, 0, 255), -1); // 红色拐点
+            
     }
-
+circle(ringImage, Point(track.pointsEdgeLeft[Left_Down_breakpoint].y, track.pointsEdgeLeft[Left_Down_breakpoint].x), 5,
+             Scalar(255, 152, 0), -1); // 我们自己的拐点 
     putText(ringImage,
             to_string(_ringStep) + " " + to_string(_ringEnable) + " " +
                 to_string(_tmp_ttttt),
@@ -750,9 +704,289 @@ public:
            -1); // 红色点
   }
 
+  /*----------------------------------------自己写的函数---------------------------------------------------------*/
+  /*-------------------------------------------------------------------------------------------------------------------
+  @brief     右下角点检测
+  @param     起始点，终止点
+  @return    返回角点所在的行数，找不到返回0
+  Sample     Find_Right_Down_Point(int start,int end);
+  @note      角点检测阈值可根据实际值更改
+  -------------------------------------------------------------------------------------------------------------------*/
+  int Find_Right_Down_Point(Tracking &track, int start,
+                            int end) // 找四个角点，返回值是角点所在的行数
+  {
+    int i, t;
+    int right_down_line = 0;
+    if (track.validRowsRight <=
+        0.05 * ROWSIMAGE) // 大部分都丢线，没有拐点判断的意义
+      return right_down_line;
+    if (start < end) {
+      t = start;
+      start = end;
+      end = t;
+    }
+    if (start >=
+        ROWSIMAGE - 1 - 5) // 下面5行数据不稳定，不能作为边界点来判断，舍弃
+      start = ROWSIMAGE - 1 - 5;
+    if (end <= track.rowCutBottom)
+      end = track.rowCutBottom;
+    if (end <= 5)
+      end = 5;
+    for (i = start; i >= end; i--) {
+      if (right_down_line == 0 && // 只找第一个符合条件的点
+          abs(track.pointsEdgeRight[i].y - track.pointsEdgeRight[i + 1].y) <=
+              3 && // 角点的阈值可以更改
+          abs(track.pointsEdgeRight[i + 1].y -
+              track.pointsEdgeRight[i + 2].y) <= 3 &&
+          abs(track.pointsEdgeRight[i + 2].y -
+              track.pointsEdgeRight[i + 3].y) <= 3 &&
+          abs(track.pointsEdgeRight[i].y - track.pointsEdgeRight[i - 2].y) <= 10 &&
+          abs(track.pointsEdgeRight[i].y - track.pointsEdgeRight[i - 3].y) <=10
+              &&
+          abs(track.pointsEdgeRight[i].y - track.pointsEdgeRight[i - 4].y) <=
+              10) {
+        right_down_line = i; // 获取行数即可
+        break;
+      }
+    }
+    return right_down_line;
+  }
+  /*-------------------------------------------------------------------------------------------------------------------
+  @brief     左下角点检测
+  @param     起始点，终止点
+  @return    返回角点所在的行数，找不到返回0
+  Sample     Find_Right_Down_Point(int start,int end);
+  @note      角点检测阈值可根据实际值更改
+  -------------------------------------------------------------------------------------------------------------------*/
+  int Find_Left_Down_Point(Tracking &track, int start,
+                           int end) // 找四个角点，返回值是角点所在的行数
+  {
+    int i, t;
+    int right_down_line = 0;
+    if (track.validRowsRight <=
+        0.05 * ROWSIMAGE) // 大部分都丢线，没有拐点判断的意义
+      return right_down_line;
+    if (start < end) {
+      t = start;
+      start = end;
+      end = t;
+    }
+    if (start >=
+        ROWSIMAGE - 1 - 5) // 下面5行数据不稳定，不能作为边界点来判断，舍弃
+      start = ROWSIMAGE - 1 - 5;
+    if (end <= track.rowCutBottom)
+      end = track.rowCutBottom;
+    if (end <= 5)
+      end = 5;
+    for (i = start; i >= end; i--) {
+      if (right_down_line == 0 && // 只找第一个符合条件的点
+          abs(track.pointsEdgeLeft[i].y - track.pointsEdgeLeft[i + 1].y) <=
+              3 && // 角点的阈值可以更改
+          abs(track.pointsEdgeLeft[i + 1].y -
+              track.pointsEdgeLeft[i + 2].y) <= 3 &&
+          abs(track.pointsEdgeLeft[i + 2].y -
+              track.pointsEdgeLeft[i + 3].y) <= 3 &&
+          abs(track.pointsEdgeLeft[i].y - track.pointsEdgeLeft[i - 2].y) >= 10 &&
+          abs(track.pointsEdgeLeft[i].y - track.pointsEdgeLeft[i - 3].y) >= 10 &&
+          abs(track.pointsEdgeLeft[i].y - track.pointsEdgeLeft[i - 4].y) >= 10) {
+        right_down_line = i; // 获取行数即可
+        // cout<<"kaishipanduan"<<endl;
+        break;
+      }
+    }
+    return right_down_line;
+  }
+  /*-------------------------------------------------------------------------------------------------------------------
+  @brief     右赛道连续性检测
+  @param     起始点，终止点
+  @return    连续返回0，不连续返回断线出行数
+  Sample     continuity_change_flag=Continuity_Change_Right(int start,int end)
+  @note      连续性的阈值设置为5，可更改
+  -------------------------------------------------------------------------------------------------------------------*/
+  int Continuity_Change_Right(Tracking &track, int start, int end) {
+    int i;
+    int t;
+    int continuity_change_flag = 0;
+    if (track.validRowsRight <=
+        0.1 * ROWSIMAGE) // 大部分都丢线，没必要判断了，也就是左右的有效行数太少
+      return 1;
+    if (start >= ROWSIMAGE - 5) // 数组越界保护
+      start = ROWSIMAGE - 5;
+    if (end <= 5)
+      end = 5;
+    if (start < end) // 都是从下往上计算的，反了就互换一下
+    {
+      t = start;
+      start = end;
+      end = t;
+    }
+
+    for (i = start; i >= end; i--) {
+      if (abs(track.pointsEdgeRight[i].y - track.pointsEdgeRight[i - 1].y) >=
+          5) // 连续性阈值是5，可更改
+      {cout<<"进入连续性判断"<<endl;
+        continuity_change_flag = i;
+        break;
+      }
+    }
+    return continuity_change_flag;
+  }
+  /*-------------------------------------------------------------------------------------------------------------------
+  @brief     左赛道连续性检测
+  @param     起始点，终止点
+  @return    连续返回0，不连续返回断线出行数
+  Sample     continuity_change_flag=Continuity_Change_Right(int start,int end)
+  @note      连续性的阈值设置为5，可更改
+  -------------------------------------------------------------------------------------------------------------------*/
+  int Continuity_Change_Left(Tracking &track, int start, int end) {
+    int i;
+    int t;
+    int continuity_change_flag = 0;
+    if (track.validRowsLeft <=
+        0.1 * ROWSIMAGE) // 大部分都丢线，没必要判断了，也就是左右的有效行数太少
+      return 1;
+    if (start >= ROWSIMAGE - 5) // 数组越界保护
+      start = ROWSIMAGE - 5;
+    if (end <= 5)
+      end = 5;
+    if (start < end) // 都是从下往上计算的，反了就互换一下
+    {
+      t = start;
+      start = end;
+      end = t;
+    }
+
+    for (i = start; i >= end; i--) {
+      if (abs(track.pointsEdgeLeft[i].y - track.pointsEdgeLeft[i - 1].y) >=
+          5) // 连续性阈值是5，可更改
+      {
+        continuity_change_flag = i;
+        break;
+      }
+    }
+    return continuity_change_flag;
+  }
+  /*-------------------------------------------------------------------------------------------------------------------
+  @brief     单调性突变检测
+  @param     起始点，终止行
+  @return    点所在的行数，找不到返回0
+  Sample     Find_Right_Up_Point(int start,int end);
+  @note      前5后5它最大（最小），那他就是角点
+  -------------------------------------------------------------------------------------------------------------------*/
+  int Monotonicity_Change_Right(
+      Tracking &track, int start,
+      int end) // 单调性改变，返回值是单调性改变点所在的行数
+  {
+    int i;
+    int monotonicity_change_line = 0;
+
+    if (track.validRowsRight <=
+        0.1 * ROWSIMAGE) // 大部分都丢线，没有单调性判断的意义
+      return monotonicity_change_line;
+    if (start >= ROWSIMAGE - 1 - 5) // 数组越界保护
+      start = ROWSIMAGE - 1 - 5;
+    if (end <= 5)
+      end = 5;
+    if (start <= end)
+      return monotonicity_change_line;
+    for (i = start; i >= end; i--) // 会读取前5后5数据，所以前面对输入范围有要求
+    {
+      if (track.pointsEdgeRight[i].y == track.pointsEdgeRight[i + 5].y &&
+          track.pointsEdgeRight[i].y == track.pointsEdgeRight[i - 5].y &&
+          track.pointsEdgeRight[i].y == track.pointsEdgeRight[i + 4].y &&
+          track.pointsEdgeRight[i].y == track.pointsEdgeRight[i - 4].y &&
+          track.pointsEdgeRight[i].y == track.pointsEdgeRight[i + 3].y &&
+          track.pointsEdgeRight[i].y == track.pointsEdgeRight[i - 3].y &&
+          track.pointsEdgeRight[i].y == track.pointsEdgeRight[i + 2].y &&
+          track.pointsEdgeRight[i].y == track.pointsEdgeRight[i - 2].y &&
+          track.pointsEdgeRight[i].y == track.pointsEdgeRight[i + 1].y &&
+          track.pointsEdgeRight[i].y ==
+              track.pointsEdgeRight[i - 1]
+                  .y) { // 一堆数据一样，显然不能作为单调转折点
+        continue;
+      } else if (
+          track.pointsEdgeRight[i].y < track.pointsEdgeRight[i + 5].y &&
+          track.pointsEdgeRight[i].y < track.pointsEdgeRight[i - 5].y &&
+          track.pointsEdgeRight[i].y < track.pointsEdgeRight[i + 4].y &&
+          track.pointsEdgeRight[i].y < track.pointsEdgeRight[i - 4].y &&
+          track.pointsEdgeRight[i].y <= track.pointsEdgeRight[i + 3].y &&
+          track.pointsEdgeRight[i].y <= track.pointsEdgeRight[i - 3].y &&
+          track.pointsEdgeRight[i].y <= track.pointsEdgeRight[i + 2].y &&
+          track.pointsEdgeRight[i].y <= track.pointsEdgeRight[i - 2].y &&
+          track.pointsEdgeRight[i].y <= track.pointsEdgeRight[i + 1].y &&
+          track.pointsEdgeRight[i].y <=
+              track.pointsEdgeRight[i - 1]
+                  .y) { // 就很暴力，这个数据是在前5，后5中最大的，那就是单调突变点
+        monotonicity_change_line = i;
+        break;
+      }
+    }
+    return monotonicity_change_line;
+  }
+  /*-------------------------------------------------------------------------------------------------------------------
+  @brief     单调性突变检测左
+  @param     起始点，终止行
+  @return    点所在的行数，找不到返回0
+  Sample     Find_Right_Up_Point(int start,int end);
+  @note      前5后5它最大（最小），那他就是角点
+  -------------------------------------------------------------------------------------------------------------------*/
+  int Monotonicity_Change_Left(
+      Tracking &track, int start,
+      int end) // 单调性改变，返回值是单调性改变点所在的行数
+  {
+    int i;
+    int monotonicity_change_line = 0;
+
+    if (track.validRowsLeft <=
+        0.1 * ROWSIMAGE) // 大部分都丢线，没有单调性判断的意义
+      return monotonicity_change_line;
+    if (start >= ROWSIMAGE - 1 - 5) // 数组越界保护
+      start = ROWSIMAGE - 1 - 5;
+    if (end <= 5)
+      end = 5;
+    if (start <= end)
+      return monotonicity_change_line;
+    for (i = start; i >= end; i--) // 会读取前5后5数据，所以前面对输入范围有要求
+    {
+      if (track.pointsEdgeLeft[i].y == track.pointsEdgeLeft[i + 5].y &&
+          track.pointsEdgeLeft[i].y == track.pointsEdgeLeft[i - 5].y &&
+          track.pointsEdgeLeft[i].y == track.pointsEdgeLeft[i + 4].y &&
+          track.pointsEdgeLeft[i].y == track.pointsEdgeLeft[i - 4].y &&
+          track.pointsEdgeLeft[i].y == track.pointsEdgeLeft[i + 3].y &&
+          track.pointsEdgeLeft[i].y == track.pointsEdgeLeft[i - 3].y &&
+          track.pointsEdgeLeft[i].y == track.pointsEdgeLeft[i + 2].y &&
+          track.pointsEdgeLeft[i].y == track.pointsEdgeLeft[i - 2].y &&
+          track.pointsEdgeLeft[i].y == track.pointsEdgeLeft[i + 1].y &&
+          track.pointsEdgeLeft[i].y ==
+              track.pointsEdgeLeft[i - 1]
+                  .y) { // 一堆数据一样，显然不能作为单调转折点
+        continue;
+      } else if (
+          track.pointsEdgeLeft[i].y < track.pointsEdgeLeft[i + 5].y &&
+          track.pointsEdgeLeft[i].y < track.pointsEdgeLeft[i - 5].y &&
+          track.pointsEdgeLeft[i].y < track.pointsEdgeLeft[i + 4].y &&
+          track.pointsEdgeLeft[i].y < track.pointsEdgeLeft[i - 4].y &&
+          track.pointsEdgeLeft[i].y <= track.pointsEdgeLeft[i + 3].y &&
+          track.pointsEdgeLeft[i].y <= track.pointsEdgeLeft[i - 3].y &&
+          track.pointsEdgeLeft[i].y <= track.pointsEdgeLeft[i + 2].y &&
+          track.pointsEdgeLeft[i].y <= track.pointsEdgeLeft[i - 2].y &&
+          track.pointsEdgeLeft[i].y <= track.pointsEdgeLeft[i + 1].y &&
+          track.pointsEdgeLeft[i].y <=
+              track.pointsEdgeLeft[i - 1]
+                  .y) { // 就很暴力，这个数据是在前5，后5中最大的，那就是单调突变点
+        monotonicity_change_line = i;
+        break;
+      }
+    }
+    return monotonicity_change_line;
+  }
+
 private:
   float mpu6050_later;
   float mpu6050_now;
+
+  float distance_later;
+  float distance_now;
   uint16_t counterSpurroad = 0; // 岔路计数器
   // 临时测试用参数
   int _ringStep;
@@ -777,9 +1011,11 @@ private:
    */
   enum RingStep {
     None = 0, // 未知类型
-    Entering, // 入环
-    Inside,   // 环中
-    Exiting,  // 出环
+    Frist,    // 状态一
+    IsRing,   // 状态二，入环之前在判断
+    Entering, // 状态三入环
+    Inside,   // 状态四环中
+    Exiting,  // 状态五出环
     Finish    // 环任务结束
   };
 

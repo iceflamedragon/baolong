@@ -79,6 +79,9 @@ int main(int argc, char const *argv[]) {
 
   // capture = VideoCapture(motion.params.video); // 打开本地视频
 
+
+  cv::Size S = cv::Size((int)capture.get(CAP_PROP_FRAME_WIDTH),
+                        (int)capture.get(CAP_PROP_FRAME_HEIGHT));
   if (!capture.isOpened()) {
     printf("can not open video device!!!\n");
     return 0;
@@ -101,6 +104,7 @@ int main(int argc, char const *argv[]) {
   //   uart->keypress = false;
   //   uart->buzzerSound(uart->BUZZER_START); // 祖传提示音效
   // }
+
 
   // 初始化参数
   Scene scene = Scene::NormalScene;     // 初始化场景：常规道路
@@ -128,7 +132,7 @@ int main(int argc, char const *argv[]) {
     // }
     // }
     mpu6050_now = uart->get_mpu6050(); // mpu6050_now就是mpu的数值
-    // cout << mpu6050_now << endl;       // 输出mpu
+    cout << mpu6050_now << endl;       // 输出mpu
     ring.setmpu6050(mpu6050_now);
     crossroad.setmpu6050(mpu6050_now);
     preTime = chrono::duration_cast<chrono::milliseconds>(
@@ -182,8 +186,8 @@ int main(int argc, char const *argv[]) {
       if (flag) {
         display.setNewWindow(2, "Track", imgTrack);
       }
-    }
-
+     }
+    // cout << "距离积分" << uart->get_distance();
     //[05] 停车区检测
     if (motion.params.parking) {
       if (parking.process(detection->results)) {
@@ -274,11 +278,12 @@ int main(int argc, char const *argv[]) {
     //  }
 
     //[13] 车辆运动控制(速度+方向)
-    motion.params.motion_start=1;
-      // cout<<"motion.params.motion_start"<<motion.params.motion_start<<endl;
-    if (motion.params.motion_start) //是否运动
+    motion.params.motion_start = 1;
+    // cout<<"motion.params.motion_start"<<motion.params.motion_start<<endl;
+    if (motion.params.motion_start) // 是否运动
     {
-      cout<<"motion.params.motion_start"<<motion.params.motion_start<<endl;
+      // cout << "motion.params.motion_start" << motion.params.motion_start
+      //      << endl;
 
       if ((scene == Scene::RescueScene && rescue.carStoping) || parking.park ||
           racing.carStoping) // 特殊区域停车
@@ -361,7 +366,8 @@ int main(int argc, char const *argv[]) {
       default: // 常规道路场景：无特殊路径规划
         break;
       }
-
+circle(imgCorrect, Point(tracking.pointsEdgeLeft[ring.Left_Down_breakpoint].y, tracking.pointsEdgeLeft[ring.Left_Down_breakpoint].x), 5,
+             Scalar(255, 152, 0), -1); // 我们自己的拐点 
       detection->drawBox(imgCorrect); // 图像绘制AI结果
       ctrlCenter.drawImage(tracking,
                            imgCorrect); // 图像绘制路径计算结果（控制中心）
@@ -390,7 +396,12 @@ int main(int argc, char const *argv[]) {
     else if (scene == Scene::CrossScene)
       scene = Scene::NormalScene;
 
+    // capture >> img;
+    // cv::imshow("output", img);
+    // outputVideo << img;
     //[16] 按键退出程序
+    if (char(waitKey(1)) == 'q')
+      break;
     if (uart->keypress) {
       uart->carControl(0, PWMSERVOMID); // 控制车辆停止运动
       sleep(1);
