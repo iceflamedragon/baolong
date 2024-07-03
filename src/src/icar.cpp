@@ -79,7 +79,6 @@ int main(int argc, char const *argv[]) {
 
   // capture = VideoCapture(motion.params.video); // 打开本地视频
 
-
   cv::Size S = cv::Size((int)capture.get(CAP_PROP_FRAME_WIDTH),
                         (int)capture.get(CAP_PROP_FRAME_HEIGHT));
   if (!capture.isOpened()) {
@@ -105,7 +104,6 @@ int main(int argc, char const *argv[]) {
   //   uart->buzzerSound(uart->BUZZER_START); // 祖传提示音效
   // }
 
-
   // 初始化参数
   Scene scene = Scene::NormalScene;     // 初始化场景：常规道路
   Scene sceneLast = Scene::NormalScene; // 记录上一次场景状态
@@ -119,7 +117,8 @@ int main(int argc, char const *argv[]) {
   string s2 = ".jpg";
   float mpu6050_now;
   float mpu6050_later;
-
+  float distance_now;
+  int ai_check = 0;
   while (1) {
 
     // if(std::cin.rdbuf()->in_avail()>0)
@@ -132,8 +131,12 @@ int main(int argc, char const *argv[]) {
     // }
     // }
     mpu6050_now = uart->get_mpu6050(); // mpu6050_now就是mpu的数值
-    cout << mpu6050_now << endl;       // 输出mpu
+    distance_now = uart->get_distance();
+
+    cout << mpu6050_now << endl; // 输出mpu
+
     ring.setmpu6050(mpu6050_now);
+    ring.setdistance(distance_now);
     crossroad.setmpu6050(mpu6050_now);
     preTime = chrono::duration_cast<chrono::milliseconds>(
                   chrono::system_clock::now().time_since_epoch())
@@ -167,8 +170,12 @@ int main(int argc, char const *argv[]) {
     Mat element = getStructuringElement(
         MORPH_RECT, Size(9, 9)); // 小于8*8方块的白色噪点都会被腐蚀
     erode(imgBinary, imgBinary, element);
-    //[03] 启动AI推理
-    detection->inference(imgCorrect);
+    if (ai_check > 1) {
+      //[03] 启动AI推理
+
+      detection->inference(imgCorrect);
+      ai_check = 0;
+    }
     auto startTime = chrono::duration_cast<chrono::milliseconds>(
                          chrono::system_clock::now().time_since_epoch())
                          .count();
@@ -186,7 +193,7 @@ int main(int argc, char const *argv[]) {
       if (flag) {
         display.setNewWindow(2, "Track", imgTrack);
       }
-     }
+    }
     // cout << "距离积分" << uart->get_distance();
     //[05] 停车区检测
     if (motion.params.parking) {
@@ -366,9 +373,11 @@ int main(int argc, char const *argv[]) {
       default: // 常规道路场景：无特殊路径规划
         break;
       }
-circle(imgCorrect, Point(tracking.pointsEdgeLeft[ring.Left_Down_breakpoint].y, tracking.pointsEdgeLeft[ring.Left_Down_breakpoint].x), 5,
-             Scalar(255, 152, 0), -1); // 我们自己的拐点 
-      detection->drawBox(imgCorrect); // 图像绘制AI结果
+      circle(imgCorrect,
+             Point(tracking.pointsEdgeLeft[ring.Left_Down_breakpoint].y,
+                   tracking.pointsEdgeLeft[ring.Left_Down_breakpoint].x),
+             5, Scalar(255, 152, 0), -1); // 我们自己的拐点
+      detection->drawBox(imgCorrect);     // 图像绘制AI结果
       ctrlCenter.drawImage(tracking,
                            imgCorrect); // 图像绘制路径计算结果（控制中心）
       if (flag) {

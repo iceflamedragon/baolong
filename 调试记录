@@ -14,3 +14,11 @@
 0.6/0.013/1.2(目前来看是巡线最好的)
 
 0.7/0.010/0.2/入环p1.p2.d
+
+
+
+6.10:摄像头参数变了
+在圆环处斜率可以到200多---countwide大于100
+delay:track.stdevRight<30&&track.stdevLeft > 60
+delay1>450
+

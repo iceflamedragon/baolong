@@ -461,7 +461,7 @@ public:
    *
    * @param sound
    */
-  float get_distance(void) { return Distance.int32; }
+  float get_distance(void) { return Distance.float32; }
   void buzzerSound(Buzzer sound) {
     if (!isOpen)
       return;
