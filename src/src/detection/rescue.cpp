@@ -85,8 +85,8 @@ public:
     static int retime=0;
     static int counterme=0 ;      // 真正用到的标志检测计数器
     static int stoptime=0;
-    static int chu=0;
-    cout<<"延时点数"<<retime<<endl;
+     static int chu=0;
+    // cout<<"延时点数"<<retime<<endl;
     if(reflag==1)
     {
         retime++;

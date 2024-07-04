@@ -170,7 +170,9 @@ int main(int argc, char const *argv[]) {
     Mat element = getStructuringElement(
         MORPH_RECT, Size(9, 9)); // 小于8*8方块的白色噪点都会被腐蚀
     erode(imgBinary, imgBinary, element);
+    cout << "scene" << scene << endl;
     if (ai_check > 1) {
+
       //[03] 启动AI推理
 
       detection->inference(imgCorrect);
