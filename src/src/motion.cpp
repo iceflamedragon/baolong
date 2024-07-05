@@ -79,6 +79,7 @@ public:
    *
    */
   struct Params {
+    int record_video;
 float ring_p1;//圆环的pid
 float ring_p2;
 float ring_d;
@@ -142,6 +143,7 @@ NLOHMANN_DEFINE_TYPE_INTRUSIVE(Params, speedLow, speedHigh, speedBridge,
    */
   void poseCtrl(int controlCenter) {
     float error = controlCenter - COLSIMAGE / 2; // 图像控制中心转换偏差
+    cout<<"偏差值"<<error<<endl;
     static int errorLast = 0;                    // 记录前一次的偏差
     if (abs(error - errorLast) > COLSIMAGE / 10) {
       error = error > errorLast ? errorLast + COLSIMAGE / 10
@@ -154,6 +156,7 @@ NLOHMANN_DEFINE_TYPE_INTRUSIVE(Params, speedLow, speedHigh, speedBridge,
 
     servoPwm =
         (uint16_t)(PWMSERVOMID - pwmDiff); // PWM转换 ~~^~~~~~~~~~~~~~~~~~~~~~~
+        cout<<"舵机pwm"<<servoPwm<<endl;
   }
 
   /**

@@ -15,7 +15,8 @@ set(COMMON_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/include"
                         "${PROJECT_SOURCE_DIR}/config"
                         "${PROJECT_SOURCE_DIR}/src"
                         "${PROJECT_SOURCE_DIR}/tool")
-
+set(CMAKE_BUILD_TYPE Debug)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
 
 link_directories(${COMMON_LIB_DIR})
 include_directories( ${COMMON_INCLUDE_DIR} )

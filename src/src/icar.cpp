@@ -85,6 +85,8 @@ int main(int argc, char const *argv[]) {
     printf("can not open video device!!!\n");
     return 0;
   }
+  VideoWriter video("ouput.avi", cv::VideoWriter::fourcc('M', 'J', 'P', 'G'),
+                    30, Size(1280, 240));
   capture.set(CAP_PROP_FRAME_WIDTH, COLSIMAGE);  // 设置图像分辨率
   capture.set(CAP_PROP_FRAME_HEIGHT, ROWSIMAGE); // 设置图像分辨率
 
@@ -159,7 +161,7 @@ int main(int argc, char const *argv[]) {
       // imwrite("../res/calibration/temp/" + to_string(s1) + s2, img);
       // cout << "../res/calibration/temp/" + to_string(s1) + s2 << endl;
       uart->carpid(300, 750, 0, 0); // 调pid，参数分别为p，i，d，是否存入flash
-      cout << "fache" << endl << endl << endl << endl << endl;
+      // cout << "fache" << endl << endl << endl << endl << endl;
 
       // 按键发车
     }
@@ -188,9 +190,10 @@ int main(int argc, char const *argv[]) {
     tracking.rowCutBottom =
         motion.params.rowCutBottom; // 图像底部切行（盲区距离）
     tracking.trackRecognition(imgBinary); // 扫线
-    if (motion.params.debug)              // 综合显示调试UI窗口
+    Mat imgTrack = imgCorrect.clone();
+    if (motion.params.debug) // 综合显示调试UI窗口
     {
-      Mat imgTrack = imgCorrect.clone();
+
       tracking.drawImage(imgTrack); // 图像绘制赛道识别结果
       if (flag) {
         display.setNewWindow(2, "Track", imgTrack);
@@ -312,7 +315,8 @@ int main(int argc, char const *argv[]) {
       motion.poseCtrl(ctrlCenter.controlCenter); // 姿态控制（舵机）
       uart->carControl(motion.speed, motion.servoPwm); // 串口通信控制车辆
     }
-
+    Mat imgRes =
+        Mat::zeros(Size(COLSIMAGE, ROWSIMAGE), CV_8UC3); // 创建全黑图像
     //[14] 综合显示调试UI窗口
     if (motion.params.debug) {
       // 帧率计算
@@ -325,8 +329,6 @@ int main(int argc, char const *argv[]) {
       if (flag) {
         display.setNewWindow(1, "Binary", imgBinary);
       }
-      Mat imgRes =
-          Mat::zeros(Size(COLSIMAGE, ROWSIMAGE), CV_8UC3); // 创建全黑图像
 
       switch (scene) {
       case Scene::NormalScene:
@@ -375,11 +377,11 @@ int main(int argc, char const *argv[]) {
       default: // 常规道路场景：无特殊路径规划
         break;
       }
-      circle(imgCorrect,
-             Point(tracking.pointsEdgeLeft[ring.Left_Down_breakpoint].y,
-                   tracking.pointsEdgeLeft[ring.Left_Down_breakpoint].x),
-             5, Scalar(255, 152, 0), -1); // 我们自己的拐点
-      detection->drawBox(imgCorrect);     // 图像绘制AI结果
+      // circle(imgCorrect,
+      //        Point(tracking.pointsEdgeLeft[ring.left_breakpoint].y,
+      //              tracking.pointsEdgeLeft[ring.left_breakpoint].x),
+      //        5, Scalar(255, 152, 0), -1); // 我们自己的拐点
+      detection->drawBox(imgCorrect); // 图像绘制AI结果
       ctrlCenter.drawImage(tracking,
                            imgCorrect); // 图像绘制路径计算结果（控制中心）
       if (flag) {
@@ -394,6 +396,34 @@ int main(int argc, char const *argv[]) {
       circle(imgCorrect, Point(tracking.spurroad[i].y, tracking.spurroad[i].x),
              5, Scalar(0, 0, 255), -1); // 红色点画拐点
     }
+
+    int w1 = imgTrack.cols;
+    int h1 = imgTrack.rows;
+    int w2 = imgRes.cols;
+    int h2 = imgRes.rows;
+    int w3 = imgCorrect.cols;
+    int h3 = imgCorrect.rows;
+    int width = w1 + w2 + w3;
+    int height = h1;
+    Mat result_img;
+    hconcat(imgTrack, imgRes, result_img);
+    hconcat(result_img, imgCorrect, result_img);
+    cout << display.imgShow.cols << display.imgShow.rows << endl;
+    video.write(display.imgShow);
+
+    // cout<<width<<"height"<<height<<endl<<endl<<endl<<endl;
+    // video.write(imgBinary);//图像1录像
+    //     if(motion.params.record_video==1)
+    // {
+    //    Mat  resultImg = Mat(width, height, CV_8UC3, Scalar::all(0));
+    //     Mat ROI_1 = resultImg(Rect(0, 0, w1, h1));
+    //     Mat ROI_2 = resultImg(Rect(w1, 0, w2, h2));
+    //     Mat ROI_3 = resultImg(Rect(w2, 0, w3, h3));
+    //    imgTrack.copyTo(ROI_1);
+    //    imgRes.copyTo(ROI_2);
+    //    imgCorrect.copyTo(ROI_3);
+    // video.write(resultImg);
+    //   }
     //[15] 状态复位
     if (sceneLast != scene) {
       if (scene == Scene::NormalScene)
@@ -419,6 +449,7 @@ int main(int argc, char const *argv[]) {
       printf("-----> System Exit!!! <-----\n");
       exit(0); // 程序退出
     }
+
     // endTime = clock();
     // cout << "the run time is " << (double)(endTime - startTime) /
     // CLOCKS_PER_SEC

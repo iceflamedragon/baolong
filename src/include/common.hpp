@@ -37,9 +37,9 @@ using namespace cv;
 #define ROWSIMAGE 240    // 图像的行数240
 #define COLSIMAGEIPM 320 // IPM图像的列数
 #define ROWSIMAGEIPM 400 // IPM图像的行数
-#define PWMSERVOMAX 750  // 舵机PWM最大值（左）1840
-#define PWMSERVOMID 729  // 舵机PWM中值 1520
-#define PWMSERVOMIN 743  // 舵机PWM最小值（右）1200
+#define PWMSERVOMAX 1280  // 舵机PWM最大值（左）
+#define PWMSERVOMID 750  // 舵机PWM中值 
+#define PWMSERVOMIN 280  // 舵机PWM最小值（右）
 
 #define LABEL_BOMB 0      // AI标签：爆炸物
 #define LABEL_BRIDGE 1    // AI标签：坡道
@@ -287,8 +287,9 @@ class Display {
 private:
   bool enable = false; // 显示窗口使能
   int sizeWindow = 1;  // 窗口数量
-  cv::Mat imgShow;     // 窗口图像
+
 public:
+  cv::Mat imgShow; // 窗口图像
   /**
    * @brief 显示窗口初始化
    *
@@ -360,4 +361,5 @@ public:
     if (enable)
       imshow("ICAR", imgShow);
   }
+ 
 };
