@@ -66,7 +66,11 @@ int main(int argc, char const *argv[]) {
   detection->score = motion.params.score; // AI检测置信度
 
   // USB转串口初始化： /dev/ttyUSB0
-
+// if(ring.flagpid){
+// motion.flag=1;
+// cout<<"主函数中设置成进环pid了"<<endl;
+// }else  motion.flag=0;
+// cout<<"motion中的flag值"<<motion.flag<<endl;
   int ret = uart->open();
   if (ret != 0) {
     printf("[Error] Uart Open failed!\n");
@@ -122,7 +126,11 @@ int main(int argc, char const *argv[]) {
   float distance_now;
   int ai_check = 0;
   while (1) {
-
+  //   if(ring.flagpid){
+  // motion.flag=1;
+  // cout<<"主函数中设置成进环pid了"<<endl;
+  // }else  motion.flag=0;
+  //cout<<"motion中的flag值"<<motion.flag<<endl;
     // if(std::cin.rdbuf()->in_avail()>0)
     // {
     //   char c =std::cin.get();
@@ -133,7 +141,7 @@ int main(int argc, char const *argv[]) {
     // }
     // }
     mpu6050_now = uart->get_mpu6050(); // mpu6050_now就是mpu的数值
-    distance_now = uart->get_distance();
+    distance_now = uart->get_distance();//编码器获取
 
     cout << mpu6050_now << endl; // 输出mpu
 
@@ -173,13 +181,15 @@ int main(int argc, char const *argv[]) {
         MORPH_RECT, Size(9, 9)); // 小于8*8方块的白色噪点都会被腐蚀
     erode(imgBinary, imgBinary, element);
     cout << "scene" << scene << endl;
-    if (ai_check > 1) {
+    if (ai_check > 1||detection->ai_flag) {
 
       //[03] 启动AI推理
-
       detection->inference(imgCorrect);
       ai_check = 0;
     }
+  //  detection->inference(imgCorrect);
+  //   detection->set_ai_flag(0);//清零ai标志
+  //   ai_check++;
     auto startTime = chrono::duration_cast<chrono::milliseconds>(
                          chrono::system_clock::now().time_since_epoch())
                          .count();
@@ -396,7 +406,7 @@ int main(int argc, char const *argv[]) {
       circle(imgCorrect, Point(tracking.spurroad[i].y, tracking.spurroad[i].x),
              5, Scalar(0, 0, 255), -1); // 红色点画拐点
     }
-
+detection->drawBox(imgCorrect); // 图像绘制AI结果
     int w1 = imgTrack.cols;
     int h1 = imgTrack.rows;
     int w2 = imgRes.cols;
@@ -405,10 +415,7 @@ int main(int argc, char const *argv[]) {
     int h3 = imgCorrect.rows;
     int width = w1 + w2 + w3;
     int height = h1;
-    Mat result_img;
-    hconcat(imgTrack, imgRes, result_img);
-    hconcat(result_img, imgCorrect, result_img);
-    cout << display.imgShow.cols << display.imgShow.rows << endl;
+
     video.write(display.imgShow);
 
     // cout<<width<<"height"<<height<<endl<<endl<<endl<<endl;

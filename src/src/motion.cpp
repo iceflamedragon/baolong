@@ -25,6 +25,7 @@
 #include "../include/common.hpp"
 #include "../include/json.hpp"
 #include "controlcenter.cpp"
+
 #include <cmath>
 #include <fstream>
 #include <iostream>
@@ -42,12 +43,14 @@ private:
   float p1_former;
   float p2_former;
   float d_former;
+ //Ring ring;                // 环岛识别类
 
 public:
   /**
    * @brief 初始化：加载配置文件
    *
    */
+  int flag=0;
   Motion() {
     string jsonPath = "../src/config/config.json";
     std::ifstream config_is(jsonPath);
@@ -80,9 +83,9 @@ public:
    */
   struct Params {
     int record_video;
-float ring_p1;//圆环的pid
-float ring_p2;
-float ring_d;
+float ring_p1=1;//圆环的pid
+float ring_p2=0.012;
+float ring_d=1.5;
 bool motion_start;
 float speedLow = 1.5;        // 智能车最低速
 float speedHigh = 4;         // 智能车最高速
@@ -105,6 +108,7 @@ bool parking = true;         // 停车区使能
 bool ring = true;            // 环岛使能
 bool cross = true;           // 十字道路使能
 float score = 0.5;           // AI检测置信度
+
 string model = "../res/model/yolov3_mobilenet_v1"; // 模型路径
 string video = "../res/samples/demo.mp4";          // 视频路径
 NLOHMANN_DEFINE_TYPE_INTRUSIVE(Params, speedLow, speedHigh, speedBridge,
@@ -124,7 +128,7 @@ NLOHMANN_DEFINE_TYPE_INTRUSIVE(Params, speedLow, speedHigh, speedBridge,
     params.runP1 = p1;
     params.runP2 = p2;
     params.turnD = d;
-
+    cout<<"p2的值"<<p2<<endl;
     cout << "切换舵机pid" << endl;
   }
   // 还原舵机pid
@@ -141,9 +145,28 @@ NLOHMANN_DEFINE_TYPE_INTRUSIVE(Params, speedLow, speedHigh, speedBridge,
    *
    * @param controlCenter 智能车控制中心
    */
+
   void poseCtrl(int controlCenter) {
-    float error = controlCenter - COLSIMAGE / 2; // 图像控制中心转换偏差
-    cout<<"偏差值"<<error<<endl;
+    //if(ring.flagpid )flag=1;
+    float error = controlCenter - COLSIMAGE / 2; 
+    cout<<"flag的值是    "<<flag<<endl<<endl;
+    //  if(flag)
+    // {
+    //    cout<<"切换为圆环内的error求法了"<<endl;
+
+    
+    // if(error<0)
+    // {
+    // error=-pow(abs(error),0.5);
+    // }
+    // else {
+    //   error=pow(abs(error),0.5);
+    // }
+    //  }
+    //  else error = controlCenter - COLSIMAGE / 2;
+    //cout<<error<<endl;
+// 图像控制中心转换偏差
+   cout<<"偏差值"<<error<<endl;
     static int errorLast = 0;                    // 记录前一次的偏差
     if (abs(error - errorLast) > COLSIMAGE / 10) {
       error = error > errorLast ? errorLast + COLSIMAGE / 10
@@ -154,9 +177,9 @@ NLOHMANN_DEFINE_TYPE_INTRUSIVE(Params, speedLow, speedHigh, speedBridge,
     int pwmDiff = (error * params.turnP) + (error - errorLast) * params.turnD;
     errorLast = error;
 
-    servoPwm =
-        (uint16_t)(PWMSERVOMID - pwmDiff); // PWM转换 ~~^~~~~~~~~~~~~~~~~~~~~~~
-        cout<<"舵机pwm"<<servoPwm<<endl;
+    servoPwm =PWMSERVOMID - pwmDiff;
+        // (uint16_t)(750 - pwmDiff); // PWM转换 ~~^~~~~~~~~~~~~~~~~~~~~~~
+    cout<<"舵机pwm"<<PWMSERVOMID - pwmDiff<<endl;
   }
 
   /**

@@ -108,6 +108,7 @@ public:
           if (predict[i].type == LABEL_EVIL ||
               predict[i].type == LABEL_THIEF) // 小偷强盗标志检测
           {
+            cout<<"识别到恐怖分子了"<<endl<<endl<<endl;
             counterExit++;
             break;
           }

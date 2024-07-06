@@ -29,6 +29,7 @@
 #include <iostream>
 #include <opencv2/highgui.hpp>
 #include <opencv2/opencv.hpp>
+// #include "recognition/ring.cpp"      //环岛道路识别与路径规划类
 using namespace cv;
 using namespace std;
 
@@ -164,14 +165,17 @@ public:
     int controlNum = 1;
 
     for (auto p : centerEdge) {
-      if (p.x < ROWSIMAGE /4) { // 靠近车辆的地方加权更大
-        controlNum +=(ROWSIMAGE/2); // 赛道的横坐标的加权，需要跟下面的数相同
-        controlCenter += p.y * (ROWSIMAGE/2); // 需要跟上面的数相同
-      } else {
-        if(ROWSIMAGE - p.x<0)
-        continue;
-        controlNum += (ROWSIMAGE+100 - p.x); // 赛道的横坐标的加权，小于上面的那个
-        controlCenter += p.y * (ROWSIMAGE+100 - p.x);
+      if (p.x < ROWSIMAGE /4) { // 远离车辆的地方加权更大
+        controlNum +=(ROWSIMAGE/4); // 赛道的纵坐标的加权，需要跟下面的数相同
+        controlCenter += p.y * (ROWSIMAGE/4); // 需要跟上面的数相同
+      } else if(p.x > ROWSIMAGE /4&&p.x<ROWSIMAGE*(3/4)){
+
+        controlNum += (ROWSIMAGE+  p.x); // 赛道的纵坐标的加权，小于上面的那个
+        controlCenter += p.y * (ROWSIMAGE + p.x);
+      }
+      else{
+controlNum += (ROWSIMAGE+170 + p.x); // 赛道的纵坐标的加权，小于上面的那个
+        controlCenter += p.y * (ROWSIMAGE+170 + p.x);
       }
     }
     if (controlNum > 1) {
@@ -275,6 +279,7 @@ private:
   int countOutlineA = 0; // 车辆脱轨检测计数器
   int countOutlineB = 0; // 车辆脱轨检测计数器
   string style = "";     // 赛道类型
+  //Ring ring;                // 环岛识别类
   /**
    * @brief 搜索十字赛道突变行（左下）
    *
