@@ -227,32 +227,31 @@ public:
     if (ringStep == RingStep::None) {
       // 判断左入环
       // cout<<"kaishipanduan9999999999"<<endl;
-      left_breakpoint = Find_Left_Breakpoint(track, 80, 120);
+      left_breakpoint = Find_Left_Breakpoint(track, 30, 160);
       right_breakpoint = Find_Right_Breakpoint(track, 30, 160); // 原来150
       if (left_breakpoint) // 有左下拐点
       {
         lostline_left =
-            Lostline_Left(track, left_breakpoint + 10, left_breakpoint);
+            Lostline_Left(track, left_breakpoint + 40, left_breakpoint);
         continuity_change_right_flag =
-            Continuity_Change_Right(track, left_breakpoint - 10,
-                                    left_breakpoint + 10); // 拐点附近判断连续性
+            Continuity_Change_Right(track, left_breakpoint - 20,
+                                    left_breakpoint + 20); // 拐点附近判断连续性
         continuity_change_left_flag =
             Continuity_Change_Left(track, ROWSIMAGE - 1 - 5, 50);
         if (ringTypeTemp == RingNone) {
-          if (lostline_left > 8 &&                 // 判断左入环
+          if (lostline_left > 15 &&                 // 判断左入环
               continuity_change_left_flag != 0 &&  // 左边是不连续的
               continuity_change_right_flag == 0 && // 左环岛右边是连续的
-              track.validRowsLeft >= 10 &&         // 左边有效行不能少
+              track.validRowsLeft >= 20 &&         // 左边有效行不能少
               track.validRowsLeft <= 100 &&        // 左边有效行比较少
               track.validRowsRight >= 140          // 右边丢线较少
           ) {
             monotonicity_right =
-                Monotonicity_Right(track, left_breakpoint - 30,
-                                   left_breakpoint + 30); // 原来此处为10
+                Monotonicity_Right(track, left_breakpoint - 15,
+                                   left_breakpoint + 15); // 原来此处为10
             if (monotonicity_right == 0) {                // 右边是单调的
               ringStep = RingStep::IsRing;
               ringTypeTemp = RingLeft; // 环岛类型：左入环
-              // left = 1;
               ringEnable = true;
               std::cout << "判断出左入环" << endl;
               distance_in = distance_now;
@@ -338,23 +337,16 @@ public:
     if (ringStep == RingStep::IsRing) // 状态2入环前判断
     {
       // cout<<"左入环"<<ringTypeTemp<<endl;
-      if (ringTypeTemp == RingLeft &&
-          (distance_now - distance_in) >
-              900) // 左入环  对于类型问题换个方式？ ringTypeTemp == RingLeft
+      if (ringTypeTemp == RingLeft) // 左入环  对于类型问题换个方式？ ringTypeTemp == RingLeft
       {
         cout << "要进行entering的判断了" << endl;
         monotonicity_change_line[0] = Monotonicity_Change_Right(track, 30, 160);
-        cout << "圆弧的判断" << (int)RoundaboutGetArc(track, 1, 10, 30, 160)
-             << endl;
-        cout << "右边线连续的判断"
-             << Monotonicity_Right(track, monotonicity_change_line[0] + 20,
-                                   monotonicity_change_line[0] - 20)
-             << endl;
-        if (RoundaboutGetArc(track, 1, 15, 30, 160) && // 一半圆弧点的判定
-            !Monotonicity_Right(
-                track, monotonicity_change_line[0] + 20,
-                monotonicity_change_line[0] -
-                    20)) { // 当左边不单调点较低，或者左侧的斜率较大
+        // cout << "圆弧的判断" << (int)RoundaboutGetArc(track, 1, 10, 30, 160)<< endl;
+        cout << "右边线连续的判断"<< Monotonicity_Right(track, monotonicity_change_line[0] + 20,
+                                   monotonicity_change_line[0] - 20)<< endl;
+        if (// 一半圆弧点的判定RoundaboutGetArc(track, 1, 15, 30, 160) && 
+            !Monotonicity_Right(track, monotonicity_change_line[0] + 20,
+                monotonicity_change_line[0] -20)) { // 当左边不单调点较低，或者左侧的斜率较大
           ringStep = RingStep::Entering;
           cout << "////////////////////////////////左入环前" << endl;
         }
@@ -389,7 +381,7 @@ public:
         }
 
         else {
-          if ((distance_now - distance_in) > 3000) {
+          if ((distance_now - distance_in) > 1800) {
             ringStep = RingStep::None;
             ringTypeTemp = RingNone;
             distance_in = 0;
@@ -415,10 +407,10 @@ public:
       cout << "入环路程差值" << distance_diff << endl; // distance的路程积分
       left_breakpoint = Find_Left_Breakpoint(track, 20, 160);
       right_breakpoint=Find_Right_Breakpoint(track, 20,
-                           180);
+                           160);
       cout<<"入环右角点的i值" << right_breakpoint<<endl;                   
       cout << "入环左角点的i值" << left_breakpoint << endl;
-      if ((left_breakpoint > 100 && left_breakpoint < 130) ||
+      if ((left_breakpoint > 50 && left_breakpoint < 120) ||
           (right_breakpoint > 50 && right_breakpoint < 120)) {//原先为130  95
         flagjiao = 1;
       }
@@ -928,7 +920,9 @@ public:
    continuity_change_right_flag = 0;   // 连续是0
    continuity_change_left_flag = 0;    // 连续是0
    cout<<"圆环完成"<<endl;
-      }
+    reset();
+   
+          }
     }
 
     if (track.spurroad.empty())
