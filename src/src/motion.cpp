@@ -83,9 +83,9 @@ public:
    */
   struct Params {
     int record_video;
-float ring_p1=1;//圆环的pid
-float ring_p2=0.012;
-float ring_d=1.5;
+float ring_p1;//圆环的pid
+float ring_p2;
+float ring_d;
 bool motion_start;
 float speedLow = 1.5;        // 智能车最低速
 float speedHigh = 4;         // 智能车最高速
@@ -115,7 +115,7 @@ NLOHMANN_DEFINE_TYPE_INTRUSIVE(Params, speedLow, speedHigh, speedBridge,
                                speedDown, runP1, runP2, runP3, turnP, turnD,
                                debug, saveImg, rowCutUp, rowCutBottom, bridge,
                                danger, rescue, racing, parking, ring, cross,
-                               score, model,
+                               score, model,ring_p1,ring_p2,ring_d,record_video,
                                video); // 添加构造函数
   };
 
@@ -147,9 +147,9 @@ NLOHMANN_DEFINE_TYPE_INTRUSIVE(Params, speedLow, speedHigh, speedBridge,
    */
 
   void poseCtrl(int controlCenter) {
-    //if(ring.flagpid )flag=1;
+   // if(ring.flagpid )flag=1;
     float error = controlCenter - COLSIMAGE / 2; 
-    cout<<"flag的值是    "<<flag<<endl<<endl;
+    // cout<<"flag的值是    "<<flag<<endl<<endl;
     //  if(flag)
     // {
     //    cout<<"切换为圆环内的error求法了"<<endl;
@@ -177,7 +177,7 @@ NLOHMANN_DEFINE_TYPE_INTRUSIVE(Params, speedLow, speedHigh, speedBridge,
     int pwmDiff = (error * params.turnP) + (error - errorLast) * params.turnD;
     errorLast = error;
 
-    servoPwm =PWMSERVOMID - pwmDiff;
+    servoPwm =750 - pwmDiff;
         // (uint16_t)(750 - pwmDiff); // PWM转换 ~~^~~~~~~~~~~~~~~~~~~~~~~
     cout<<"舵机pwm"<<PWMSERVOMID - pwmDiff<<endl;
   }

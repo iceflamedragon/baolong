@@ -37,4 +37,15 @@ delay1>450
     "turnP": 0,
     "turnD": 3.2,
 
-
+速度为1.2 切行为50的时候广角
+    "runP1": 1,
+    "runP2": 0.019,
+    "runP3": 0,
+    "turnP": 0,
+    "turnD": 2.0,
+    或者
+     "runP1": 1,
+    "runP2": 0.018,
+    "runP3": 0,
+    "turnP": 0,
+    "turnD": 2.2,

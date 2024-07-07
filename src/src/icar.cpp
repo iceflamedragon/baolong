@@ -184,7 +184,7 @@ int main(int argc, char const *argv[]) {
     if (ai_check > 1||detection->ai_flag) {
 
       //[03] 启动AI推理
-      detection->inference(imgCorrect);
+       detection->inference(imgCorrect);
       ai_check = 0;
     }
   //  detection->inference(imgCorrect);

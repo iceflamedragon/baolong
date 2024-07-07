@@ -1,25 +1,14 @@
+
+# Consider dependencies only in project.
+set(CMAKE_DEPENDS_IN_PROJECT_ONLY OFF)
+
 # The set of languages for which implicit dependencies are needed:
 set(CMAKE_DEPENDS_LANGUAGES
-  "CXX"
   )
-# The set of files for implicit dependencies of each language:
-set(CMAKE_DEPENDS_CHECK_CXX
-  "/home/edgeboard/car/demo/src/tool/img2video.cpp" "/home/edgeboard/car/demo/build/CMakeFiles/img2video.dir/tool/img2video.cpp.o"
-  )
-set(CMAKE_CXX_COMPILER_ID "GNU")
 
-# The include file search paths:
-set(CMAKE_CXX_TARGET_INCLUDE_PATH
-  "/home/edgeboard/car/demo/src/include"
-  "/home/edgeboard/car/demo/src/config"
-  "/home/edgeboard/car/demo/src/src"
-  "/home/edgeboard/car/demo/src/tool"
-  "/usr/include/glib-2.0"
-  "/usr/lib/aarch64-linux-gnu/glib-2.0/include"
-  "/usr/local/include/opencv4"
-  "/usr/local/include/libserial"
-  "/usr/local/include/ppnc"
-  "/usr/local/include/onnx"
+# The set of dependency files which are needed:
+set(CMAKE_DEPENDS_DEPENDENCY_FILES
+  "/home/edgeboard/car/baolong/src/tool/img2video.cpp" "CMakeFiles/img2video.dir/tool/img2video.cpp.o" "gcc" "CMakeFiles/img2video.dir/tool/img2video.cpp.o.d"
   )
 
 # Targets to which this target links.

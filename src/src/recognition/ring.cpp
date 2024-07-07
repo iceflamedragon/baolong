@@ -849,7 +849,7 @@ public:
         
       }
 
-      if (abs(mpu6050_now - mpu6050_later )> 270) // 判断mpu6050然后再出环
+      if (abs(mpu6050_now - mpu6050_later )> 285) // 判断mpu6050然后再出环
       {
         motion.set_direction_pid(common_p1, common_p2, common_d);
         cout << "切换为普通pid" << endl;
