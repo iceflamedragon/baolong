@@ -68,8 +68,8 @@ public:
   int left_breakpoint = 10;  // 左拐点行号
   int right_breakpoint = 10; // 右拐点行号
   int monotonicity_change_line[2]; // 单调性改变点坐标，[0]寸某行，[1]寸某列
-  int monotonicity_right = 0; // 右侧单调
-  int monotonicity_left = 0;  // 左侧单调
+  int monotonicity_right = 0; // 右侧严格单调
+  int monotonicity_left = 0;  // 左侧严格单调
   int lostline_left = 0;      // 左右丢线数量
   int lostline_right = 0;
   int monotonicity_change_left_flag = 0;  // 不转折是0
@@ -233,22 +233,31 @@ public:
       {
         lostline_left =
             Lostline_Left(track, left_breakpoint + 40, left_breakpoint);
+            cout<<"左环左侧丢线数量"<<lostline_left<<endl;
         continuity_change_right_flag =
             Continuity_Change_Right(track, left_breakpoint - 20,
                                     left_breakpoint + 20); // 拐点附近判断连续性
+         cout<<"左环的右边连续性"<<continuity_change_right_flag<<endl;
+
         continuity_change_left_flag =
             Continuity_Change_Left(track, ROWSIMAGE - 1 - 5, 50);
+           cout<<"左环左侧连续性"<< continuity_change_left_flag<<endl;
+           cout<<"左环左边有效行数量"<<track.validRowsLeft<<endl;
+           cout<<"左环右边有效行数量"<<track.validRowsRight<<endl;
+
         if (ringTypeTemp == RingNone) {
           if (lostline_left > 15 &&                 // 判断左入环
               continuity_change_left_flag != 0 &&  // 左边是不连续的
               continuity_change_right_flag == 0 && // 左环岛右边是连续的
               track.validRowsLeft >= 20 &&         // 左边有效行不能少
-              track.validRowsLeft <= 100 &&        // 左边有效行比较少
-              track.validRowsRight >= 140          // 右边丢线较少
+              track.validRowsLeft <= 120 &&        // 左边有效行比较少
+              track.validRowsRight >= 120          // 右边丢线较少
           ) {
+            
             monotonicity_right =
                 Monotonicity_Right(track, left_breakpoint - 15,
                                    left_breakpoint + 15); // 原来此处为10
+            cout<<"左环右侧严格单调性"<<monotonicity_right<<endl;
             if (monotonicity_right == 0) {                // 右边是单调的
               ringStep = RingStep::IsRing;
               ringTypeTemp = RingLeft; // 环岛类型：左入环
