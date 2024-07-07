@@ -40,7 +40,10 @@ class Rescue {
 public:
   bool carStoping = false;  // 停车标志
   bool carExitting = false; // 出库标志
-  
+  int flagin;//
+      int reflag;//这两个flag用来保证在识别到锥桶相对位置后使得distiance_in为距离
+     int  flagdis;//为 0时distiance_in=distance_now
+  void setdistancere(float distance) { distance_now = distance; };
   enum Step {
     None = 0, // AI检测
     Enable,   // 使能（标志识别成功）
@@ -59,7 +62,7 @@ public:
   void reset(void) {
     carStoping = false;
     carExitting = false;
-    step = Step::None;
+    step = Step::Exit;//None
     counterSession = 0;         // 图像场次计数器
     counterRec = 0;             // 标志检测计数器
     lastPointsEdgeLeft.clear(); // 记录上一场边缘点集（丢失边）
@@ -81,25 +84,30 @@ public:
     pointConeRight.clear();
     levelCones = 0;
     indexDebug = 0;
-    static int reflag=0;
-    static int retime=0;
-    static int counterme=0 ;      // 真正用到的标志检测计数器
-    static int stoptime=0;
-     static int chu=0;
+     
+     int retime=0;
+     int counterme=0 ;      // 真正用到的标志检测计数器
+     int stoptime=0;
+      int chu=0;
+      
     // cout<<"延时点数"<<retime<<endl;
+    if(flagdis==0)distance_in=distance_now;
     if(reflag==1)
     {
         retime++;
 
     }
+    //step = Step::Exit;
     switch (step) {
     case Step::None: //[01] 标志检测
-      if ((counterImmunity > 200 && again) ||
-          (counterImmunity > 30 && !again)) {
+      cout<<"识别标志牌的计数"<<counterImmunity<<endl;
+      if (                                      //(counterImmunity > 200 && again) || 
+        (counterImmunity > 10 && !again)) {   //此处上方注释为第二次进入救援区，，，第一次进入为计数器---识别到标志牌
         for (int i = 0; i < predict.size(); i++) {
           if (predict[i].type == LABEL_TUMBLE ||
               predict[i].type == LABEL_PATIENT) // 伤员平民标志检测
           {
+            cout<<"识别到伤员"<<endl;
             counterRec++;
             break;
           }
@@ -116,14 +124,14 @@ public:
 
         if (counterRec || counterExit) {
           counterSession++;
-          if (counterRec > 5 && counterSession <= 8) {  // 原来为3
+          if (counterRec > 0 && counterSession <= 8) {  // 原来为3
             cout<<"判断为左进了666"<<endl;
             step = Step::Enable; // 使能
             entryLeft = true;
             counterRec = 0;
             counterExit = 0;
             counterSession = 0;
-          } else if (counterExit > 5 && counterSession <= 8) {  //对右入库分析
+          } else if (counterExit > 0 && counterSession <= 8) {  //对右入库分析
             step = Step::Enable; // 使能
             cout<<"判断为右进了666"<<endl<<endl<<endl;
             entryLeft = false;//非左即右
@@ -134,6 +142,7 @@ public:
             counterRec = 0;
             counterSession = 0;
           }
+         // step = Step::Enable;
         }
       } else
         counterImmunity++;
@@ -141,6 +150,7 @@ public:
 
     case Step::Enable: //[02] 使能
     {
+      cout<<"到达enable了"<<endl<<endl;
       counterExit++;
       if (counterExit > 150) // 超时退出
       {
@@ -153,35 +163,33 @@ public:
       {
         _pointNearCone = getConeLeftDown(track.pointsEdgeLeft,
                                          pointConeLeft); // 搜索右下锥桶
-        if (_pointNearCone.x >
-            ROWSIMAGE * 0.6) // 当车辆开始靠近右边锥桶：准备入库   原先为0.4  0.6有点早
-        {
-          reflag=1;
-          counterRec++;
-          if (counterRec >= 2) {
-            step = Step::Enter; // 进站使能
-            cout<<"左进站辣辣辣"<<endl;
-            counterRec = 0;
-            counterSession = 0;
-            counterExit = 0;
-          }
-        }
-      } else // 右入库
-      {
-       // //cout<<"打算右入库22222220"<<endl<<endl<<endl;
-        _pointNearCone = getConeRightDown(track.pointsEdgeRight,
-                                          pointConeRight); // 搜索左下锥桶
-        if (_pointNearCone.x >
-            ROWSIMAGE * 0.6) // 当车辆开始靠近右边锥桶：准备入库
+        if ((_pointNearCone.x >
+            ROWSIMAGE * 0.6) &&!flagin)
+            {// 当车辆开始靠近右边锥桶：准备入库
+            reflag=1;
+            
+            cout<<"锥桶到达0.6的位置了"<<endl<<endl<<endl;
+            }
+            if(reflag)
+         {
+              distance_in=distance_now;
+              cout<<"此时的距离"<<distance_in<<endl<<endl<<endl;
+              flagin=1;
+              reflag=0;
+              flagdis=1;
+         }    
+         cout<<"距离差值"<<distance_now-distance_in<<endl;
+            if(!reflag&&(distance_now-distance_in)>200)//原来为470
         {
           
-           reflag=1;
+           
           //counterRec++;
-          counterRec++;
-          counterme++;
+          // counterRec++;
+          // counterme++;
           cout<<"看到右侧锥桶了"<<counterme<<endl<<endl<<endl;
-        }
-          if (counterme >= 2&&retime>15) {  //原先为2
+          //}
+          //if (counterme >= 2&&retime>15) {  //原先为2
+          
             step = Step::Enter; // 进站使能
             reflag=0;
             cout<<"右进站辣辣辣"<<endl<<endl<<endl;
@@ -193,21 +201,68 @@ public:
             pathsEdgeRight.clear();
           
         }
+            
+      } else // 右入库
+      {
+       // //cout<<"打算右入库22222220"<<endl<<endl<<endl;
+        _pointNearCone = getConeRightDown(track.pointsEdgeRight,
+                                          pointConeRight); // 搜索右下锥桶
+        //cout<<"此时的距离为"<<distance_now<<endl;                              
+        if ((_pointNearCone.x >
+            ROWSIMAGE * 0.6) &&!flagin)
+            {// 当车辆开始靠近右边锥桶：准备入库
+            reflag=1;
+            
+            cout<<"锥桶到达0.6的位置了"<<endl<<endl<<endl;
+            }
+            if(reflag)
+         {
+              distance_in=distance_now;
+              cout<<"此时的距离"<<distance_in<<endl<<endl<<endl;
+              flagin=1;
+              reflag=0;
+              flagdis=1;
+         }    
+         cout<<"距离差值"<<distance_now-distance_in<<endl;
+            if(!reflag&&(distance_now-distance_in)>200)//原来为470
+        {
+          
+           
+          //counterRec++;
+          // counterRec++;
+          // counterme++;
+          cout<<"看到右侧锥桶了"<<counterme<<endl<<endl<<endl;
+          //}
+          //if (counterme >= 2&&retime>15) {  //原先为2
+          
+            step = Step::Enter; // 进站使能
+            reflag=0;
+            cout<<"右进站辣辣辣"<<endl<<endl<<endl;
+            counterRec = 0;
+            counterme=0;
+            counterSession = 0;
+            counterExit = 0;
+            pathsEdgeLeft.clear();
+            pathsEdgeRight.clear();
+          
+        }
+            
       }
       break;
     }
     case Step::Enter: //[03] 入库使能
     {
       counterSession++; // 屏蔽期:防止提前入库
-      if (counterSession > 8) {   //原先为8
+      if (counterSession > 0) {   //原先为8  原先延时有点长
       //cout<<"尊嘟尊嘟尊嘟要入库了啦啦啦啦啦啦啦啦"<<endl<<endl<<endl;
       /*cout<<"左边线"<<track.pointsEdgeLeft.size()<<endl<<endl;
       cout<<"右边线"<<track.pointsEdgeRight.size()<<endl<<endl;*/
-       // if (track.pointsEdgeLeft.size() > ROWSIMAGE / 2 &&     //两种不同的转法，不同的延时---主要原因：该条件不同时成立
-         // / track.pointsEdgeRight.size() > ROWSIMAGE / 2) {       //直接用延时----去除差异性
+      //  if (track.pointsEdgeLeft.size() > ROWSIMAGE / 2 &&     //两种不同的转法，不同的延时---主要原因：该条件不同时成立
+      //     / track.pointsEdgeRight.size() > ROWSIMAGE / 2) {       //直接用延时----去除差异性
           counterExit++;
           cout<<"停车前的延时"<<counterExit<<endl<<endl;
-          if (counterExit > 30) {  //此处设置为了总的延时
+
+          if (counterExit > 7) {  //此处设置为了总的延时   用距离判断吗？距离写个  右侧为9-10
            //stoptime++;
           // cout<<"stoptime"<<stoptime<<endl<<endl;
            //if(stoptime>8)      
@@ -235,6 +290,7 @@ public:
 
         if (entryLeft) // 左入库
         {
+          cout<<"开始左入库了"<<endl;
           POINT start = POINT(ROWSIMAGE - 40, COLSIMAGE - 1);
           POINT end = POINT(50, 0);
           POINT middle =
@@ -250,6 +306,7 @@ public:
           pathsEdgeRight.push_back(track.pointsEdgeRight);
         } else // 右入库
         {
+          cout<<"开始右入库了"<<endl;
           POINT start = POINT(ROWSIMAGE - 40, 0);
           POINT end = POINT(50, COLSIMAGE - 1);
           POINT middle =
@@ -270,6 +327,7 @@ public:
 
     case Step::Cruise: //[04] 巡航使能
     {
+      cout<<"到巡航了"<<endl;
       counterSession++;
       if (counterSession > 10) // 超时保护
       {
@@ -380,7 +438,7 @@ public:
     {
       carStoping = true;
       counterRec++;
-      if (counterRec > 30) // 停车：20场 = 2s  停车时间
+      if (counterRec > 5) // 停车：20场 = 2s  停车时间  为多少？
       {
         carStoping = false;
         carExitting = true;
@@ -392,10 +450,13 @@ public:
 
     case Step::Exit: //[06] 出站使能
     {
-      chu++;
+      // chu++;
       carExitting = true;//让电机赋值为负数
       cout<<"第一次准备出站辣"<<chu<<endl<<endl;
-      if (chu>40) {  //原来为小于1 pathsEdgeLeft.size() < 1 || pathsEdgeRight.size() < 1
+      // cout<<"左边线尺寸"<<pathsEdgeLeft.size()<<endl;
+      // cout<<"右边线尺寸"<<pathsEdgeRight.size()<<endl;  track.stdevLeft>30&&track.stdevLeft<60&&track.stdevRight>5
+
+      if ( pathsEdgeLeft.size() < 1 || pathsEdgeRight.size() < 1) {  //原来为小于1 pathsEdgeLeft.size() < 1 || pathsEdgeRight.size() < 1    也是用延时  chu>80
         cout<<"出站完成辣辣"<<endl<<endl;
         step = Step::None; // 出站完成
         carExitting = false;
@@ -490,6 +551,8 @@ public:
   }
 
 private:
+  float distance_now;
+  float distance_in;  
   bool again = false; // 第二次进入救援区标志
   double _distance = 0;
   int levelCones = 0; // 锥桶的平均高度

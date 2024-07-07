@@ -166,7 +166,7 @@ NLOHMANN_DEFINE_TYPE_INTRUSIVE(Params, speedLow, speedHigh, speedBridge,
     //  else error = controlCenter - COLSIMAGE / 2;
     //cout<<error<<endl;
 // 图像控制中心转换偏差
-   cout<<"偏差值"<<error<<endl;
+   //cout<<"偏差值"<<error<<endl;
     static int errorLast = 0;                    // 记录前一次的偏差
     if (abs(error - errorLast) > COLSIMAGE / 10) {
       error = error > errorLast ? errorLast + COLSIMAGE / 10
@@ -179,7 +179,7 @@ NLOHMANN_DEFINE_TYPE_INTRUSIVE(Params, speedLow, speedHigh, speedBridge,
 
     servoPwm =750 - pwmDiff;
         // (uint16_t)(750 - pwmDiff); // PWM转换 ~~^~~~~~~~~~~~~~~~~~~~~~~
-    cout<<"舵机pwm"<<PWMSERVOMID - pwmDiff<<endl;
+   // cout<<"舵机pwm"<<PWMSERVOMID - pwmDiff<<endl;
   }
 
   /**

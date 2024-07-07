@@ -308,7 +308,7 @@ int ai_flag;
             result.width = data[i + 4] - data[i + 2];
             result.height = data[i + 5] - data[i + 3];
             results.push_back(result);
-            cout<<"jiancedaoaibiaozhi"<<endl;
+           // cout<<"jiancedaoaibiaozhi"<<endl;
         }
     }
 void set_ai_flag(int num)
@@ -320,7 +320,7 @@ ai_flag=num;
         for (int i = 0; i < results.size(); i++)
         {
             PredictResult result = results[i];
-            cout<<"检测到ai标志"<<endl;
+            //cout<<"检测到ai标志"<<endl;
             set_ai_flag(1);
             auto score = std::to_string(result.score);
             int pointY = result.y - 20;

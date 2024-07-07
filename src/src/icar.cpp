@@ -147,6 +147,7 @@ int main(int argc, char const *argv[]) {
 
     ring.setmpu6050(mpu6050_now);
     ring.setdistance(distance_now);
+    rescue.setdistancere(distance_now);
     crossroad.setmpu6050(mpu6050_now);
     preTime = chrono::duration_cast<chrono::milliseconds>(
                   chrono::system_clock::now().time_since_epoch())
@@ -313,7 +314,7 @@ int main(int argc, char const *argv[]) {
       else if (scene == Scene::RescueScene && rescue.carExitting) // 倒车出库
       {
         motion.speed = -motion.params.speedDown;
-        cout << "速度值为" << motion.speed << endl;
+        // cout << "速度值为" << motion.speed << endl;
 
       } else if (scene == Scene::RescueScene) // 减速
         motion.speedCtrl(true, true, ctrlCenter);
