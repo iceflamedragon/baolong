@@ -67,6 +67,10 @@ private:
   float distance_final;
 
 public:
+  // int leftpoint;
+  // int rightpoint;
+  int flagbigringl=0;
+  int flagbigringr=0;
   int flagpid=0;
   int left_breakpoint = 10;  // 左拐点行号
   int right_breakpoint = 10; // 右拐点行号
@@ -79,6 +83,9 @@ public:
   int monotonicity_change_right_flag = 0; // 不转折是0
   int continuity_change_right_flag = 0;   // 连续是0
   int continuity_change_left_flag = 0;    // 连续是0
+
+  double part_stdevEdgeCal_left=0; //左边缘部分斜率方差
+  double part_stdevEdgeCal_right=0; //左边缘部分斜率方差
   void setmpu6050(float mpu6050_now_read) { mpu6050_now = mpu6050_now_read; }
   void setdistance(float distance) { distance_now = distance; };
   uint16_t counterShield = 0; // 环岛检测屏蔽计数器：屏蔽车库误检测
@@ -104,9 +111,9 @@ public:
   void set_ring_pid(float ring_p1, float ring_p2, float ring_d,
                     Motion &motion) // 设置圆环pid
   {
-    cout << "原先的pid为" << motion.params.ring_p1 << endl
-         << motion.params.ring_p2 << endl
-         << motion.params.ring_d << endl;
+    // cout << "原先的pid为" << motion.params.ring_p1 << endl
+    //      << motion.params.ring_p2 << endl
+    //      << motion.params.ring_d << endl;
     // motion.params.ring_p1 = ring_p1;
 
     // motion.params.ring_p2 = ring_p2;
@@ -230,6 +237,8 @@ public:
 
     if (ringStep == RingStep::None) {
       // 判断左入环
+      part_stdevEdgeCal_left=Part_stdevEdgeCal(track.pointsEdgeLeft, ROWSIMAGE,80,120);
+      cout<<"左环右侧拐点周围斜率方差"<<part_stdevEdgeCal_left<<endl;
       // cout<<"kaishipanduan9999999999"<<endl;s
       left_breakpoint = Find_Left_Breakpoint(track, 80, 120);
       right_breakpoint = Find_Right_Breakpoint(track, 80, 120); // 原来150
@@ -252,15 +261,19 @@ public:
         if (ringTypeTemp == RingNone) {
           if (lostline_left > 15 &&                 // 判断左入环
               continuity_change_left_flag != 0 &&  // 左边是不连续的
-              continuity_change_right_flag == 0 && // 左环岛右边是连续的
-              track.validRowsLeft >= 20 &&         // 左边有效行不能少
+              continuity_change_right_flag == 0 &&   // 左环岛右边是连续的
+              track.validRowsLeft >= 50 &&        // 左边有效行不能少
               // track.validRowsLeft <= 120 &&        // 左边有效行比较少
-              track.validRowsRight >= 120          // 右边丢线较少
+              track.validRowsRight >= 100         // 右边丢线较少
+              &&track.stdevRight<50&&track.stdevLeft>150
           ) {
             
             monotonicity_right =
                 Monotonicity_Right(track, left_breakpoint - 15,
                                    left_breakpoint + 15); // 原来此处为10
+            part_stdevEdgeCal_left=Part_stdevEdgeCal(track.pointsEdgeLeft, ROWSIMAGE,left_breakpoint - 15,
+                                   left_breakpoint + 15);
+          
             cout<<"左环右侧严格单调性"<<monotonicity_right<<endl;
             if (monotonicity_right == 0) {                // 右边是单调的
               ringStep = RingStep::IsRing;
@@ -275,7 +288,7 @@ public:
             }
           }
         }
-
+      cout<<"左环右侧拐点周围斜率方差"<<part_stdevEdgeCal_left<<endl;
         ////判断右入环
       } else if (right_breakpoint) // 有右下拐点
       {
@@ -298,10 +311,10 @@ public:
               lostline_right > 15 &&              // 丢线的数量
               continuity_change_left_flag == 0 && // 右环岛是左线连续的
               continuity_change_right_flag != 0 && // 右环岛右边是连续的
-              track.validRowsRight >= 20 &&    // 右边有效行不能太少
+              track.validRowsRight >= 50 &&    // 右边有效行不能太少
               // track.validRowsRight <= 140 &&   // 右边有效行比较少
-              track.validRowsLeft >= 130       // 左边丢线较少
-              ) // 右边有单调突变点&& monotonicity_change_line[0]
+              track.validRowsLeft >= 100       // 左边丢线较少
+              &&track.stdevLeft<50&&track.stdevRight>150) // 右边有单调突变点&& monotonicity_change_line[0]
           {
             monotonicity_left = Monotonicity_Left(
                 track, right_breakpoint - 10,
@@ -330,6 +343,12 @@ public:
         ////判断右入环
       }
     }
+    // if(ringStep == RingStep::IsRing)
+    // {
+    //   RoundaboutGetArc(track, 1, 20, 30, 160);//左入环
+    //   RoundaboutGetArc(track, 2, 20, 30, 160);//右入环
+    // }
+    
     int countWide = 0; // 环岛入口变宽区域行数
     for (int i = 1; i < track.widthBlock.size(); ++i) {
       if (track.widthBlock[i].y > track.widthBlock[i - 1].y &&
@@ -382,11 +401,11 @@ public:
         // right_breakpoint = Find_Right_Breakpoint(
         //     track, monotonicity_change_line[0] + 100,
         //     monotonicity_change_line[0]); // 在单调改变点上面找拐点
-       // cout<<"右圆弧判断"<<RoundaboutGetArc(track, 2, 3, 10, 180)<<endl;
+        cout<<"右圆弧判断"<<RoundaboutGetArc(track, 2, 20, 30, 160)<<endl;
             cout<<"右圆环左边单调性"<<!Monotonicity_Left(track, // 左边单调
                                monotonicity_change_line[0] + 20,
                                monotonicity_change_line[0] - 20)<<endl;
-        if (!Monotonicity_Left(track, // 左边单调
+        if (RoundaboutGetArc(track, 2, 20, 30, 160) &&!Monotonicity_Left(track, // 左边单调
                                monotonicity_change_line[0] + 20,
                                monotonicity_change_line[0] - 20) ) { //RoundaboutGetArc(track, 2, 10, 10, 180) && 右边上面有拐点 && right_breakpoint)
           ringStep = RingStep::Entering;
@@ -560,7 +579,7 @@ public:
     {
       cout<<"设置了flagpid"<<endl<<endl<<endl;
         save_common_pid(motion);
-       motion.set_direction_pid(motion.params.ring_p1,motion.params.ring_p2, motion.params.ring_d); 
+      //  motion.set_direction_pid(motion.params.ring_p1,motion.params.ring_p2, motion.params.ring_d); 
         flagpid=1;
 
 
@@ -674,10 +693,28 @@ public:
       }*/
     }
     // 状态4  环中，正常巡线
-    if (ringStep == RingStep::Entering &&abs(mpu6050_now - mpu6050_later) >=15) {//原先为60度  && abs(mpu6050_now - mpu6050_later) >= 30
+    if (ringStep == RingStep::Entering &&abs(mpu6050_now - mpu6050_later) >=15&&distance_now-distance_in<2250) {//原先为60度  && abs(mpu6050_now - mpu6050_later) >= 30
       ringStep = RingStep::Inside; // 纯粹陀螺仪积分到一定值就正常巡线
       // set_ring_pid(ring_p1, ring_p2, ring_d, motion);
       // flagpid=1;
+      cout<<"到小环了"<<endl<<endl<<endl;
+      motion.set_direction_pid(motion.params.ring_p1s,motion.params.ring_p2s, motion.params.ring_ds);
+    }
+    else if  (ringStep == RingStep::Entering &&abs(mpu6050_now - mpu6050_later) >=15&&distance_now-distance_in>2250) {//原先为60度  && abs(mpu6050_now - mpu6050_later) >= 30
+      ringStep = RingStep::Inside; // 纯粹陀螺仪积分到一定值就正常巡
+      cout<<"到大环了"<<endl<<endl<<endl;
+      cout<<"两个状态间距离差值"<<distance_now-distance_in<<endl;
+      //  if(distance_now-distance_in>2250)//rightpoint>110||leftpoint>110   //小环--2100   大环----2446
+      //  {
+      motion.set_direction_pid(motion.params.ring_p1b,motion.params.ring_p2b, motion.params.ring_db); //大环pid
+      if(ringTypeTemp == RingRight)
+      flagbigringr=1;//遇到大环时打开
+      else if(ringTypeTemp == RingLeft)flagbigringl=1;
+      // }
+      // else 
+      // {
+      //   motion.set_direction_pid(motion.params.ring_p1s,motion.params.ring_p2s, motion.params.ring_ds); //小环pid
+      // }
       cout << "已经到环中了" << endl;
     }
     // 出环补线
@@ -856,12 +893,14 @@ public:
         
       }
 
-      if (abs(mpu6050_now - mpu6050_later )> 285) // 判断mpu6050然后再出环
+      if (abs(mpu6050_now - mpu6050_later )> 280) // 判断mpu6050然后再出环
       {
         motion.set_direction_pid(common_p1, common_p2, common_d);
         cout << "切换为普通pid" << endl;
         // if (max(rowBreakpointLeft, rowBreakpointRight) < ROWSIMAGE / 2) {
         ringStep = RingStep::Exiting;
+         flagbigringl=0;
+         flagbigringr=0;
         flagpid=0;
         flagjiao = 0;
         // distance_laterout = distance_now; // 开始路程积分
@@ -936,6 +975,8 @@ public:
    continuity_change_right_flag = 0;   // 连续是0
    continuity_change_left_flag = 0;    // 连续是0
    cout<<"圆环完成"<<endl;
+  //  leftpoint=0;
+  //  rightpoint=0;
     reset();
    
           }
@@ -1582,7 +1623,7 @@ public:
             n = 0;
            
           }
- cout<<"左圆弧点递增数inc"<<inc<<"        ////左圆弧点递减数dec"<<dec<<endl;
+    // cout<<"左圆弧点递增数inc"<<inc<<"        ////左圆弧点递减数dec"<<dec<<endl;
           /* 有弧线 */
           if (inc > num && dec > (num/2)) {
             cout << "成功判断弧线" << endl;
@@ -1594,7 +1635,7 @@ public:
           n = 0;
         }
       }
-
+      // leftpoint=inc;
       break;
 
     case 2:
@@ -1617,7 +1658,7 @@ public:
             n = 0;
             
           }
-          cout<<"右圆弧点递增数inc"<<inc<<"        ////右圆弧点递减数dec"<<dec<<endl;
+          // cout<<"右圆弧点递增数inc"<<inc<<"        ////右圆弧点递减数dec"<<dec<<endl;
           /* 有弧线 */
           if (inc > num && dec > (num/2)) {
             // *index = i + num;
@@ -1629,13 +1670,55 @@ public:
           n = 0;
         }
       }
-
+      // rightpoint=dec;
       break;
     }
-
+    
     return 0;
   }
+/**
+   * @brief 边缘斜率计算部分
+   *
+   * @param v_edge
+   * @param img_height
+   * @param start   
+   * @param end
+   * @return double
+   */
+  double Part_stdevEdgeCal(vector<POINT> &v_edge, int img_height,int start_line,int end_line) {
+      int i = 0, t = 0;
+    if (start_line < end_line) // 都是从下往上计算的，反了就互换一下
+    {
+      t = start_line;
+      start_line = end_line;
+      end_line = t;
+    }    
+    if (start_line >= ROWSIMAGE - 1 - 5) // 数组越界保护
+      start_line = ROWSIMAGE - 1 - 5;
+    if (end_line <= 5)
+      end_line = 5;
+    if (v_edge.size() < img_height / 4) {
+      return 1000;
+    }
+    vector<int> v_slope;
+    int step =2 ; ///这是间隔// v_edge.size()/10;
+    for (int i = end_line; i < start_line; i += step) {
+      if (v_edge[i].x - v_edge[i - step].x)
+        v_slope.push_back((v_edge[i].y - v_edge[i - step].y) * 4 /
+                          (v_edge[i].x - v_edge[i - step].x));
+    }
+    if (v_slope.size() > 1) {
+      double sum = accumulate(begin(v_slope), end(v_slope), 0.0);
+      double mean = sum / v_slope.size(); // 均值
+      double accum = 0.0;
+      for_each(begin(v_slope), end(v_slope),
+               [&](const double d) { accum += (d - mean) * (d - mean); });
 
+      return sqrt(accum / (v_slope.size() - 1)); // 方差
+    } else
+      return 0;
+  }
+  
 private:
   float mpu6050_later;
   float mpu6050_now;

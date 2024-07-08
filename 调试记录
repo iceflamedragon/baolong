@@ -63,3 +63,12 @@ delay1>450
     "danger_p1": 1,
     "danger_p2": 0.018,
     "danger_d": 2.5,
+
+速度1.2的小环pid
+     "ring_p1": 1,
+    "ring_p2": 0.012,
+    "ring_d": 2.5,
+     大环pid:
+     "ring_p1b": 1,
+    "ring_p2b": 0.014,
+    "ring_db": 3.0,

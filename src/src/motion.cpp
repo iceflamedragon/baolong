@@ -50,6 +50,8 @@ public:
    * @brief 初始化：加载配置文件
    *
    */
+  int flagbigringl;
+  int flagbigringr;
   int flag = 0;
   Motion() {
     string jsonPath = "../src/config/config.json";
@@ -83,9 +85,12 @@ public:
    */
   struct Params {
     int record_video;
-    float ring_p1; // 圆环的pid
-    float ring_p2;
-    float ring_d;
+    float ring_p1b; // 圆环的pid
+    float ring_p2b;
+    float ring_db;
+    float ring_p1s; // 圆环的pid
+    float ring_p2s;
+    float ring_ds;
     bool motion_start;
     float danger_p1;
     float danger_p2;
@@ -118,8 +123,8 @@ public:
                                    speedDown, runP1, runP2, runP3, turnP, turnD,
                                    debug, saveImg, rowCutUp, rowCutBottom,
                                    bridge, danger, rescue, racing, parking,
-                                   ring, cross, score, model, ring_p1, ring_p2,
-                                   ring_d, record_video, video, danger_p1,
+                                   ring, cross, score, model, ring_p1b, ring_p2b,
+                                   ring_db,ring_p1s, ring_p2s,ring_p2s,record_video, video, danger_p1,
                                    danger_p2, danger_d); // 添加构造函数
   };
 
@@ -154,6 +159,18 @@ public:
   void poseCtrl(int controlCenter) {
     // if(ring.flagpid )flag=1;
     float error = controlCenter - COLSIMAGE / 2;
+     if(flagbigringl)
+     {
+      error=error+30;
+     }
+     else if(flagbigringr)
+     {
+       error=error-30;
+     }
+     else
+     {
+      error=error;
+     }
     // cout<<"flag的值是    "<<flag<<endl<<endl;
     //  if(flag)
     // {

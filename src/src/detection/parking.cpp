@@ -119,7 +119,7 @@ public:
           }
         }
       }
-      if (countSes > 10) {
+      if (countSes > 5) {
         countExit = 0;
         step = Step::stop;
       }

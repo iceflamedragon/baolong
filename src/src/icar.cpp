@@ -128,6 +128,22 @@ int main(int argc, char const *argv[]) {
   int ai_check = 0;
 
   while (1) {
+    //  ring.RoundaboutGetArc(tracking, 1, 20, 30, 160);
+     
+    if(ring.flagbigringl)
+    {
+      motion.flagbigringl=1;
+
+    }
+    else if(ring.flagbigringr)
+    {
+      motion.flagbigringr=1;
+    }
+    else 
+     {
+      motion.flagbigringl=0;
+       motion.flagbigringr=0;
+     }
     //   cout<<"救援区出站时的flag值"<<rescue.flagchu<<endl;
     // //   if(ring.flagpid){
     // motion.flag=1;
@@ -288,7 +304,7 @@ int main(int argc, char const *argv[]) {
       } else
         scene = Scene::NormalScene;
     }
-
+//  ring.RoundaboutGetArc(tracking, 1, 20, 30, 160);
     //[12] 车辆控制中心拟合
     ctrlCenter.fitting(tracking);
     // 冲出赛道
