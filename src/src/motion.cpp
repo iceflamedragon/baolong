@@ -43,14 +43,14 @@ private:
   float p1_former;
   float p2_former;
   float d_former;
- //Ring ring;                // 环岛识别类
+  // Ring ring;                // 环岛识别类
 
 public:
   /**
    * @brief 初始化：加载配置文件
    *
    */
-  int flag=0;
+  int flag = 0;
   Motion() {
     string jsonPath = "../src/config/config.json";
     std::ifstream config_is(jsonPath);
@@ -83,40 +83,44 @@ public:
    */
   struct Params {
     int record_video;
-float ring_p1;//圆环的pid
-float ring_p2;
-float ring_d;
-bool motion_start;
-float speedLow = 1.5;        // 智能车最低速
-float speedHigh = 4;         // 智能车最高速
-float speedBridge = 0.6;     // 坡道速度
-float speedDown = 0.5;       // 特殊区域降速速度
-float runP1 = 0;             // 一阶比例系数：直线控制量
-float runP2 = 0;             // 二阶比例系数：弯道控制量
-float runP3 = 0.0;           // 三阶比例系数：弯道控制量
-float turnP = 3.5;           // 一阶比例系数：转弯控制量
-float turnD = 0;             // 一阶微分系数：转弯控制量
-bool debug = false;          // 调试模式使能
-bool saveImg = false;        // 存图使能
-uint16_t rowCutUp = 200;     // 图像顶部切行
-uint16_t rowCutBottom = 200; // 图像顶部切行
-bool bridge = true;          // 坡道区使能
-bool danger = true;          // 危险区使能
-bool rescue = true;          // 救援区使能
-bool racing = true;          // 追逐区使能
-bool parking = true;         // 停车区使能
-bool ring = true;            // 环岛使能
-bool cross = true;           // 十字道路使能
-float score = 0.5;           // AI检测置信度
+    float ring_p1; // 圆环的pid
+    float ring_p2;
+    float ring_d;
+    bool motion_start;
+    float danger_p1;
+    float danger_p2;
+    float danger_d;
+    float speedLow = 1.5;        // 智能车最低速
+    float speedHigh = 4;         // 智能车最高速
+    float speedBridge = 0.6;     // 坡道速度
+    float speedDown = 0.5;       // 特殊区域降速速度
+    float runP1 = 0;             // 一阶比例系数：直线控制量
+    float runP2 = 0;             // 二阶比例系数：弯道控制量
+    float runP3 = 0.0;           // 三阶比例系数：弯道控制量
+    float turnP = 3.5;           // 一阶比例系数：转弯控制量
+    float turnD = 0;             // 一阶微分系数：转弯控制量
+    bool debug = false;          // 调试模式使能
+    bool saveImg = false;        // 存图使能
+    uint16_t rowCutUp = 200;     // 图像顶部切行
+    uint16_t rowCutBottom = 200; // 图像顶部切行
+    bool bridge = true;          // 坡道区使能
+    bool danger = true;          // 危险区使能
+    bool rescue = true;          // 救援区使能
+    bool racing = true;          // 追逐区使能
+    bool parking = true;         // 停车区使能
+    bool ring = true;            // 环岛使能
+    bool cross = true;           // 十字道路使能
+    float score = 0.5;           // AI检测置信度
 
-string model = "../res/model/yolov3_mobilenet_v1"; // 模型路径
-string video = "../res/samples/demo.mp4";          // 视频路径
-NLOHMANN_DEFINE_TYPE_INTRUSIVE(Params, speedLow, speedHigh, speedBridge,
-                               speedDown, runP1, runP2, runP3, turnP, turnD,
-                               debug, saveImg, rowCutUp, rowCutBottom, bridge,
-                               danger, rescue, racing, parking, ring, cross,
-                               score, model,ring_p1,ring_p2,ring_d,record_video,
-                               video); // 添加构造函数
+    string model = "../res/model/yolov3_mobilenet_v1"; // 模型路径
+    string video = "../res/samples/demo.mp4";          // 视频路径
+    NLOHMANN_DEFINE_TYPE_INTRUSIVE(Params, speedLow, speedHigh, speedBridge,
+                                   speedDown, runP1, runP2, runP3, turnP, turnD,
+                                   debug, saveImg, rowCutUp, rowCutBottom,
+                                   bridge, danger, rescue, racing, parking,
+                                   ring, cross, score, model, ring_p1, ring_p2,
+                                   ring_d, record_video, video, danger_p1,
+                                   danger_p2, danger_d); // 添加构造函数
   };
 
   Params params; // 读取控制参数
@@ -128,9 +132,10 @@ NLOHMANN_DEFINE_TYPE_INTRUSIVE(Params, speedLow, speedHigh, speedBridge,
     params.runP1 = p1;
     params.runP2 = p2;
     params.turnD = d;
-    cout<<"p2的值"<<p2<<endl;
+    cout << "p2的值" << p2 << endl;
     cout << "切换舵机pid" << endl;
   }
+
   // 还原舵机pid
   void reset_direction_pid(void) {
     params.runP1 = p1_former;
@@ -147,14 +152,13 @@ NLOHMANN_DEFINE_TYPE_INTRUSIVE(Params, speedLow, speedHigh, speedBridge,
    */
 
   void poseCtrl(int controlCenter) {
-   // if(ring.flagpid )flag=1;
-    float error = controlCenter - COLSIMAGE / 2; 
+    // if(ring.flagpid )flag=1;
+    float error = controlCenter - COLSIMAGE / 2;
     // cout<<"flag的值是    "<<flag<<endl<<endl;
     //  if(flag)
     // {
     //    cout<<"切换为圆环内的error求法了"<<endl;
 
-    
     // if(error<0)
     // {
     // error=-pow(abs(error),0.5);
@@ -164,22 +168,24 @@ NLOHMANN_DEFINE_TYPE_INTRUSIVE(Params, speedLow, speedHigh, speedBridge,
     // }
     //  }
     //  else error = controlCenter - COLSIMAGE / 2;
-    //cout<<error<<endl;
-// 图像控制中心转换偏差
-   //cout<<"偏差值"<<error<<endl;
-    static int errorLast = 0;                    // 记录前一次的偏差
+    // cout<<error<<endl;
+    // 图像控制中心转换偏差
+
+    cout << "偏差值" << error << endl;
+    static int errorLast = 0; // 记录前一次的偏差
     if (abs(error - errorLast) > COLSIMAGE / 10) {
       error = error > errorLast ? errorLast + COLSIMAGE / 10
                                 : errorLast - COLSIMAGE / 10;
     }
-
+    cout << "此时的P2值" << params.runP2 << endl << endl;
     params.turnP = abs(error) * params.runP2 + params.runP1;
     int pwmDiff = (error * params.turnP) + (error - errorLast) * params.turnD;
     errorLast = error;
 
-    servoPwm =750 - pwmDiff;
-        // (uint16_t)(750 - pwmDiff); // PWM转换 ~~^~~~~~~~~~~~~~~~~~~~~~~
-   // cout<<"舵机pwm"<<PWMSERVOMID - pwmDiff<<endl;
+    servoPwm = PWMSERVOMID - pwmDiff;
+    // (uint16_t)(750 - pwmDiff); // PWM转换
+    // ~~^~~~~~~~~~~~~~~~~~~~~~~PWMSERVOMID - pwmDiff
+    cout << "舵机pwm" << PWMSERVOMID - pwmDiff << endl;
   }
 
   /**

@@ -66,11 +66,11 @@ int main(int argc, char const *argv[]) {
   detection->score = motion.params.score; // AI检测置信度
 
   // USB转串口初始化： /dev/ttyUSB0
-// if(ring.flagpid){
-// motion.flag=1;
-// cout<<"主函数中设置成进环pid了"<<endl;
-// }else  motion.flag=0;
-// cout<<"motion中的flag值"<<motion.flag<<endl;
+  // if(ring.flagpid){
+  // motion.flag=1;
+  // cout<<"主函数中设置成进环pid了"<<endl;
+  // }else  motion.flag=0;
+  // cout<<"motion中的flag值"<<motion.flag<<endl;
   int ret = uart->open();
   if (ret != 0) {
     printf("[Error] Uart Open failed!\n");
@@ -85,12 +85,13 @@ int main(int argc, char const *argv[]) {
 
   cv::Size S = cv::Size((int)capture.get(CAP_PROP_FRAME_WIDTH),
                         (int)capture.get(CAP_PROP_FRAME_HEIGHT));
+
   if (!capture.isOpened()) {
     printf("can not open video device!!!\n");
     return 0;
   }
   VideoWriter video("ouput.avi", cv::VideoWriter::fourcc('M', 'J', 'P', 'G'),
-                    30, Size(1280, 240));
+                    30, Size(1280, 240), true);
   capture.set(CAP_PROP_FRAME_WIDTH, COLSIMAGE);  // 设置图像分辨率
   capture.set(CAP_PROP_FRAME_HEIGHT, ROWSIMAGE); // 设置图像分辨率
 
@@ -125,12 +126,14 @@ int main(int argc, char const *argv[]) {
   float mpu6050_later;
   float distance_now;
   int ai_check = 0;
+
   while (1) {
-  //   if(ring.flagpid){
-  // motion.flag=1;
-  // cout<<"主函数中设置成进环pid了"<<endl;
-  // }else  motion.flag=0;
-  //cout<<"motion中的flag值"<<motion.flag<<endl;
+    //   cout<<"救援区出站时的flag值"<<rescue.flagchu<<endl;
+    // //   if(ring.flagpid){
+    // motion.flag=1;
+    // cout<<"主函数中设置成进环pid了"<<endl;
+    // }else  motion.flag=0;
+    // cout<<"motion中的flag值"<<motion.flag<<endl;
     // if(std::cin.rdbuf()->in_avail()>0)
     // {
     //   char c =std::cin.get();
@@ -140,8 +143,8 @@ int main(int argc, char const *argv[]) {
     //   调pid，参数分别为p，i，d，是否存入flash}
     // }
     // }
-    mpu6050_now = uart->get_mpu6050(); // mpu6050_now就是mpu的数值
-    distance_now = uart->get_distance();//编码器获取
+    mpu6050_now = uart->get_mpu6050();   // mpu6050_now就是mpu的数值
+    distance_now = uart->get_distance(); // 编码器获取
 
     cout << mpu6050_now << endl; // 输出mpu
 
@@ -182,15 +185,15 @@ int main(int argc, char const *argv[]) {
         MORPH_RECT, Size(9, 9)); // 小于8*8方块的白色噪点都会被腐蚀
     erode(imgBinary, imgBinary, element);
     cout << "scene" << scene << endl;
-    if (ai_check > 1||detection->ai_flag) {
+    if (ai_check > 1 || detection->ai_flag) {
 
       //[03] 启动AI推理
-       detection->inference(imgCorrect);
+      detection->inference(imgCorrect);
       ai_check = 0;
     }
-  //  detection->inference(imgCorrect);
-  //   detection->set_ai_flag(0);//清零ai标志
-  //   ai_check++;
+    //  detection->inference(imgCorrect);
+    //   detection->set_ai_flag(0);//清零ai标志
+    //   ai_check++;
     auto startTime = chrono::duration_cast<chrono::milliseconds>(
                          chrono::system_clock::now().time_since_epoch())
                          .count();
@@ -259,7 +262,7 @@ int main(int argc, char const *argv[]) {
     // [09] 危险区检测
     if ((scene == Scene::NormalScene || scene == Scene::DangerScene) &&
         motion.params.danger) {
-      if (danger.process(tracking, detection->results)) {
+      if (danger.process(tracking, detection->results, motion)) {
         uart->buzzerSound(uart->BUZZER_DING); // 祖传提示音效
         scene = Scene::DangerScene;
       } else
@@ -314,7 +317,7 @@ int main(int argc, char const *argv[]) {
       else if (scene == Scene::RescueScene && rescue.carExitting) // 倒车出库
       {
         motion.speed = -motion.params.speedDown;
-        // cout << "速度值为" << motion.speed << endl;
+        cout << "速度值为" << motion.speed << endl;
 
       } else if (scene == Scene::RescueScene) // 减速
         motion.speedCtrl(true, true, ctrlCenter);
@@ -322,14 +325,23 @@ int main(int argc, char const *argv[]) {
         motion.speed = motion.params.speedBridge;
       else
         motion.speedCtrl(true, false, ctrlCenter); // 车速控制
+      if (rescue.flagchur) {
+        cout << "危险区右出库舵机打角定了" << endl;
+        motion.poseCtrl(
+            220); // 姿态控制（舵机）  此处为救援区出站固定打角 --使其偏差值为0
+      } else if (rescue.flagchul) {
+        cout << "危险区左出库舵机打角定了" << endl;
+        motion.poseCtrl(
+            100); // 姿态控制（舵机）  此处为救援区出站固定打角 --使其偏差值为0
+      } else
+        motion.poseCtrl(ctrlCenter.controlCenter); // 姿态控制（舵机）
 
-      motion.poseCtrl(ctrlCenter.controlCenter); // 姿态控制（舵机）
       uart->carControl(motion.speed, motion.servoPwm); // 串口通信控制车辆
     }
     Mat imgRes =
         Mat::zeros(Size(COLSIMAGE, ROWSIMAGE), CV_8UC3); // 创建全黑图像
     //[14] 综合显示调试UI窗口
-    if (motion.params.debug) {
+    if (motion.params.record_video) {
       // 帧率计算
       auto startTime = chrono::duration_cast<chrono::milliseconds>(
                            chrono::system_clock::now().time_since_epoch())
@@ -399,7 +411,8 @@ int main(int argc, char const *argv[]) {
         display.setNewWindow(3, getScene(scene),
                              imgRes); // 图像绘制特殊场景识别结果
         display.setNewWindow(4, "Ctrl", imgCorrect);
-        display.show(); // 显示综合绘图
+        if (motion.params.debug)
+          display.show(); // 显示综合绘图
       }
       waitKey(10); // 等待显示
     }
@@ -407,7 +420,7 @@ int main(int argc, char const *argv[]) {
       circle(imgCorrect, Point(tracking.spurroad[i].y, tracking.spurroad[i].x),
              5, Scalar(0, 0, 255), -1); // 红色点画拐点
     }
-detection->drawBox(imgCorrect); // 图像绘制AI结果
+    detection->drawBox(imgCorrect); // 图像绘制AI结果
     int w1 = imgTrack.cols;
     int h1 = imgTrack.rows;
     int w2 = imgRes.cols;
@@ -416,6 +429,7 @@ detection->drawBox(imgCorrect); // 图像绘制AI结果
     int h3 = imgCorrect.rows;
     int width = w1 + w2 + w3;
     int height = h1;
+    // cout<<"长"<<display.imgShow.rows<<"列"<<display.imgShow.cols<<endl;
 
     video.write(display.imgShow);
 

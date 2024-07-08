@@ -41,8 +41,12 @@ public:
   bool carStoping = false;  // 停车标志
   bool carExitting = false; // 出库标志
   int flagin;//
-      int reflag;//这两个flag用来保证在识别到锥桶相对位置后使得distiance_in为距离
-     int  flagdis;//为 0时distiance_in=distance_now
+  int reflag;//这两个flag用来保证在识别到锥桶相对位置后使得distiance_in为距离
+  int  flagdis;//为 0时distiance_in=distance_now
+  int flagtrace;
+  int flagchur;
+   int flagchul;
+  int a;
   void setdistancere(float distance) { distance_now = distance; };
   enum Step {
     None = 0, // AI检测
@@ -62,7 +66,7 @@ public:
   void reset(void) {
     carStoping = false;
     carExitting = false;
-    step = Step::Exit;//None
+    step = Step::None;//None
     counterSession = 0;         // 图像场次计数器
     counterRec = 0;             // 标志检测计数器
     lastPointsEdgeLeft.clear(); // 记录上一场边缘点集（丢失边）
@@ -100,7 +104,7 @@ public:
     //step = Step::Exit;
     switch (step) {
     case Step::None: //[01] 标志检测
-      cout<<"识别标志牌的计数"<<counterImmunity<<endl;
+      // cout<<"识别标志牌的计数"<<counterImmunity<<endl;
       if (                                      //(counterImmunity > 200 && again) || 
         (counterImmunity > 10 && !again)) {   //此处上方注释为第二次进入救援区，，，第一次进入为计数器---识别到标志牌
         for (int i = 0; i < predict.size(); i++) {
@@ -192,7 +196,7 @@ public:
           
             step = Step::Enter; // 进站使能
             reflag=0;
-            cout<<"右进站辣辣辣"<<endl<<endl<<endl;
+            cout<<"左进站辣辣辣"<<endl<<endl<<endl;
             counterRec = 0;
             counterme=0;
             counterSession = 0;
@@ -212,9 +216,14 @@ public:
             ROWSIMAGE * 0.6) &&!flagin)
             {// 当车辆开始靠近右边锥桶：准备入库
             reflag=1;
-            
+            flagtrace=1;
             cout<<"锥桶到达0.6的位置了"<<endl<<endl<<endl;
             }
+        if(flagtrace)
+        {
+          //  pathsEdgeLeft.push_back(track.pointsEdgeLeft); // 记录进厂轨迹
+          // pathsEdgeRight.push_back(track.pointsEdgeRight);
+        }
             if(reflag)
          {
               distance_in=distance_now;
@@ -262,7 +271,7 @@ public:
           counterExit++;
           cout<<"停车前的延时"<<counterExit<<endl<<endl;
 
-          if (counterExit > 7) {  //此处设置为了总的延时   用距离判断吗？距离写个  右侧为9-10
+          if (counterExit > 9) {  //此处设置为了总的延时   用距离判断吗？距离写个  右侧为9-10
            //stoptime++;
           // cout<<"stoptime"<<stoptime<<endl<<endl;
            //if(stoptime>8)      
@@ -452,21 +461,28 @@ public:
     {
       // chu++;
       carExitting = true;//让电机赋值为负数
+      if(entryLeft)
+      flagchul=1;//左进库标志位
+      else
+      flagchur=1;
       cout<<"第一次准备出站辣"<<chu<<endl<<endl;
       // cout<<"左边线尺寸"<<pathsEdgeLeft.size()<<endl;
       // cout<<"右边线尺寸"<<pathsEdgeRight.size()<<endl;  track.stdevLeft>30&&track.stdevLeft<60&&track.stdevRight>5
 
-      if ( pathsEdgeLeft.size() < 1 || pathsEdgeRight.size() < 1) {  //原来为小于1 pathsEdgeLeft.size() < 1 || pathsEdgeRight.size() < 1    也是用延时  chu>80
+      if ((track.stdevLeft>20&&track.stdevLeft<60&&track.stdevRight>4 )||(track.stdevRight>20&&track.stdevRight<60&&track.stdevLeft>4 ) ){  //原来为小于1 pathsEdgeLeft.size() < 1 || pathsEdgeRight.size() < 1    也是用延时  chu>80
         cout<<"出站完成辣辣"<<endl<<endl;
         step = Step::None; // 出站完成
+        flagchur=0;
+        flagchul=0;
         carExitting = false;
         again = true; // 第二次进入救援区标志
         reset();
       } else {
-        track.pointsEdgeLeft = pathsEdgeLeft[pathsEdgeLeft.size() - 1];
-        track.pointsEdgeRight = pathsEdgeRight[pathsEdgeRight.size() - 1];
-        pathsEdgeLeft.pop_back();//回退路线
-        pathsEdgeRight.pop_back();
+        a=0;
+        // track.pointsEdgeLeft = pathsEdgeLeft[pathsEdgeLeft.size() - 1];
+        // track.pointsEdgeRight = pathsEdgeRight[pathsEdgeRight.size() - 1];
+        // pathsEdgeLeft.pop_back();//回退路线
+        // pathsEdgeRight.pop_back();
       }
       break;
     }

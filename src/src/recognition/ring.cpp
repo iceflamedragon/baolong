@@ -53,6 +53,9 @@ private:
   float ring_p1;
   float ring_p2;
   float ring_d;
+  float danger_p1;
+  float danger_p2;
+  float danger_d;
   float common_p1;
   float common_p2;
   float common_d;
@@ -136,6 +139,8 @@ public:
   int left = 0;
   int right = 0;
   int ringTypeTemp = 0;
+  int flagjiao = 0; //
+
   bool process(Tracking &track, Mat &imagePath, Motion &motion) {
     // 暂时注释
     //  if (counterShield < 40) {
@@ -144,11 +149,11 @@ public:
     //  }
 
     /////借鉴的代码
-    if (!first_ring) {
-      // cout<<"666666666666"<<endl;
-      ringTypeTemp = RingNone;
-      first_ring = 1;
-    }
+    // if (!first_ring) {
+    //   // cout<<"666666666666"<<endl;
+    //   ringTypeTemp = RingNone;
+    //   first_ring = 1;
+    // }
     // static int time = 0;
     //  cout<<"标志位。。。"<<first_ring<<endl;
     //   以下是常规判断法
@@ -175,8 +180,7 @@ public:
         track.widthBlock.size() - 1; // 直道侧，延长补线终点（行号）
     _index = 0;
     _ringPoint = POINT(0, 0);
-    static int flagjiao = 0; //
-
+   
     // 算环用布线的候选点
     rowRepairLine = max(rowRepairLine - 5, 0); // 在那其中最下面的点
     if (ringStep == RingStep::Entering && !track.spurroad.empty()) {
@@ -226,17 +230,17 @@ public:
 
     if (ringStep == RingStep::None) {
       // 判断左入环
-      // cout<<"kaishipanduan9999999999"<<endl;
-      left_breakpoint = Find_Left_Breakpoint(track, 30, 160);
-      right_breakpoint = Find_Right_Breakpoint(track, 30, 160); // 原来150
+      // cout<<"kaishipanduan9999999999"<<endl;s
+      left_breakpoint = Find_Left_Breakpoint(track, 80, 120);
+      right_breakpoint = Find_Right_Breakpoint(track, 80, 120); // 原来150
       if (left_breakpoint) // 有左下拐点
       {
         lostline_left =
             Lostline_Left(track, left_breakpoint + 40, left_breakpoint);
             cout<<"左环左侧丢线数量"<<lostline_left<<endl;
         continuity_change_right_flag =
-            Continuity_Change_Right(track, left_breakpoint - 20,
-                                    left_breakpoint + 20); // 拐点附近判断连续性
+            Continuity_Change_Right(track, left_breakpoint - 10,
+                                    left_breakpoint + 10); // 拐点附近判断连续性
          cout<<"左环的右边连续性"<<continuity_change_right_flag<<endl;
 
         continuity_change_left_flag =
@@ -250,7 +254,7 @@ public:
               continuity_change_left_flag != 0 &&  // 左边是不连续的
               continuity_change_right_flag == 0 && // 左环岛右边是连续的
               track.validRowsLeft >= 20 &&         // 左边有效行不能少
-              track.validRowsLeft <= 120 &&        // 左边有效行比较少
+              // track.validRowsLeft <= 120 &&        // 左边有效行比较少
               track.validRowsRight >= 120          // 右边丢线较少
           ) {
             
@@ -280,7 +284,7 @@ public:
                                         right_breakpoint);
                                         cout<<"右环丢线"<< lostline_right<<endl;
         continuity_change_left_flag = Continuity_Change_Left(
-            track, right_breakpoint - 20, right_breakpoint+20); // 大部分左边线判断连续性
+            track, right_breakpoint - 10, right_breakpoint+10); // 大部分左边线判断连续性
             cout<<"右环左边连续性"<<continuity_change_left_flag<<endl;
         continuity_change_right_flag =          // 右边肯定应该不连续
             Continuity_Change_Right(track, 170, 40);
@@ -295,13 +299,13 @@ public:
               continuity_change_left_flag == 0 && // 右环岛是左线连续的
               continuity_change_right_flag != 0 && // 右环岛右边是连续的
               track.validRowsRight >= 20 &&    // 右边有效行不能太少
-              track.validRowsRight <= 140 &&   // 右边有效行比较少
+              // track.validRowsRight <= 140 &&   // 右边有效行比较少
               track.validRowsLeft >= 130       // 左边丢线较少
               ) // 右边有单调突变点&& monotonicity_change_line[0]
           {
             monotonicity_left = Monotonicity_Left(
-                track, right_breakpoint - 15,
-                right_breakpoint + 15); // 判断拐点附近的严格的单调性
+                track, right_breakpoint - 10,
+                right_breakpoint + 10); // 判断拐点附近的严格的单调性
             cout<<"右环左边严格单调"<<monotonicity_left<<endl;
             if (monotonicity_left == 0
                 ) // 右单调突变点左侧也连续 !Monotonicity_Left(track, monotonicity_change_line[0] + 10, monotonicity_change_line[0] -  10)
@@ -315,10 +319,10 @@ public:
               ringEnable = true;
               mpu6050_later = mpu6050_now;
               std::cout << "判断出右入环" << endl;
-              // } else // 误判，归零
-              // {
-              //  ringStep == RingStep::None;
-              //  cout << "误判环" << endl;
+              } else // 误判，归零
+              {
+               ringStep == RingStep::None;
+               cout << "误判环" << endl;
             } // 右边是单调的
           }
         }
@@ -350,10 +354,10 @@ public:
       {
         cout << "要进行entering的判断了" << endl;
         monotonicity_change_line[0] = Monotonicity_Change_Right(track, 30, 160);
-        // cout << "圆弧的判断" << (int)RoundaboutGetArc(track, 1, 10, 30, 160)<< endl;
+        cout << "圆弧的判断" << (int)RoundaboutGetArc(track, 1, 20, 30, 160)<< endl;
         cout << "右边线连续的判断"<< Monotonicity_Right(track, monotonicity_change_line[0] + 20,
                                    monotonicity_change_line[0] - 20)<< endl;
-        if (// 一半圆弧点的判定RoundaboutGetArc(track, 1, 15, 30, 160) && 
+        if (RoundaboutGetArc(track, 1, 20, 30, 160) && // 一半圆弧点的判定
             !Monotonicity_Right(track, monotonicity_change_line[0] + 20,
                 monotonicity_change_line[0] -20)) { // 当左边不单调点较低，或者左侧的斜率较大
           ringStep = RingStep::Entering;
@@ -419,7 +423,7 @@ public:
                            160);
       cout<<"入环右角点的i值" << right_breakpoint<<endl;                   
       cout << "入环左角点的i值" << left_breakpoint << endl;
-      if ((left_breakpoint > 50 && left_breakpoint < 120) ||
+      if ((left_breakpoint > 50 && left_breakpoint < 145) ||
           (right_breakpoint > 50 && right_breakpoint < 120)) {//原先为130  95
         flagjiao = 1;
       }
@@ -485,7 +489,9 @@ public:
                          distance_diff > 1300)
 
               {
-
+                // save_common_pid(motion);
+                //  motion.set_direction_pid(motion.params.ring_p1,motion.params.ring_p2, motion.params.ring_d); 
+                // flagpid=1;
                 int x = track.pointsEdgeLeft[rowRepairStraightside].x +
                         (rowYendStraightside -
                          track.pointsEdgeRight[rowRepairStraightside].x) *
@@ -556,6 +562,7 @@ public:
         save_common_pid(motion);
        motion.set_direction_pid(motion.params.ring_p1,motion.params.ring_p2, motion.params.ring_d); 
         flagpid=1;
+
 
     }
     /*********************状态三判断结束 */
@@ -1057,11 +1064,11 @@ public:
           abs(track.pointsEdgeRight[i + 2].y -
               track.pointsEdgeRight[i + 3].y) <= 3 &&
           abs(track.pointsEdgeRight[i].y - track.pointsEdgeRight[i - 2].y) >=
-              10 &&
+              20 &&
           abs(track.pointsEdgeRight[i].y - track.pointsEdgeRight[i - 3].y) >=
-              10 &&
+              20 &&
           abs(track.pointsEdgeRight[i].y - track.pointsEdgeRight[i - 4].y) >=
-              10) {
+              20) {
         right_down_line = i; // 获取行数即可
         break;
       }
@@ -1108,11 +1115,11 @@ public:
           abs(track.pointsEdgeLeft[i + 2].y - track.pointsEdgeLeft[i + 3].y) <=
               3 &&
           abs(track.pointsEdgeLeft[i].y - track.pointsEdgeLeft[i - 2].y) >=
-              10 &&
+              20 &&
           abs(track.pointsEdgeLeft[i].y - track.pointsEdgeLeft[i - 3].y) >=
-              10 &&
+              20 &&
           abs(track.pointsEdgeLeft[i].y - track.pointsEdgeLeft[i - 4].y) >=
-              10) {
+              20) {
         // cout<<"左上角点有效行     "<<i<<endl;
         right_down_line = i; // 获取行数即可
         // cout<<"kaishipanduan"<<endl;
@@ -1567,25 +1574,17 @@ public:
           }
           if (track.pointsEdgeLeft[i].y < track.pointsEdgeLeft[i + 1].y) {//
             inc++;
-            if(n)
-            {
-              inc+=n/2;
-              dec+=n/2;
+              inc+=n;
             n = 0;
-            }
-            
           } else {
             dec++;
-            if(n)
-            {
-              inc+=n/2;
-              dec+=n/2;
+           dec+=n;
             n = 0;
-            }
+           
           }
-
+ cout<<"左圆弧点递增数inc"<<inc<<"        ////左圆弧点递减数dec"<<dec<<endl;
           /* 有弧线 */
-          if (inc > num && dec > num) {
+          if (inc > num && dec > (num/2)) {
             cout << "成功判断弧线" << endl;
             return 1;
           }
@@ -1608,24 +1607,19 @@ public:
           }
           if (track.pointsEdgeRight[i].y > track.pointsEdgeRight[i + 1].y) {
             inc++;
-            if(n)
-            {
-              inc+=n/2;
-              dec+=n/2;
+              inc+=n;
+          
             n = 0;
-            }
+            
           } else {
             dec++;
-            if(n)
-            {
-              inc+=n/2;
-              dec+=n/2;
+            dec+=n;
             n = 0;
-            }
+            
           }
           cout<<"右圆弧点递增数inc"<<inc<<"        ////右圆弧点递减数dec"<<dec<<endl;
           /* 有弧线 */
-          if (inc > num && dec > num) {
+          if (inc > num && dec > (num/2)) {
             // *index = i + num;
             return 1;
           }
