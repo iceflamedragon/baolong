@@ -57,7 +57,7 @@ class Detection
 public:
 int ai_flag;
     std::vector<PredictResult> results; // AI推理结果
-    float score = 0.5;                  // AI检测置信度
+    float score = 0.8;                  // AI检测置信度  原来为0.5
 
     /**
      * @brief Construct a new Detection object

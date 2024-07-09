@@ -47,8 +47,10 @@ public:
    * @return true
    * @return false
    */
-  // int flagleft;
-  // int flagright;
+  int flagleft;
+  int flagright;
+  int time;
+  int s;
   void save_common_pid(Motion &motion) {
     common_p1 = motion.params.runP1;
     common_p2 = motion.params.runP2;
@@ -87,27 +89,40 @@ public:
     // 障碍物方向判定（左/右）
     int row = track.pointsEdgeLeft.size() -
               (resultsObs[index].y + resultsObs[index].height - track.rowCutUp);
-              cout<<"障碍物所在row"<<row<<endl;
+              cout<<"障碍物所在row"<<row<<endl;//row导致障碍物在不同侧---判断不出不同侧
     if (row < 0) // 无需规划路径
       return enable;
 
     int disLeft = resultsObs[index].x + resultsObs[index].width -
                   track.pointsEdgeLeft[row].y;
     int disRight = track.pointsEdgeRight[row].y - resultsObs[index].x;
+    // if(resultsObs[index].type != LABEL_BLOCK)
+    // {
+    //     time++;
+    //   if(time>10)
+    //   {
+    //   flagright=0;
+    //   flagleft=0;
+    //   }
+    // }
+
     if (resultsObs[index].x + resultsObs[index].width >
             track.pointsEdgeLeft[row].y &&
         track.pointsEdgeRight[row].y > resultsObs[index].x &&
-        disLeft <= disRight&&resultsObs[index].type == LABEL_CONE) //[1] 障碍物靠左
+        disLeft <= disRight) //[1] 障碍物靠左&&resultsObs[index].type == LABEL_CONE
     {
       cout<<"障碍物在左侧"<<endl;
-      cout<<"障碍物的x坐标"<<resultsObs[index].x<<endl;
-      cout<<"障碍物的y坐标"<<resultsObs[index].y<<endl;
-      if (resultsObs[index].type == LABEL_BLOCK&&resultsObs[index].x<50&&resultsObs[index].y>75) // 黑色路障特殊处理flagright&&flagleft
+      // cout<<"障碍物的x坐标"<<resultsObs[index].x<<endl;
+      // cout<<"障碍物的y坐标"<<resultsObs[index].y<<endl;
+      if (resultsObs[index].type == LABEL_BLOCK) // 黑色路障特殊处理flagright&&flagleft    &&resultsObs[index].x<50&&resultsObs[index].y>75
       {
+        s=resultsObs[index].x;
+        cout<<"障碍物的x坐标"<<resultsObs[index].x<<endl;
+      cout<<"障碍物的y坐标"<<resultsObs[index].y<<endl;
         cout<<"黑色路障在左侧"<<endl<<endl;//未识别到
         curtailTracking(track, false); // 缩减优化车道线（双车道→单车道）
       } else if(resultsObs[index].type == LABEL_CONE){
-        // flagleft=1;
+         flagleft=1;
         save_common_pid(motion);
          motion.set_direction_pid(motion.params.danger_p1,motion.params.danger_p2, motion.params.danger_d); 
         vector<POINT> points(4); // 三阶贝塞尔曲线
@@ -153,17 +168,18 @@ public:
     } else if (resultsObs[index].x + resultsObs[index].width >
                    track.pointsEdgeLeft[row].y &&
                track.pointsEdgeRight[row].y > resultsObs[index].x &&
-               disLeft > disRight&&resultsObs[index].type == LABEL_CONE) //[2] 障碍物靠右
+               disLeft > disRight) //[2] 障碍物靠右&&resultsObs[index].type == LABEL_CONE
     {
       cout<<"障碍物在右侧"<<endl;
-      cout<<"障碍物的x坐标"<<resultsObs[index].x<<endl;
-      cout<<"障碍物的y坐标"<<resultsObs[index].y<<endl;
+      // cout<<"障碍物的x坐标"<<resultsObs[index].x<<endl;
+      // cout<<"障碍物的y坐标"<<resultsObs[index].y<<endl;
       if (resultsObs[index].type == LABEL_BLOCK&&resultsObs[index].x>200&&resultsObs[index].y>75) // 黑色路障特殊处理
       {
         cout<<"黑色路障在右侧"<<endl<<endl;
         curtailTracking(track, true); // 缩减优化车道线（双车道→单车道）
       } else if(resultsObs[index].type == LABEL_CONE) {
-        // flagright=1;
+         flagright=1;
+        
         vector<POINT> points(4); // 三阶贝塞尔曲线
         points[0] = track.pointsEdgeRight[row / 2];
         points[1] = {resultsObs[index].y + resultsObs[index].height-20,
@@ -281,13 +297,13 @@ private:
    * @param left
    */
   void curtailTracking(Tracking &track, bool left) {
-    if (left) // 向左侧缩进
+    if (left) // 向左侧缩进  改变补线问题
     {
       cout<<"黑色路障在左侧时右侧的补线"<<endl;
       if (track.pointsEdgeRight.size() > track.pointsEdgeLeft.size())
         track.pointsEdgeRight.resize(track.pointsEdgeLeft.size());
 
-      for (int i = 0; i < track.pointsEdgeRight.size(); i++) {
+      for (int i =s; i < track.pointsEdgeRight.size(); i++) {
         track.pointsEdgeRight[i].y =
             (track.pointsEdgeRight[i].y + track.pointsEdgeLeft[i].y) / 3;//重新规划巡线
       }
