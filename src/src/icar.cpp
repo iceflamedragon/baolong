@@ -44,7 +44,8 @@ using namespace cv;
 bool app_stopped = false;
 void sigint_handler(int sig);
 int flag = 1;
-int start = 0;                                             // 发车计数器
+int start = 0;  
+int center_sum=0,center_sum_n=0;//中心总值 ,计数                                          // 发车计数器
 shared_ptr<Uart> uart = make_shared<Uart>("/dev/ttyUSB0"); // 初始化串口驱动
 int main(int argc, char const *argv[]) {
   Preprocess preprocess;    // 图像预处理类
@@ -291,7 +292,7 @@ int main(int argc, char const *argv[]) {
 
     //[12] 车辆控制中心拟合
     ctrlCenter.fitting(tracking);
-    // 冲出赛道
+    // 冲出赛道 
     //  if (scene != Scene::RescueScene) {
     //    if (ctrlCenter.derailmentCheck(tracking)) //
     //    // 车辆冲出赛道检测（保护车辆）
@@ -333,8 +334,18 @@ int main(int argc, char const *argv[]) {
         cout << "危险区左出库舵机打角定了" << endl;
         motion.poseCtrl(
             100); // 姿态控制（舵机）  此处为救援区出站固定打角 --使其偏差值为0
-      } else
+      } else if
         motion.poseCtrl(ctrlCenter.controlCenter); // 姿态控制（舵机）
+        else if{ring.center_sum==Center_Sum_Flag::Start}
+        {
+        center_sum+=ctrlCenter.controlCenter;
+        center_sum_n++;
+        }
+        else if{ring.center_sum==Center_Sum_Flag::End}
+        {
+        ctrlCenter.controlCenter=center_sum/center_sum_n;
+        motion.poseCtrl(ctrlCenter.controlCenter); // 出环平均的中心姿态控制（舵机）
+        }
 
       uart->carControl(motion.speed, motion.servoPwm); // 串口通信控制车辆
     }
