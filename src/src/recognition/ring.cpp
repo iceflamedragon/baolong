@@ -83,13 +83,17 @@ public:
   int monotonicity_change_right_flag = 0; // 不转折是0
   int continuity_change_right_flag = 0;   // 连续是0
   int continuity_change_left_flag = 0;    // 连续是0
-
+  int center_sum_flag;///中心值积分标志
   double part_stdevEdgeCal_left=0; //左边缘部分斜率方差
   double part_stdevEdgeCal_right=0; //左边缘部分斜率方差
   void setmpu6050(float mpu6050_now_read) { mpu6050_now = mpu6050_now_read; }
   void setdistance(float distance) { distance_now = distance; };
   uint16_t counterShield = 0; // 环岛检测屏蔽计数器：屏蔽车库误检测
 
+#define  Center_Sum_None 0
+#define  Center_Sum_Start 1
+#define  Center_Sum_End 2
+#define  Center_Sum_Reset 3
 #define RingNone 0
 #define RingLeft 1
 #define RingRight 2
@@ -443,7 +447,7 @@ public:
       cout<<"入环右角点的i值" << right_breakpoint<<endl;                   
       cout << "入环左角点的i值" << left_breakpoint << endl;
       if ((left_breakpoint > 50 && left_breakpoint < 145) ||
-          (right_breakpoint > 50 && right_breakpoint < 145)) {//原先为130  95
+          (right_breakpoint > 50 && right_breakpoint < 150)) {//原先为130  95
         flagjiao = 1;
       }
       if (!track.spurroad.empty() && (distance_diff > 1000) &&  //积分距离有点大---可能会导致晚了---判断入环时出问题
@@ -719,6 +723,11 @@ public:
     }
     // 出环补线
     if (ringStep == RingStep::Inside) {
+      if(abs(mpu6050_now - mpu6050_later)>40&&abs(mpu6050_now - mpu6050_later)<252)//找固定打角
+      {center_sum_flag=Center_Sum_Start; }
+      else if(abs(mpu6050_now - mpu6050_later)>252)
+      {center_sum_flag=Center_Sum_End;}
+
       if (ringType == RingLeft) {
         int rowBreakRight = 0; // 右边缘横坐标连续性(行号)
         for (int i = 0; i < track.pointsEdgeRight.size(); i += 3) {
@@ -903,6 +912,7 @@ public:
          flagbigringr=0;
         flagpid=0;
         flagjiao = 0;
+        center_sum_flag=Center_Sum_Reset;
         // distance_laterout = distance_now; // 开始路程积分
         cout << "开始路程积分" << endl;
         distance_final = distance_now;
@@ -961,6 +971,7 @@ public:
           track.spurroad.empty() &&
           (distance_now - distance_final >= 1200)) { // 结束出环补线  之前为1500
         ringStep = RingStep::None;
+        center_sum_flag=Center_Sum_None;
           int flagpid=0;
    left_breakpoint = 0;  // 左拐点行号
    right_breakpoint = 0; // 右拐点行号
