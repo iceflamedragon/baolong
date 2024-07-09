@@ -443,7 +443,7 @@ public:
       cout<<"入环右角点的i值" << right_breakpoint<<endl;                   
       cout << "入环左角点的i值" << left_breakpoint << endl;
       if ((left_breakpoint > 50 && left_breakpoint < 145) ||
-          (right_breakpoint > 50 && right_breakpoint < 120)) {//原先为130  95
+          (right_breakpoint > 50 && right_breakpoint < 145)) {//原先为130  95
         flagjiao = 1;
       }
       if (!track.spurroad.empty() && (distance_diff > 1000) &&  //积分距离有点大---可能会导致晚了---判断入环时出问题

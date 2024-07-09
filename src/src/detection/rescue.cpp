@@ -271,7 +271,7 @@ public:
           counterExit++;
           cout<<"停车前的延时"<<counterExit<<endl<<endl;
 
-          if (counterExit > 9) {  //此处设置为了总的延时   用距离判断吗？距离写个  右侧为9-10
+          if (counterExit > 11) {  //此处设置为了总的延时   用距离判断吗？距离写个  右侧为9-10
            //stoptime++;
           // cout<<"stoptime"<<stoptime<<endl<<endl;
            //if(stoptime>8)      

@@ -47,6 +47,8 @@ public:
    * @return true
    * @return false
    */
+  // int flagleft;
+  // int flagright;
   void save_common_pid(Motion &motion) {
     common_p1 = motion.params.runP1;
     common_p2 = motion.params.runP2;
@@ -95,14 +97,17 @@ public:
     if (resultsObs[index].x + resultsObs[index].width >
             track.pointsEdgeLeft[row].y &&
         track.pointsEdgeRight[row].y > resultsObs[index].x &&
-        disLeft <= disRight) //[1] 障碍物靠左
+        disLeft <= disRight&&resultsObs[index].type == LABEL_CONE) //[1] 障碍物靠左
     {
       cout<<"障碍物在左侧"<<endl;
-      if (resultsObs[index].type == LABEL_BLOCK) // 黑色路障特殊处理
+      cout<<"障碍物的x坐标"<<resultsObs[index].x<<endl;
+      cout<<"障碍物的y坐标"<<resultsObs[index].y<<endl;
+      if (resultsObs[index].type == LABEL_BLOCK&&resultsObs[index].x<50&&resultsObs[index].y>75) // 黑色路障特殊处理flagright&&flagleft
       {
-        cout<<"黑色路障在左侧"<<endl<<endl;
+        cout<<"黑色路障在左侧"<<endl<<endl;//未识别到
         curtailTracking(track, false); // 缩减优化车道线（双车道→单车道）
-      } else {
+      } else if(resultsObs[index].type == LABEL_CONE){
+        // flagleft=1;
         save_common_pid(motion);
          motion.set_direction_pid(motion.params.danger_p1,motion.params.danger_p2, motion.params.danger_d); 
         vector<POINT> points(4); // 三阶贝塞尔曲线
@@ -144,26 +149,29 @@ public:
         //  track.pointsEdgeRight =
         //         predictEdgeRight(points); // 由左边缘补偿右边缘
 
-      }
+    }
     } else if (resultsObs[index].x + resultsObs[index].width >
                    track.pointsEdgeLeft[row].y &&
                track.pointsEdgeRight[row].y > resultsObs[index].x &&
-               disLeft > disRight) //[2] 障碍物靠右
+               disLeft > disRight&&resultsObs[index].type == LABEL_CONE) //[2] 障碍物靠右
     {
       cout<<"障碍物在右侧"<<endl;
-      if (resultsObs[index].type == LABEL_BLOCK) // 黑色路障特殊处理
+      cout<<"障碍物的x坐标"<<resultsObs[index].x<<endl;
+      cout<<"障碍物的y坐标"<<resultsObs[index].y<<endl;
+      if (resultsObs[index].type == LABEL_BLOCK&&resultsObs[index].x>200&&resultsObs[index].y>75) // 黑色路障特殊处理
       {
         cout<<"黑色路障在右侧"<<endl<<endl;
         curtailTracking(track, true); // 缩减优化车道线（双车道→单车道）
-      } else {
+      } else if(resultsObs[index].type == LABEL_CONE) {
+        // flagright=1;
         vector<POINT> points(4); // 三阶贝塞尔曲线
         points[0] = track.pointsEdgeRight[row / 2];
-        points[1] = {resultsObs[index].y + resultsObs[index].height,
-                     resultsObs[index].x - resultsObs[index].width};
+        points[1] = {resultsObs[index].y + resultsObs[index].height-20,
+                     resultsObs[index].x - resultsObs[index].width-50};
         points[2] = {(resultsObs[index].y + resultsObs[index].height +
                       resultsObs[index].y) /
                          2,
-                     resultsObs[index].x - resultsObs[index].width};
+                     resultsObs[index].x - resultsObs[index].width-50};
         if (resultsObs[index].y >
             track.pointsEdgeRight[track.pointsEdgeRight.size() - 1].x)
           points[3] = track.pointsEdgeRight[track.pointsEdgeRight.size() - 1];
@@ -179,7 +187,7 @@ public:
         {
           track.pointsEdgeRight.push_back(repair[i]);
           keys[i].x=repair[i].x;  //第一种思路，直接平移
-          keys[i].y=repair[i].y-130;//原先为120
+          keys[i].y=repair[i].y-140;//原先为120
           track.pointsEdgeLeft.push_back(keys[i]);
         }
       }
@@ -275,12 +283,13 @@ private:
   void curtailTracking(Tracking &track, bool left) {
     if (left) // 向左侧缩进
     {
+      cout<<"黑色路障在左侧时右侧的补线"<<endl;
       if (track.pointsEdgeRight.size() > track.pointsEdgeLeft.size())
         track.pointsEdgeRight.resize(track.pointsEdgeLeft.size());
 
       for (int i = 0; i < track.pointsEdgeRight.size(); i++) {
         track.pointsEdgeRight[i].y =
-            (track.pointsEdgeRight[i].y + track.pointsEdgeLeft[i].y) / 3;
+            (track.pointsEdgeRight[i].y + track.pointsEdgeLeft[i].y) / 3;//重新规划巡线
       }
     } else // 向右侧缩进  障碍物在左侧
     {
