@@ -306,6 +306,16 @@ public:
         pathsEdgeRight.push_back(track.pointsEdgeRight);
       } else // 右入库
       {
+        for (int i = 0; i < pointConeRight.size(); i++) {
+
+          if (pointConeRight[i].y > 70 &&
+              pointConeRight[i].y < 250) // 小于车身大小
+            if (pointConeRight[i].x > smallestcone)
+              smallestcone = pointConeRight[i].x;
+        }
+        if (smallestcone > 180) // 距离车辆多少开始停车
+          cout << "停车了老司机5555" << endl << endl;
+        step = Step::Stop; // 停车使能
         cout << "开始右入库了" << endl;
         POINT start = POINT(ROWSIMAGE - 40, 0);
         POINT end = POINT(50, COLSIMAGE - 1);
