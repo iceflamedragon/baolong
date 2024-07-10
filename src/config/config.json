@@ -19,7 +19,7 @@
     "danger_d": 2.5,
     "debug": false ,
     "/*debug*/": "debug为1显示窗口,为0无窗口",
-    "record_video": true,
+    "record_video": false,
     "/*record_video*/": "为1开始录制,要debug显示窗口必须先打开record_video",
     "saveImg": false,
     "rowCutUp": 50,

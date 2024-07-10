@@ -69,6 +69,7 @@ private:
 public:
   // int leftpoint;
   // int rightpoint;
+  int flag_closeai;
   int flagbigringl = 0;
   int flagbigringr = 0;
   int flagpid = 0;
@@ -172,6 +173,12 @@ public:
 
     // bool ringEnable = false;                    // 判环标志
     //  RingType ringTypeTemp = RingNone; // 环岛类型：临时变量
+    if (ringStep == RingStep::Entering || ringStep == RingStep::Inside ||
+        ringStep == RingStep::Exiting)
+      flag_closeai = 1;
+    else
+      flag_closeai = 0;
+
     int rowBreakpointLeft = 0;  // 边缘拐点起始行（左）
     int rowBreakpointRight = 0; // 边缘拐点起始行（右）
     int colEnterRing = 0;       // 入环点（图像列序号）
@@ -927,7 +934,7 @@ public:
 
       if (abs(mpu6050_now - mpu6050_later) > 300) // 判断mpu6050然后再出环  280
       {
-        motion.set_direction_pid(common_p1, common_p2, common_d);
+        // motion.set_direction_pid(common_p1, common_p2, common_d);
         cout << "切换为普通pid" << endl;
         // if (max(rowBreakpointLeft, rowBreakpointRight) < ROWSIMAGE / 2) {
         ringStep = RingStep::Exiting;
@@ -942,7 +949,10 @@ public:
       }
     }
     // 出环完成
-
+    // 出环完成
+    else if (ringStep == RingStep::Exiting &&
+             distance_now - distance_final > 1000)
+      ringStep == RingStep::None;
     else if (ringStep == RingStep::Exiting) {
       cout << "到达exiting了" << endl << endl << endl << endl;
       // 左出环补直线
@@ -973,7 +983,7 @@ public:
         //     for (int kk = 0; kk < b_modify.size(); ++kk) {
         //   track.pointsEdgeRight.emplace_back(b_modify[kk]);
         // }
-        if (rowBreakpointRight > ROWSIMAGE * 3 / 4) {
+        if (rowBreakpointRight > ROWSIMAGE * 9 / 10) {
           cout << "到达finish" << endl;
           ringStep = RingStep::Finish;
         }
@@ -987,10 +997,10 @@ public:
           if (breakpoint_out < 170)
             break;
         }
-        K_Add_Boundry_Left(regression(track.pointsEdgeRight,
-                                      breakpoint_out + 10, breakpoint_out + 3),
-                           track.pointsEdgeRight[breakpoint_out + 1].y,
-                           breakpoint_out + 1, 30, track); // 根据斜率作直线
+        K_Add_Boundry_Right(regression(track.pointsEdgeRight,
+                                       breakpoint_out + 10, breakpoint_out + 3),
+                            track.pointsEdgeRight[breakpoint_out + 1].y,
+                            breakpoint_out + 1, 30, track); // 根据斜率作直线
 
         // POINT p_end(rowBreakpointRight, 320);
         // POINT p_start(ROWSIMAGE - 50, 1);
@@ -1005,7 +1015,7 @@ public:
         //     for (int kk = 0; kk < b_modify.size(); ++kk) {
         //   track.pointsEdgeLeft.emplace_back(b_modify[kk]);
         // }
-        if (rowBreakpointLeft > ROWSIMAGE / 2) {
+        if (rowBreakpointLeft > ROWSIMAGE * 9 / 10) {
           cout << "到达finish" << endl;
           ringStep = RingStep::Finish;
         }
@@ -1014,13 +1024,14 @@ public:
 
     // 出环，切回正常循迹        //这里应该依靠路程积分彻底出环
     if (ringStep == RingStep::Finish) {
+      motion.set_direction_pid(common_p1, common_p2, common_d);
       cout << "距离差值   " << distance_now - distance_final << endl;
       if (track.pointsEdgeLeft.size() > 30 &&
           track.pointsEdgeRight.size() > 30 &&
           abs(track.pointsEdgeRight.size() - track.pointsEdgeLeft.size() <
               track.pointsEdgeRight.size() / 3) &&
-          track.spurroad.empty() &&
-          (distance_now - distance_final >= 1200)) { // 结束出环补线  之前为1500
+          track.spurroad.empty() && (distance_now - distance_final >= 200)) {
+        // 结束出环补线  之前为1500
         ringStep = RingStep::None;
         center_sum_flag = Center_Sum_None;
         flagpid = 0;
@@ -1045,6 +1056,7 @@ public:
         cout << "圆环完成" << endl;
         //  leftpoint=0;
         //  rightpoint=0;
+
         reset();
       }
     }

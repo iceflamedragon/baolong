@@ -202,7 +202,7 @@ int main(int argc, char const *argv[]) {
         MORPH_RECT, Size(9, 9)); // 小于8*8方块的白色噪点都会被腐蚀
     erode(imgBinary, imgBinary, element);
     cout << "scene" << scene << endl;
-    if (ai_check > 1 || detection->ai_flag) {
+    if (ai_check > 1 || detection->ai_flag && ring.flag_closeai==false &&sceneLast !=Scene::CrossScene) {
 
       //[03] 启动AI推理
       detection->inference(imgCorrect);
@@ -359,6 +359,7 @@ int main(int argc, char const *argv[]) {
         }
         else if(ring.center_sum_flag==Center_Sum_End)
         {
+        cout<<"固定舵机打角"<<ctrlCenter.controlCenter<<endl;
         ctrlCenter.controlCenter=center_sum/center_sum_n;
         motion.poseCtrl(ctrlCenter.controlCenter); // 出环平均的中心姿态控制（舵机）
         } 
