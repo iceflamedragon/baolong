@@ -45,6 +45,7 @@ bool app_stopped = false;
 void sigint_handler(int sig);
 int flag = 1;
 int start = 0;                                             // 发车计数器
+int center_sum=0,center_sum_n=0;//中心总值 ,计数  
 shared_ptr<Uart> uart = make_shared<Uart>("/dev/ttyUSB0"); // 初始化串口驱动
 int main(int argc, char const *argv[]) {
   Preprocess preprocess;    // 图像预处理类
@@ -344,14 +345,31 @@ int main(int argc, char const *argv[]) {
       if (rescue.flagchur) {
         cout << "危险区右出库舵机打角定了" << endl;
         motion.poseCtrl(
-            220); // 姿态控制（舵机）  此处为救援区出站固定打角 --使其偏差值为0
+            210); // 姿态控制（舵机）  此处为救援区出站固定打角 --使其偏差值为0
       } else if (rescue.flagchul) {
         cout << "危险区左出库舵机打角定了" << endl;
         motion.poseCtrl(
-            100); // 姿态控制（舵机）  此处为救援区出站固定打角 --使其偏差值为0
-      } else
-        motion.poseCtrl(ctrlCenter.controlCenter); // 姿态控制（舵机）
+            110); // 姿态控制（舵机）  此处为救援区出站固定打角 --使其偏差值为0
+      }
+      else if(ring.center_sum_flag==Center_Sum_Start)
+        {
+        center_sum+=ctrlCenter.controlCenter;
+        center_sum_n++;
+        motion.poseCtrl(ctrlCenter.controlCenter); // 姿态控制（舵机） 别忘记打角 
+        }
+        else if(ring.center_sum_flag==Center_Sum_End)
+        {
+        ctrlCenter.controlCenter=center_sum/center_sum_n;
+        motion.poseCtrl(ctrlCenter.controlCenter); // 出环平均的中心姿态控制（舵机）
+        } 
+        else if(danger.flag_cone_first)
+        {
+          motion.poseCtrl(ctrlCenter.controlCenter+15); // 姿态控制（舵机）
 
+        }
+        else
+        motion.poseCtrl(ctrlCenter.controlCenter); // 姿态控制（舵机）
+      if(ring.center_sum_flag==Center_Sum_Reset){center_sum=0;center_sum_n=0;}
       uart->carControl(motion.speed, motion.servoPwm); // 串口通信控制车辆
     }
     Mat imgRes =

@@ -159,6 +159,7 @@ public:
   void poseCtrl(int controlCenter) {
     // if(ring.flagpid )flag=1;
     float error = controlCenter - COLSIMAGE / 2;
+    
      if(flagbigringl)
      {
       error=error+30;

@@ -72,3 +72,6 @@ delay1>450
      "ring_p1b": 1,
     "ring_p2b": 0.014,
     "ring_db": 3.0,
+
+
+detection.hpp中 ----score是置信度---提高一下防止误判
