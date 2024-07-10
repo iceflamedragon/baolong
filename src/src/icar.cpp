@@ -44,8 +44,8 @@ using namespace cv;
 bool app_stopped = false;
 void sigint_handler(int sig);
 int flag = 1;
-int start = 0;                                             // 发车计数器
-int center_sum=0,center_sum_n=0;//中心总值 ,计数  
+int start = 0;                        // 发车计数器
+int center_sum = 0, center_sum_n = 0; // 中心总值 ,计数
 shared_ptr<Uart> uart = make_shared<Uart>("/dev/ttyUSB0"); // 初始化串口驱动
 int main(int argc, char const *argv[]) {
   Preprocess preprocess;    // 图像预处理类
@@ -130,21 +130,16 @@ int main(int argc, char const *argv[]) {
 
   while (1) {
     //  ring.RoundaboutGetArc(tracking, 1, 20, 30, 160);
-     
-    if(ring.flagbigringl)
-    {
-      motion.flagbigringl=1;
 
+    if (ring.flagbigringl) {
+      motion.flagbigringl = 1;
+
+    } else if (ring.flagbigringr) {
+      motion.flagbigringr = 1;
+    } else {
+      motion.flagbigringl = 0;
+      motion.flagbigringr = 0;
     }
-    else if(ring.flagbigringr)
-    {
-      motion.flagbigringr=1;
-    }
-    else 
-     {
-      motion.flagbigringl=0;
-       motion.flagbigringr=0;
-     }
     //   cout<<"救援区出站时的flag值"<<rescue.flagchu<<endl;
     // //   if(ring.flagpid){
     // motion.flag=1;
@@ -202,7 +197,7 @@ int main(int argc, char const *argv[]) {
         MORPH_RECT, Size(9, 9)); // 小于8*8方块的白色噪点都会被腐蚀
     erode(imgBinary, imgBinary, element);
     cout << "scene" << scene << endl;
-    if (ai_check > 1 || detection->ai_flag && ring.flag_closeai==false &&sceneLast !=Scene::CrossScene) {
+    if (ai_check > 1 || detection->ai_flag && ring.flag_closeai == false) {
 
       //[03] 启动AI推理
       detection->inference(imgCorrect);
@@ -305,7 +300,7 @@ int main(int argc, char const *argv[]) {
       } else
         scene = Scene::NormalScene;
     }
-//  ring.RoundaboutGetArc(tracking, 1, 20, 30, 160);
+    //  ring.RoundaboutGetArc(tracking, 1, 20, 30, 160);
     //[12] 车辆控制中心拟合
     ctrlCenter.fitting(tracking);
     // 冲出赛道
@@ -350,27 +345,25 @@ int main(int argc, char const *argv[]) {
         cout << "危险区左出库舵机打角定了" << endl;
         motion.poseCtrl(
             110); // 姿态控制（舵机）  此处为救援区出站固定打角 --使其偏差值为0
-      }
-      else if(ring.center_sum_flag==Center_Sum_Start)
-        {
-        center_sum+=ctrlCenter.controlCenter;
+      } else if (ring.center_sum_flag == Center_Sum_Start) {
+        center_sum += ctrlCenter.controlCenter;
         center_sum_n++;
-        motion.poseCtrl(ctrlCenter.controlCenter); // 姿态控制（舵机） 别忘记打角 
-        }
-        else if(ring.center_sum_flag==Center_Sum_End)
-        {
-        cout<<"固定舵机打角"<<ctrlCenter.controlCenter<<endl;
-        ctrlCenter.controlCenter=center_sum/center_sum_n;
-        motion.poseCtrl(ctrlCenter.controlCenter); // 出环平均的中心姿态控制（舵机）
-        } 
-        else if(danger.flag_cone_first)
-        {
-          motion.poseCtrl(ctrlCenter.controlCenter+15); // 姿态控制（舵机）
+        motion.poseCtrl(
+            ctrlCenter.controlCenter); // 姿态控制（舵机） 别忘记打角
+      } else if (ring.center_sum_flag == Center_Sum_End) {
+        cout << "固定舵机打角" << ctrlCenter.controlCenter << endl;
+        ctrlCenter.controlCenter = center_sum / center_sum_n;
+        motion.poseCtrl(
+            ctrlCenter.controlCenter); // 出环平均的中心姿态控制（舵机）
+      } else if (danger.flag_cone_first) {
+        motion.poseCtrl(ctrlCenter.controlCenter + 15); // 姿态控制（舵机）
 
-        }
-        else
+      } else
         motion.poseCtrl(ctrlCenter.controlCenter); // 姿态控制（舵机）
-      if(ring.center_sum_flag==Center_Sum_Reset){center_sum=0;center_sum_n=0;}
+      if (ring.center_sum_flag == Center_Sum_Reset) {
+        center_sum = 0;
+        center_sum_n = 0;
+      }
       uart->carControl(motion.speed, motion.servoPwm); // 串口通信控制车辆
     }
     Mat imgRes =
