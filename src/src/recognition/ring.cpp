@@ -917,23 +917,22 @@ public:
     }
     // 出环完成
     // 出环完成
-    else if(ringStep == RingStep::Exiting&&distance_now - distance_final>1000)ringStep == RingStep::None;
+    // else if(ringStep == RingStep::Exiting&&distance_now - distance_final>1000)ringStep == RingStep::None;
     else if (ringStep == RingStep::Exiting) {
       cout << "到达exiting了" << endl << endl << endl << endl;
       // 左出环补直线
       if (ringType == RingLeft) {
         int breakpoint_out;
-        while(1)
-        { breakpoint_out = Find_Left_Breakpoint(track, 40, 180); // 找到拐点
-        if(breakpoint_out<170)
-        break;
-        }
-        K_Add_Boundry_Left(regression(track.pointsEdgeLeft, breakpoint_out + 7,
+
+         breakpoint_out = Find_Left_Breakpoint(track, 40, 180); // 找到拐点
+        if(breakpoint_out<170&&breakpoint_out>40)
+        {K_Add_Boundry_Left(regression(track.pointsEdgeLeft, breakpoint_out + 7,
                                       breakpoint_out + 2),
                            track.pointsEdgeLeft[breakpoint_out + 1].y,
                           breakpoint_out + 1,
                            30,track); // 根据斜率作直线
-                           cout<<"开始左环出环直线补线！"<<endl;
+                           cout<<"开始左环出环直线补线！"<<endl;}
+        
   // cout<<"dsjaiofjeoisdjfiodsjiofjadsiofjdsioa"<<   breakpoint_out<<endl<<endl<<endl;       // POINT p_end(rowBreakpointLeft, 0);
   //           // POINT p_start(ROWSIMAGE - 50, COLSIMAGE - 1);
             // POINT p_mid((ROWSIMAGE - 50 + rowBreakpointLeft) * 3 / 8,
@@ -947,7 +946,7 @@ public:
         //     for (int kk = 0; kk < b_modify.size(); ++kk) {
         //   track.pointsEdgeRight.emplace_back(b_modify[kk]);
         // }
-        if (rowBreakpointRight > ROWSIMAGE *9/ 10) {
+        if (distance_now - distance_final>1700) {
           cout << "到达finish" << endl;
           ringStep = RingStep::Finish;
         }
@@ -956,17 +955,17 @@ public:
       // 右出环补直线
       if (ringType == RingRight) {
         int breakpoint_out;
-        while(1){
+
          breakpoint_out = Find_Right_Breakpoint(track, 40, 180); // 找到拐点
-        if(breakpoint_out<170)
-        break;
-        }
-        K_Add_Boundry_Right(regression(track.pointsEdgeRight,
+        if(breakpoint_out<170&&breakpoint_out>40)
+
+
+       { K_Add_Boundry_Right(regression(track.pointsEdgeRight,
                                       breakpoint_out + 10, breakpoint_out + 3),
                            track.pointsEdgeRight[breakpoint_out + 1].y,
                          breakpoint_out + 1,
                            30,track) ;// 根据斜率作直线
-
+}
             // POINT p_end(rowBreakpointRight, 320);
             // POINT p_start(ROWSIMAGE - 50, 1);
             // POINT p_mid((ROWSIMAGE - 50 + rowBreakpointRight) * 3 / 8,
@@ -980,7 +979,7 @@ public:
         //     for (int kk = 0; kk < b_modify.size(); ++kk) {
         //   track.pointsEdgeLeft.emplace_back(b_modify[kk]);
         // }
-        if (rowBreakpointLeft > ROWSIMAGE *9/10) {
+        if (distance_now - distance_final>1700) {
           cout << "到达finish" << endl;
           ringStep = RingStep::Finish;
         }
@@ -991,40 +990,40 @@ public:
     if (ringStep == RingStep::Finish) {
       motion.set_direction_pid(common_p1, common_p2, common_d);
       cout << "距离差值   " << distance_now - distance_final << endl;
-      if (track.pointsEdgeLeft.size() > 30 &&
-          track.pointsEdgeRight.size() > 30 &&
-          abs(track.pointsEdgeRight.size() - track.pointsEdgeLeft.size() <
-              track.pointsEdgeRight.size() / 3) &&
-          track.spurroad.empty() &&
-          (distance_now - distance_final >= 200)) {
+      // if (track.pointsEdgeLeft.size() > 30 &&
+      //     track.pointsEdgeRight.size() > 30 &&
+      //     abs(track.pointsEdgeRight.size() - track.pointsEdgeLeft.size() <
+      //         track.pointsEdgeRight.size() / 3) &&
+      //     track.spurroad.empty() ||
+      //     (distance_now - distance_final >= 200)) {
              // 结束出环补线  之前为1500
         ringStep = RingStep::None;
         center_sum_flag=Center_Sum_None;
            flagpid=0;
-   left_breakpoint = 0;  // 左拐点行号
-   right_breakpoint = 0; // 右拐点行号
-   monotonicity_change_line[0]=0;
-   monotonicity_change_line[1]=0;// 单调性改变点坐标，[0]寸某行，[1]寸某列
-   monotonicity_right = 0; // 右侧单调
-   monotonicity_left = 0;  // 左侧单调
-   lostline_left = 0;      // 左右丢线数量
-   lostline_right = 0;
-   monotonicity_change_left_flag = 0;  // 不转折是0
-   monotonicity_change_right_flag = 0; // 不转折是0
-   continuity_change_right_flag = 0;   // 连续是0
-   continuity_change_left_flag = 0;    // 连续是0
-  //  first_ring = 0;
-  //  left = 0;
-  //  right = 0;
-   ringTypeTemp = 0;
-  flagjiao = 0; //
-   cout<<"圆环完成"<<endl;
-  //  leftpoint=0;
-  //  rightpoint=0;
+    left_breakpoint = 0;  // 左拐点行号
+    right_breakpoint = 0; // 右拐点行号
+    monotonicity_change_line[0]=0;
+    monotonicity_change_line[1]=0;// 单调性改变点坐标，[0]寸某行，[1]寸某列
+    monotonicity_right = 0; // 右侧单调
+    monotonicity_left = 0;  // 左侧单调
+    lostline_left = 0;      // 左右丢线数量
+    lostline_right = 0;
+    monotonicity_change_left_flag = 0;  // 不转折是0
+    monotonicity_change_right_flag = 0; // 不转折是0
+    continuity_change_right_flag = 0;   // 连续是0
+    continuity_change_left_flag = 0;    // 连续是0
+    //  first_ring = 0;
+    //  left = 0;
+    //  right = 0;
+    ringTypeTemp = 0;
+    flagjiao = 0; //
+    cout<<"圆环完成"<<endl;
+    //  leftpoint=0;
+    //  rightpoint=0;
   
     reset();
    
-          }
+          // }
     }
    
 
