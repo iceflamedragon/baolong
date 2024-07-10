@@ -173,11 +173,8 @@ public:
 
     // bool ringEnable = false;                    // 判环标志
     //  RingType ringTypeTemp = RingNone; // 环岛类型：临时变量
-    if (ringStep == RingStep::Entering || ringStep == RingStep::Inside ||
-        ringStep == RingStep::Exiting)
-      flag_closeai = 1;
-    else
-      flag_closeai = 0;
+    // if(ringStep==RingStep::Entering||ringStep==RingStep::Inside||ringStep==RingStep::Exiting)
+    // flag_closeai=1; else flag_closeai=0;
 
     int rowBreakpointLeft = 0;  // 边缘拐点起始行（左）
     int rowBreakpointRight = 0; // 边缘拐点起始行（右）
