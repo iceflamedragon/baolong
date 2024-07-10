@@ -202,7 +202,7 @@ int main(int argc, char const *argv[]) {
         MORPH_RECT, Size(9, 9)); // 小于8*8方块的白色噪点都会被腐蚀
     erode(imgBinary, imgBinary, element);
     cout << "scene" << scene << endl;
-    if (ai_check > 1 || detection->ai_flag && ring.flag_closeai==false &&sceneLast !=Scene::CrossScene) {
+    if (ai_check > 1 || detection->ai_flag && sceneLast !=Scene::RingScene ) {
 
       //[03] 启动AI推理
       detection->inference(imgCorrect);
