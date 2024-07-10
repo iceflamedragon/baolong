@@ -261,28 +261,21 @@ public:
     }
     case Step::Enter: //[03] 入库使能
     {
-      counterSession++; // 屏蔽期:防止提前入库
-      if (counterSession > 0) {   //原先为8  原先延时有点长
-      //cout<<"尊嘟尊嘟尊嘟要入库了啦啦啦啦啦啦啦啦"<<endl<<endl<<endl;
-      /*cout<<"左边线"<<track.pointsEdgeLeft.size()<<endl<<endl;
-      cout<<"右边线"<<track.pointsEdgeRight.size()<<endl<<endl;*/
-      //  if (track.pointsEdgeLeft.size() > ROWSIMAGE / 2 &&     //两种不同的转法，不同的延时---主要原因：该条件不同时成立
-      //     / track.pointsEdgeRight.size() > ROWSIMAGE / 2) {       //直接用延时----去除差异性
-          counterExit++;
-          cout<<"停车前的延时"<<counterExit<<endl<<endl;
+            searchCones(predict);
 
-          if (counterExit > 11) {  //此处设置为了总的延时   用距离判断吗？距离写个  右侧为9-10
-           //stoptime++;
-          // cout<<"stoptime"<<stoptime<<endl<<endl;
-           //if(stoptime>8)      
-          // {                      ///原先为30
-            counterExit = 0;
-            cout<<"停车了老司机5555"<<endl<<endl;
-            step = Step::Stop; // 停车使能
-            counterRec = 0;
-            counterSession = 0;
+
+          // if (counterExit > 11) {  //此处设置为了总的延时   用距离判断吗？距离写个  右侧为9-10
+          //  //stoptime++;
+          // // cout<<"stoptime"<<stoptime<<endl<<endl;
+          //  //if(stoptime>8)      
+          // // {                      ///原先为30
+          //   counterExit = 0;
+          //   cout<<"停车了老司机5555"<<endl<<endl;
+          //   step = Step::Stop; // 停车使能
+          //   counterRec = 0;
+          //   counterSession = 0;
+          // // }
           // }
-          }
         
 
         if (track.pointsEdgeLeft.size() < ROWSIMAGE / 2 &&
@@ -296,9 +289,18 @@ public:
             counterSession = 0;
           }
         }
-
+      int smallestcone = 0;
         if (entryLeft) // 左入库
-        {
+        {for (int i = 0; i < pointConeLeft.size(); i++) {
+
+          if (pointConeLeft[i].y > 70 &&
+              pointConeLeft[i].y < 250) // 小于车身大小
+            if (pointConeLeft[i].x > smallestcone)
+              smallestcone = pointConeLeft[i].x;
+        }
+        if (smallestcone > 180) // 距离车辆多少开始停车
+          cout << "停车了老司机5555" << endl << endl;
+        step = Step::Stop; // 停车使能
           cout<<"开始左入库了"<<endl;
           POINT start = POINT(ROWSIMAGE - 40, COLSIMAGE - 1);
           POINT end = POINT(50, 0);
@@ -314,7 +316,16 @@ public:
           pathsEdgeLeft.push_back(track.pointsEdgeLeft); // 记录进厂轨迹
           pathsEdgeRight.push_back(track.pointsEdgeRight);
         } else // 右入库
-        {
+        { for (int i = 0; i < pointConeRight.size(); i++) {
+
+          if (pointConeRight[i].y > 70 &&
+              pointConeRight[i].y < 250) // 小于车身大小
+            if (pointConeRight[i].x > smallestcone)
+              smallestcone = pointConeRight[i].x;
+        }
+        if (smallestcone > 180) // 距离车辆多少开始停车
+          cout << "停车了老司机5555" << endl << endl;
+        step = Step::Stop; // 停车使能
           cout<<"开始右入库了"<<endl;
           POINT start = POINT(ROWSIMAGE - 40, 0);
           POINT end = POINT(50, COLSIMAGE - 1);
@@ -330,7 +341,7 @@ public:
           pathsEdgeLeft.push_back(track.pointsEdgeLeft); // 记录进厂轨迹
           pathsEdgeRight.push_back(track.pointsEdgeRight);
         }
-      }
+      
       break;
     }
 
