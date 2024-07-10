@@ -345,11 +345,11 @@ int main(int argc, char const *argv[]) {
       if (rescue.flagchur) {
         cout << "危险区右出库舵机打角定了" << endl;
         motion.poseCtrl(
-            220); // 姿态控制（舵机）  此处为救援区出站固定打角 --使其偏差值为0
+            210); // 姿态控制（舵机）  此处为救援区出站固定打角 --使其偏差值为0
       } else if (rescue.flagchul) {
         cout << "危险区左出库舵机打角定了" << endl;
         motion.poseCtrl(
-            100); // 姿态控制（舵机）  此处为救援区出站固定打角 --使其偏差值为0
+            110); // 姿态控制（舵机）  此处为救援区出站固定打角 --使其偏差值为0
       }
       else if(ring.center_sum_flag==Center_Sum_Start)
         {

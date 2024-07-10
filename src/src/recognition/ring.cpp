@@ -86,6 +86,8 @@ public:
   int center_sum_flag;///中心值积分标志
   double part_stdevEdgeCal_left=0; //左边缘部分斜率方差
   double part_stdevEdgeCal_right=0; //左边缘部分斜率方差
+  int ringTypeTemp = 0;   //环的类型
+  int flagjiao = 0; //
   void setmpu6050(float mpu6050_now_read) { mpu6050_now = mpu6050_now_read; }
   void setdistance(float distance) { distance_now = distance; };
   uint16_t counterShield = 0; // 环岛检测屏蔽计数器：屏蔽车库误检测
@@ -146,11 +148,6 @@ public:
    * @param track 基础赛道识别结果
    * @param imagePath 赛道路径图像
    */
-  int first_ring = 0;
-  int left = 0;
-  int right = 0;
-  int ringTypeTemp = 0;
-  int flagjiao = 0; //
 
   bool process(Tracking &track, Mat &imagePath, Motion &motion) {
     // 暂时注释
@@ -160,11 +157,6 @@ public:
     //  }
 
     /////借鉴的代码
-    // if (!first_ring) {
-    //   // cout<<"666666666666"<<endl;
-    //   ringTypeTemp = RingNone;
-    //   first_ring = 1;
-    // }
     // static int time = 0;
     //  cout<<"标志位。。。"<<first_ring<<endl;
     //   以下是常规判断法
@@ -446,7 +438,7 @@ public:
                            160);
       cout<<"入环右角点的i值" << right_breakpoint<<endl;                   
       cout << "入环左角点的i值" << left_breakpoint << endl;
-      if ((left_breakpoint > 50 && left_breakpoint < 145) ||
+      if ((left_breakpoint > 50 && left_breakpoint < 140) ||
           (right_breakpoint > 50 && right_breakpoint < 150)) {//原先为130  95
         flagjiao = 1;
       }
@@ -902,7 +894,7 @@ public:
         
       }
 
-      if (abs(mpu6050_now - mpu6050_later )> 280) // 判断mpu6050然后再出环
+      if (abs(mpu6050_now - mpu6050_later )> 300) // 判断mpu6050然后再出环  280
       {
         motion.set_direction_pid(common_p1, common_p2, common_d);
         cout << "切换为普通pid" << endl;
@@ -923,37 +915,66 @@ public:
     // 出环完成
     else if (ringStep == RingStep::Exiting) {
       cout << "到达exiting了" << endl << endl << endl << endl;
-      if (ringType == RingLeft && rowBreakpointLeft < ROWSIMAGE / 2) {
-        POINT p_end(rowBreakpointLeft, 0);
-        POINT p_start(ROWSIMAGE - 50, COLSIMAGE - 1);
-        POINT p_mid((ROWSIMAGE - 50 + rowBreakpointLeft) * 3 / 8,
-                    COLSIMAGE / 2);
-        vector<POINT> input = {p_start, p_mid, p_end};
-        vector<POINT> b_modify = Bezier(0.01, input);
-        track.pointsEdgeRight.resize(0);
-        track.pointsEdgeLeft.resize(0);
-
-        for (int kk = 0; kk < b_modify.size(); ++kk) {
-          track.pointsEdgeRight.emplace_back(b_modify[kk]);
+      // 左出环补直线
+      if (ringType == RingLeft) {
+        int breakpoint_out;
+        while(1)
+        { breakpoint_out = Find_Left_Breakpoint(track, 40, 180); // 找到拐点
+        if(breakpoint_out<170)
+        break;
         }
-        if (rowBreakpointRight > ROWSIMAGE / 2) {
+        K_Add_Boundry_Left(regression(track.pointsEdgeLeft, breakpoint_out + 7,
+                                      breakpoint_out + 2),
+                           track.pointsEdgeLeft[breakpoint_out + 1].y,
+                          breakpoint_out + 1,
+                           30,track); // 根据斜率作直线
+                           cout<<"开始左环出环直线补线！"<<endl;
+  // cout<<"dsjaiofjeoisdjfiodsjiofjadsiofjdsioa"<<   breakpoint_out<<endl<<endl<<endl;       // POINT p_end(rowBreakpointLeft, 0);
+  //           // POINT p_start(ROWSIMAGE - 50, COLSIMAGE - 1);
+            // POINT p_mid((ROWSIMAGE - 50 + rowBreakpointLeft) * 3 / 8,
+            //             COLSIMAGE / 2);
+            // vector<POINT> input = {p_start, p_mid, p_end};
+            // vector<POINT> b_modify = Bezier(0.01, input);
+            // track.pointsEdgeRight.resize(0);
+            // track.pointsEdgeLeft.resize(0);
+
+            //////////判断finish
+        //     for (int kk = 0; kk < b_modify.size(); ++kk) {
+        //   track.pointsEdgeRight.emplace_back(b_modify[kk]);
+        // }
+        if (rowBreakpointRight > ROWSIMAGE *3/ 4) {
           cout << "到达finish" << endl;
           ringStep = RingStep::Finish;
         }
       }
-      if (ringType == RingRight && rowBreakpointRight < ROWSIMAGE / 2) {
-        POINT p_end(rowBreakpointRight, 320);
-        POINT p_start(ROWSIMAGE - 50, 1);
-        POINT p_mid((ROWSIMAGE - 50 + rowBreakpointRight) * 3 / 8,
-                    COLSIMAGE / 2);
-        vector<POINT> input = {p_start, p_mid, p_end};
-        vector<POINT> b_modify = Bezier(0.01, input);
-        track.pointsEdgeRight.resize(0);
-        track.pointsEdgeLeft.resize(0);
 
-        for (int kk = 0; kk < b_modify.size(); ++kk) {
-          track.pointsEdgeLeft.emplace_back(b_modify[kk]);
+      // 右出环补直线
+      if (ringType == RingRight) {
+        int breakpoint_out;
+        while(1){
+         breakpoint_out = Find_Right_Breakpoint(track, 40, 180); // 找到拐点
+        if(breakpoint_out<170)
+        break;
         }
+        K_Add_Boundry_Left(regression(track.pointsEdgeRight,
+                                      breakpoint_out + 10, breakpoint_out + 3),
+                           track.pointsEdgeRight[breakpoint_out + 1].y,
+                         breakpoint_out + 1,
+                           30,track) ;// 根据斜率作直线
+
+            // POINT p_end(rowBreakpointRight, 320);
+            // POINT p_start(ROWSIMAGE - 50, 1);
+            // POINT p_mid((ROWSIMAGE - 50 + rowBreakpointRight) * 3 / 8,
+            //             COLSIMAGE / 2);
+            // vector<POINT> input = {p_start, p_mid, p_end};
+            // vector<POINT> b_modify = Bezier(0.01, input);
+            // track.pointsEdgeRight.resize(0);
+            // track.pointsEdgeLeft.resize(0);
+
+            //////////判断finish
+        //     for (int kk = 0; kk < b_modify.size(); ++kk) {
+        //   track.pointsEdgeLeft.emplace_back(b_modify[kk]);
+        // }
         if (rowBreakpointLeft > ROWSIMAGE / 2) {
           cout << "到达finish" << endl;
           ringStep = RingStep::Finish;
@@ -972,7 +993,7 @@ public:
           (distance_now - distance_final >= 1200)) { // 结束出环补线  之前为1500
         ringStep = RingStep::None;
         center_sum_flag=Center_Sum_None;
-          int flagpid=0;
+           flagpid=0;
    left_breakpoint = 0;  // 左拐点行号
    right_breakpoint = 0; // 右拐点行号
    monotonicity_change_line[0]=0;
@@ -985,6 +1006,11 @@ public:
    monotonicity_change_right_flag = 0; // 不转折是0
    continuity_change_right_flag = 0;   // 连续是0
    continuity_change_left_flag = 0;    // 连续是0
+  //  first_ring = 0;
+  //  left = 0;
+  //  right = 0;
+   ringTypeTemp = 0;
+  flagjiao = 0; //
    cout<<"圆环完成"<<endl;
   //  leftpoint=0;
   //  rightpoint=0;
@@ -1729,7 +1755,128 @@ public:
     } else
       return 0;
   }
-  
+      /************************************线性回归计算斜率************************************/
+/*
+ *  @brief 最小二乘法拟合直线斜率
+ * @param 输入点集
+ * @param startline 开始的行数
+ * @param endline 结束的行数
+ * @return 返回拟合的斜率
+ */
+float regression(vector<POINT> &v_edge, int startline, int endline) {
+
+  int i = 0, SumX = 0, SumY = 0, SumLines = 0;
+  float SumUp = 0, SumDown = 0, avrX = 0, avrY = 0, B, A;
+  int t = 0;
+  if (startline > endline) // 从下往上计算的，反了就互换一下
+  {
+    t = startline;
+    startline = endline;
+    endline = t;
+  }
+  SumLines =
+      endline - startline; // startline 为开始行， //endline 结束行 //SumLines
+
+  for (i = startline; i < endline; i++) {
+    SumX += i;
+    SumY += v_edge[i].y; // 这里Middle_black为存放中线的数组
+  }
+  avrX = SumX / SumLines; // X的平均值
+  avrY = SumY / SumLines; // Y的平均值
+  SumUp = 0;
+  SumDown = 0;
+  for (i = startline; i < endline; i++) {
+    SumUp += (v_edge[i].y - avrY) * (i - avrX);
+    SumDown += (v_edge[i].y - avrY)*(v_edge[i].y - avrY)  ;
+  }
+  if (SumDown == 0)
+    B = 0;
+  else
+    B = (SumUp / SumDown);
+  A = (SumY - B * SumX) / SumLines; // 截距
+  return B;                         // 返回斜率
+}
+
+/*-------------------------------------------------------------------------------------------------------------------
+@brief     通过斜率，左边线定点补线--
+@param     k       输入斜率
+           startY  输入起始点纵坐标
+           startX  输入起始点i
+           endX    结束点i
+@return    null
+Sample     K_Add_Boundry_Left(float k,int startY,startX,int endX);
+@note      补得线直接贴在边线上
+-------------------------------------------------------------------------------------------------------------------*/
+void K_Add_Boundry_Left(float k, int startY, int startI, int endI,Tracking &track) {
+  int i = 0, t = 0;
+  if (startY >= COLSIMAGE) // 减去切行
+    startY = COLSIMAGE;
+  else if (startY <= 0)
+    startY = 0;
+  if (endI >= track.pointsEdgeLeft.size() - 1)
+    endI = track.pointsEdgeLeft.size() - 1;
+  else if (endI <= 0)
+    endI = 0;
+  if (startI < endI) //--操作，start需要大
+  {
+    t = startI;
+    startI = endI;
+    endI = t;
+  }
+  // 这里有bug，下方循环--循环，需要start要大，只进行y的互换，但是没有进行x的互换
+  // 建议进行判断，如果start更小，那就进行++访问
+  // 这里修改各位自行操作
+  track.pointsEdgeLeft.resize(track.pointsEdgeLeft.size() + 1);
+  for (i = startI; i >= endI; i--) {
+    track.pointsEdgeLeft[i].y =
+        (int)((i - startI) / k + startY); //(y-y1)=k(x-x1)变形，x=(y-y1)/k+x1
+    if (track.pointsEdgeLeft[i].y >= COLSIMAGE - 1) {
+      track.pointsEdgeLeft[i].y = COLSIMAGE - 1;
+    } else if (track.pointsEdgeLeft[i].y <= 0) {
+      track.pointsEdgeLeft[i].y= 0;
+    }
+  }
+}
+/*-------------------------------------------------------------------------------------------------------------------
+ @brief     通过斜率，右边线定点补线--
+ @param     k       输入斜率
+            startY  输入起始点纵坐标
+            startX  输入起始点横坐标
+            endX    结束点纵坐标
+ @return    null
+ Sample     K_Add_Boundry_Right(float k,int startY,startX,int endX);
+ @note      补得线直接贴在边线上
+-------------------------------------------------------------------------------------------------------------------*/
+void K_Add_Boundry_Right(float k, int startY, int startX, int endX,Tracking &track) {
+  int i = 0, t = 0;
+  if (startY >= COLSIMAGE) // 减去切行
+    startY = COLSIMAGE;
+  else if (startY <= 0)
+    startY = 0;
+  if (endX >= track.pointsEdgeRight.size() - 1)
+    endX = track.pointsEdgeRight.size() - 1;
+  else if (endX <= 0)
+    endX = 0;
+  if (startX < endX) //--操作，start需要大
+  {
+    t = startX;
+    startX = endX;
+    endX = t;
+  }
+  // 这里有bug，下方循环--循环，需要start要大，只进行y的互换，但是没有进行x的互换
+  // 建议进行判断，如果start更小，那就进行++访问
+  // 这里修改各位自行操作
+  track.pointsEdgeRight.resize(track.pointsEdgeRight.size() + 1);
+  for (i = startX; i >= endX; i--) {
+    track.pointsEdgeRight[i].y =
+        (int)((i - startX) / k + startY); //(y-y1)=k(x-x1)变形，x=(y-y1)/k+x1
+    if (track.pointsEdgeRight[i].y >= COLSIMAGE - 1) {
+      track.pointsEdgeRight[i].y = COLSIMAGE - 1;
+    } else if (track.pointsEdgeRight[i].y <= 0) {
+      track.pointsEdgeRight[i].y = 0;
+    }
+  }
+}
 private:
   float mpu6050_later;
   float mpu6050_now;

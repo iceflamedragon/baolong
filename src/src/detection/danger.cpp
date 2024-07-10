@@ -76,7 +76,7 @@ public:
     if (resultsObs.size() <= 0)
       return enable;
 
-    // 选取距离最近的锥桶
+    // 选取距离最近的锥桶，面积最大的就最近
     int areaMax = 0; // 框面积
     int index = 0;   // 目标序号
     for (int i = 0; i < resultsObs.size(); i++) {
@@ -99,9 +99,8 @@ public:
 
     // 障碍物方向判定（左/右）
     int row = track.pointsEdgeLeft.size() -
-              (resultsObs[index].y + resultsObs[index].height - track.rowCutUp);
-    cout << "障碍物所在row" << row
-         << endl; // row导致障碍物在不同侧---判断不出不同侧   以下面为0到上面的
+              (resultsObs[index].y + resultsObs[index].height - track.rowCutUp);////这个计算有问题？切行？
+    cout << "障碍物所在row" << row << endl; // row导致障碍物在不同侧---判断不出不同侧   以下面为0到上面的
     if (row < 0)  // 无需规划路径
       return enable;
 
@@ -138,19 +137,12 @@ public:
 
         cout << "第0个点的y坐标" << track.pointsEdgeLeft[row / 2].y + 20
              << endl;
-        points[0] =
-            track.pointsEdgeLeft
-                [row /
-                 2]; // points[0] = track.pointsEdgeLeft[row / 2]  row / 2
+        points[0] =track.pointsEdgeLeft[row / 2]; // points[0] = track.pointsEdgeLeft[row / 2]  row / 2
                      // {track.pointsEdgeLeft[150].x,track.pointsEdgeLeft[150].y+20}
-        points[1] = {resultsObs[index].y + resultsObs[index].height  ,//原来加了20
-                     resultsObs[index].x + resultsObs[index].width +
-                         80}; // 原来为70
-        points[2] = {(resultsObs[index].y + resultsObs[index].height +
-                      resultsObs[index].y) /
-                         2, // 原先为除以2   之后调为乘0.8
-                     resultsObs[index].x + resultsObs[index].width +
-                         80}; // 第二个位置仍然为y，
+        points[1] = {resultsObs[index].y + resultsObs[index].height ,//原来加了20
+                     resultsObs[index].x + resultsObs[index].width + 80}; // 原来为70
+        points[2] = {(resultsObs[index].y + resultsObs[index].height +resultsObs[index].y) /  2, // 原先为除以2   之后调为乘0.8
+                     resultsObs[index].x + resultsObs[index].width + 80}; // 第二个位置仍然为y，
         if (resultsObs[index].y >
             track.pointsEdgeLeft[track.pointsEdgeLeft.size() - 1].x) {
           cout << "第三个点为第一种情况" << endl;
@@ -335,7 +327,7 @@ private:
       for (int i = block_x+20; i < track.pointsEdgeRight.size(); i++) {
         track.pointsEdgeRight[i].y =
             (track.pointsEdgeRight[i].y + track.pointsEdgeLeft[i].y) /
-            2-10; // 重新规划巡线
+            2-15; // 重新规划巡线  减少10还可以
       }
     } else // 向右侧缩进  障碍物在左侧
     {
