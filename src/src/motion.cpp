@@ -95,6 +95,7 @@ public:
     float danger_p1;
     float danger_p2;
     float danger_d;
+    int areaMax;
     float speedLow = 1.5;        // 智能车最低速
     float speedHigh = 4;         // 智能车最高速
     float speedBridge = 0.6;     // 坡道速度
@@ -116,7 +117,7 @@ public:
     bool ring = true;            // 环岛使能
     bool cross = true;           // 十字道路使能
     float score = 0.5;           // AI检测置信度
-
+int stop_num;
     string model = "../res/model/yolov3_mobilenet_v1"; // 模型路径
     string video = "../res/samples/demo.mp4";          // 视频路径
     NLOHMANN_DEFINE_TYPE_INTRUSIVE(Params, speedLow, speedHigh, speedBridge,
@@ -125,7 +126,7 @@ public:
                                    bridge, danger, rescue, racing, parking,
                                    ring, cross, score, model, ring_p1b, ring_p2b,
                                    ring_db,ring_p1s, ring_p2s,ring_p2s,record_video, video, danger_p1,
-                                   danger_p2, danger_d); // 添加构造函数
+                                   danger_p2,stop_num, danger_d, areaMax); // 添加构造函数
   };
 
   Params params; // 读取控制参数
@@ -189,13 +190,13 @@ public:
     // cout<<error<<endl;
     // 图像控制中心转换偏差
 
-    cout << "偏差值" << error << endl;
+    // cout << "偏差值" << error << endl;
     static int errorLast = 0; // 记录前一次的偏差
     if (abs(error - errorLast) > COLSIMAGE / 10) {
       error = error > errorLast ? errorLast + COLSIMAGE / 10
                                 : errorLast - COLSIMAGE / 10;
     }
-    cout << "此时的P2值" << params.runP2 << endl << endl;
+    // cout << "此时的P2值" << params.runP2 << endl << endl;
     params.turnP = abs(error) * params.runP2 + params.runP1;
     int pwmDiff = (error * params.turnP) + (error - errorLast) * params.turnD;
     errorLast = error;
@@ -203,7 +204,7 @@ public:
     servoPwm = PWMSERVOMID - pwmDiff;
     // (uint16_t)(750 - pwmDiff); // PWM转换
     // ~~^~~~~~~~~~~~~~~~~~~~~~~PWMSERVOMID - pwmDiff
-    cout << "舵机pwm" << PWMSERVOMID - pwmDiff << endl;
+    // cout << "舵机pwm" << PWMSERVOMID - pwmDiff << endl;
   }
 
   /**
