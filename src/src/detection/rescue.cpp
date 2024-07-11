@@ -38,6 +38,8 @@ using namespace std;
 
 class Rescue {
 public:
+  int mpu6050_now;
+  int mpu6050_in;
   int car_changepid = 0;
   bool carStoping = false;  // 停车标志
   bool carExitting = false; // 出库标志
@@ -60,10 +62,12 @@ public:
 
   Step step = Step::None;
   bool entryLeft = true; // 左入库使能标志
+  void setmpu6050(float mpu6050_now_read) { mpu6050_now = mpu6050_now_read; }
   /**
    * @brief 检测初始化
    *
    */
+
   void reset(void) {
     carStoping = false;
     carExitting = false;
@@ -157,6 +161,7 @@ public:
 
     case Step::Enable: //[02] 使能
     {
+      mpu6050_in = mpu6050_now;
       cout << "到达enable了" << endl << endl;
       counterExit++;
       if (counterExit > 150) // 超时退出
@@ -260,7 +265,8 @@ public:
     }
     case Step::Enter: //[03] 入库使能
     {
-      searchCones(predict, motion);
+
+      // searchCones(predict,motion);
       // if (counterExit > 11) {  //此处设置为了总的延时 用距离判断吗？距离写个
       // 右侧为9-10
       //  //stoptime++;
@@ -274,122 +280,41 @@ public:
       //   counterSession = 0;
       // // }
       // }
-      if (track.pointsEdgeLeft.size() < ROWSIMAGE / 2 &&
-          track.pointsEdgeRight.size() < ROWSIMAGE / 2) // 赛道还未丢失
+      if (abs(mpu6050_now - mpu6050_in) >
+          20) // 赛道还未丢失  (track.pointsEdgeLeft.size()-45 < ROWSIMAGE / 2
+              // &&track.pointsEdgeRight.size() -45< ROWSIMAGE / 2)||
+
       {
         counterRec++;
-        if (counterRec > 15) {
-          counterRec = 0;
-          cout << "维持原先状态进行巡航666" << endl << endl << endl;
-          step = Step::Cruise; // 巡航使能
-          counterSession = 0;
-        }
+        // if (counterRec > 15) {
+        counterRec = 0;
+        cout << "维持原先状态进行巡航666" << endl << endl << endl;
+        step = Step::Cruise; // 巡航使能
+        counterSession = 0;
+        // }
       }
 
       int smallestcone = 0;
       if (entryLeft) // 左入库
       {
-        // 判断停车
-        for (int i = 0; i < pointConeLeft.size(); i++) {
-          // int area = pointConeLeft[i].width * pointConeLeft[i].height;
-          //  if (area<areaMax){
-          if (pointConeLeft[i].y > 110 &&
-              pointConeLeft[i].y < 210) // 小于车身大小  原来减少了20
-            if (pointConeLeft[i].x > smallestcone)
-              smallestcone = pointConeLeft[i].x;
-          // }
-          if (smallestcone > motion.params.stop_num) // 距离车辆多少开始停车
-          {
-            cout << "停车了老司机5555" << endl << endl;
-            step = Step::Stop; // 停车使能
-          }
-        }
-        // 搜索顶点锥桶
-        POINT heighestCone = POINT(0, 0);
-        for (int i = 0; i < pointConeLeft.size(); i++) {
-          heighestCone = pointConeLeft[0];
-          if (pointConeLeft[i].x < heighestCone.x)
-            heighestCone = pointConeLeft[i];
-        }
-        for (int i = 0; i < pointConeRight.size(); i++) {
-          if (pointConeRight[i].x < heighestCone.x)
-            heighestCone = pointConeRight[i];
-        }
-
-        if (heighestCone.x > 0 && heighestCone.y > 0) {
-          if (heighestCone.y >= COLSIMAGE / 3) // 顶角锥桶靠近右边→继续右转
-          {
-            vector<POINT> points;
-            for (int i = 0; i < pointConeLeft.size();
-                 i++) // 搜索以最高点为分界线左边的锥桶
-            {
-              if (pointConeLeft[i].y <= heighestCone.y)
-                points.push_back(pointConeLeft[i]);
-            }
-
-            if (points.size() >= 3) // 曲线补偿，把三个锥桶作为边线
-            {
-              pointsSortForY(points); // 排序
-              vector<POINT> input = {points[0], points[points.size() / 2],
-                                     points[points.size() - 1]};
-              track.pointsEdgeLeft = Bezier(0.05, input); // 补线
-              track.pointsEdgeRight =
-                  predictEdgeRight(points); // 由左边缘补偿右边缘
-
-              indexDebug = 1;
-            } else if (points.size() >=
-                       2) { // 曲线补偿，把两个锥桶加一个中点作为边线
-              pointsSortForY(points); // 排序
-              POINT middle =
-                  POINT((points[0].x + points[points.size() - 1].x) / 2,
-                        (points[0].y + points[points.size() - 1].y) / 2);
-              vector<POINT> input = {points[0], middle,
-                                     points[points.size() - 1]};
-              track.pointsEdgeLeft = Bezier(0.05, input); // 补线
-              track.pointsEdgeRight =
-                  predictEdgeRight(points); // 由左边缘补偿右边缘
-              indexDebug = 2;
-            } else if (points.size() >= 1) {
-              if (points[0].x > ROWSIMAGE / 2)
-                step = Step::Exit; // 出站使能
-            }
-          } else // 顶角锥桶太靠近左边，认为识别错误→继续右转
-          {
-            indexDebug = 3;
-            track.pointsEdgeLeft = lastPointsEdgeLeft;
-            track.pointsEdgeRight = lastPointsEdgeRight;
-          }
-
-          // 计算所有锥桶的平均高度
-          int num = 0;
-          for (int i = 0; i < pointConeLeft.size(); i++)
-            num += pointConeLeft[i].x;
-          for (int i = 0; i < pointConeRight.size(); i++)
-            num += pointConeRight[i].x;
-
-          if (pointConeLeft.size() + pointConeRight.size() > 0)
-            levelCones = num / (pointConeLeft.size() +
-                                pointConeRight.size()); // 锥桶高度足够小停车
-          else
-            levelCones = 0;
-          if (levelCones > ROWSIMAGE * 0.5 || levelCones == 0) {
-            counterRec++;
-            if (counterRec > 2) {
-              step = Step::Stop; // 停车使能
-              counterRec = 0;
-            }
-          }
-        }
-        // 没有识别到任何锥桶，继续拐弯
-        else {
-          indexDebug = 4;
-          track.pointsEdgeLeft = lastPointsEdgeLeft;
-          track.pointsEdgeRight = lastPointsEdgeRight;
-        }
+        // for (int i = 0; i < pointConeLeft.size(); i++) {
+        // // int area = pointConeLeft[i].width * pointConeLeft[i].height;
+        //  // if (area<areaMax){
+        //   if (pointConeLeft[i].y > 110 &&
+        //     pointConeLeft[i].y < 210) // 小于车身大小  原来减少了20
+        //   if (pointConeLeft[i].x > smallestcone)
+        //     smallestcone = pointConeLeft[i].x;
+        //  //}
+        // if (smallestcone > motion.params.stop_num) // 距离车辆多少开始停车
+        // {
+        // cout << "停车了老司机5555" << endl << endl;
+        // step = Step::Stop; // 停车使能
+        // }}
         cout << "开始左入库了" << endl;
         POINT start = POINT(ROWSIMAGE - 40, COLSIMAGE - 1);
-        POINT end = POINT(50, 0);
-        POINT middle = POINT((start.x + end.x) * 0.4, (start.y + end.y) * 0.6);
+        POINT end = POINT(50, 40); // 原先为0
+        POINT middle = POINT((start.x + end.x) * 0.4,
+                             (start.y + end.y) * 0.7); // 原先乘0.6
         vector<POINT> input = {start, middle, end};
         track.pointsEdgeRight = Bezier(0.05, input); // 补线
         track.pointsEdgeLeft =
@@ -401,23 +326,23 @@ public:
         pathsEdgeRight.push_back(track.pointsEdgeRight);
       } else // 右入库
       {
-        // 判断停车
-        for (int i = 0; i < pointConeRight.size(); i++) {
+        // for (int i = 0; i < pointConeRight.size(); i++) {
 
-          if (pointConeRight[i].y > 110 &&
-              pointConeRight[i].y < 210) // 小于车身大小
-            if (pointConeRight[i].x > smallestcone)
-              smallestcone = pointConeRight[i].x;
-        }
-        if (smallestcone > motion.params.stop_num) // 距离车辆多少开始停车
-        {
-          cout << "停车了老司机5555" << endl << endl;
-          step = Step::Stop; // 停车使能
-        }
+        // if (pointConeRight[i].y > 110 &&
+        //     pointConeRight[i].y < 210) // 小于车身大小  原先为210
+        //   if (pointConeRight[i].x > smallestcone)
+        //     smallestcone = pointConeRight[i].x;
+        // }
+        // if (smallestcone > motion.params.stop_num) // 距离车辆多少开始停车
+        // {
+        //   cout << "停车了老司机5555" << endl << endl;
+        // step = Step::Stop; // 停车使能
+        // }
         cout << "开始右入库了" << endl;
         POINT start = POINT(ROWSIMAGE - 40, 0);
-        POINT end = POINT(50, COLSIMAGE - 1);
-        POINT middle = POINT((start.x + end.x) * 0.4, (start.y + end.y) * 0.6);
+        POINT end = POINT(50, COLSIMAGE - 60); // 原来为减1  后来减40
+        POINT middle = POINT((start.x + end.x) * 0.4,
+                             (start.y + end.y) * 0.4); // 原来为乘0.6
         vector<POINT> input = {start, middle, end};
         track.pointsEdgeLeft = Bezier(0.05, input); // 补线
         track.pointsEdgeRight =
@@ -520,7 +445,7 @@ public:
           levelCones = num / (pointConeLeft.size() + pointConeRight.size());
         else
           levelCones = 0;
-        if (levelCones > ROWSIMAGE * 0.5 || levelCones == 0) {
+        if (levelCones > ROWSIMAGE * 0.45 || levelCones == 0) {
           counterRec++;
           if (counterRec > 2) {
             step = Step::Stop; // 停车使能
@@ -545,7 +470,7 @@ public:
     {
       carStoping = true;
       counterRec++;
-      if (counterRec > 5) // 停车：20场 = 2s  停车时间  为多少？
+      if (counterRec > 10) // 停车：20场 = 2s  停车时间  为多少？
       {
         carStoping = false;
         carExitting = true;

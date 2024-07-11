@@ -163,6 +163,7 @@ int main(int argc, char const *argv[]) {
     ring.setmpu6050(mpu6050_now);
     ring.setdistance(distance_now);
     rescue.setdistancere(distance_now);
+    rescue.setmpu6050(mpu6050_now);
     crossroad.setmpu6050(mpu6050_now);
     preTime = chrono::duration_cast<chrono::milliseconds>(
                   chrono::system_clock::now().time_since_epoch())
