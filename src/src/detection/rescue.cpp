@@ -38,6 +38,7 @@ using namespace std;
 
 class Rescue {
 public:
+int car_changepid=0;
   bool carStoping = false;  // 停车标志
   bool carExitting = false; // 出库标志
   int flagin;//
@@ -81,8 +82,10 @@ public:
    * @param track 赛道识别结果
    * @param detection AI检测结果
    */
-  bool process(Tracking &track, vector<PredictResult> predict) {
-    _pointNearCone = POINT(0, 0);
+  bool process(Tracking &track, vector<PredictResult> predict,Motion &motion) {
+    _pointNearConeL = POINT(0, 0);
+    _pointNearConeR = POINT(0, 0);
+    _pointNearCone = POINT(0,0);
     _distance = 0;
     pointConeLeft.clear();
     pointConeRight.clear();
@@ -162,13 +165,15 @@ public:
         return false;
       }
 
-      searchCones(predict); // 搜索赛道左右两边锥桶
+      searchCones(predict,motion); // 搜索赛道左右两边锥桶
       if (entryLeft)        // 左入库
       {
-        _pointNearCone = getConeLeftDown(track.pointsEdgeLeft,
-                                         pointConeLeft); // 搜索右下锥桶
-        if ((_pointNearCone.x >
-            ROWSIMAGE * 0.6) &&!flagin)
+        _pointNearConeL = getConeLeftDown(track.pointsEdgeLeft,
+                                         pointConeLeft); // 搜索左下锥桶
+        _pointNearConeR = getConeRightDown(track.pointsEdgeRight,
+                                         pointConeRight); // 搜索左下锥桶                                 
+        if (((_pointNearConeL.x >
+            ROWSIMAGE * 0.6)||(_pointNearConeR.x >ROWSIMAGE * 0.6)) &&!flagin)
             {// 当车辆开始靠近右边锥桶：准备入库
             reflag=1;
             
@@ -182,8 +187,8 @@ public:
               reflag=0;
               flagdis=1;
          }    
-         cout<<"距离差值"<<distance_now-distance_in<<endl;
-            if(!reflag&&(distance_now-distance_in)>200)//原来为470
+        //  cout<<"距离差值"<<distance_now-distance_in<<endl;
+            if(!reflag&&(distance_now-distance_in)>280)//原来为200
         {
           
            
@@ -209,11 +214,13 @@ public:
       } else // 右入库
       {
        // //cout<<"打算右入库22222220"<<endl<<endl<<endl;
-        _pointNearCone = getConeRightDown(track.pointsEdgeRight,
+        _pointNearConeR = getConeRightDown(track.pointsEdgeRight,
                                           pointConeRight); // 搜索右下锥桶
+        _pointNearConeL = getConeLeftDown(track.pointsEdgeLeft,
+                                          pointConeLeft); // 搜索左下锥桶          
         //cout<<"此时的距离为"<<distance_now<<endl;                              
-        if ((_pointNearCone.x >
-            ROWSIMAGE * 0.6) &&!flagin)
+        if (((_pointNearConeL.x >
+            ROWSIMAGE * 0.6)||(_pointNearConeL.x >ROWSIMAGE * 0.6)) &&!flagin)
             {// 当车辆开始靠近右边锥桶：准备入库
             reflag=1;
             flagtrace=1;
@@ -232,8 +239,8 @@ public:
               reflag=0;
               flagdis=1;
          }    
-         cout<<"距离差值"<<distance_now-distance_in<<endl;
-            if(!reflag&&(distance_now-distance_in)>200)//原来为470
+        //  cout<<"距离差值"<<distance_now-distance_in<<endl;
+            if(!reflag&&(distance_now-distance_in)>280)//原来为470
         {
           
            
@@ -261,9 +268,7 @@ public:
     }
     case Step::Enter: //[03] 入库使能
     {
-            searchCones(predict);
-
-
+            searchCones(predict,motion);
           // if (counterExit > 11) {  //此处设置为了总的延时   用距离判断吗？距离写个  右侧为9-10
           //  //stoptime++;
           // // cout<<"stoptime"<<stoptime<<endl<<endl;
@@ -276,8 +281,6 @@ public:
           //   counterSession = 0;
           // // }
           // }
-        
-
         if (track.pointsEdgeLeft.size() < ROWSIMAGE / 2 &&
             track.pointsEdgeRight.size() < ROWSIMAGE / 2) // 赛道还未丢失
         {
@@ -289,18 +292,23 @@ public:
             counterSession = 0;
           }
         }
+
       int smallestcone = 0;
         if (entryLeft) // 左入库
-        {for (int i = 0; i < pointConeLeft.size(); i++) {
-
-          if (pointConeLeft[i].y > 70 &&
-              pointConeLeft[i].y < 250) // 小于车身大小
+        {
+          for (int i = 0; i < pointConeLeft.size(); i++) {
+          // int area = pointConeLeft[i].width * pointConeLeft[i].height;
+          //  if (area<areaMax){
+            if (pointConeLeft[i].y > 110 &&
+              pointConeLeft[i].y < 210) // 小于车身大小  原来减少了20
             if (pointConeLeft[i].x > smallestcone)
               smallestcone = pointConeLeft[i].x;
-        }
-        if (smallestcone > 180) // 距离车辆多少开始停车
+          // }
+          if (smallestcone > motion.params.stop_num) // 距离车辆多少开始停车
+          {
           cout << "停车了老司机5555" << endl << endl;
-        step = Step::Stop; // 停车使能
+          step = Step::Stop; // 停车使能
+          }}
           cout<<"开始左入库了"<<endl;
           POINT start = POINT(ROWSIMAGE - 40, COLSIMAGE - 1);
           POINT end = POINT(50, 0);
@@ -316,16 +324,19 @@ public:
           pathsEdgeLeft.push_back(track.pointsEdgeLeft); // 记录进厂轨迹
           pathsEdgeRight.push_back(track.pointsEdgeRight);
         } else // 右入库
-        { for (int i = 0; i < pointConeRight.size(); i++) {
+        { 
+          for (int i = 0; i < pointConeRight.size(); i++) {
 
-          if (pointConeRight[i].y > 70 &&
-              pointConeRight[i].y < 250) // 小于车身大小
+          if (pointConeRight[i].y > 110 &&
+              pointConeRight[i].y < 210) // 小于车身大小
             if (pointConeRight[i].x > smallestcone)
               smallestcone = pointConeRight[i].x;
         }
-        if (smallestcone > 180) // 距离车辆多少开始停车
-          cout << "停车了老司机5555" << endl << endl;
+        if (smallestcone > motion.params.stop_num) // 距离车辆多少开始停车
+          {
+            cout << "停车了老司机5555" << endl << endl;
         step = Step::Stop; // 停车使能
+          }
           cout<<"开始右入库了"<<endl;
           POINT start = POINT(ROWSIMAGE - 40, 0);
           POINT end = POINT(50, COLSIMAGE - 1);
@@ -367,7 +378,7 @@ public:
         }
       }
 
-      searchCones(predict);             // 计算锥桶的坐标
+      searchCones(predict,motion);             // 计算锥桶的坐标
       POINT heighestCone = POINT(0, 0); // 搜索顶点锥桶
       for (int i = 0; i < pointConeLeft.size(); i++) {
         heighestCone = pointConeLeft[0];
@@ -471,6 +482,8 @@ public:
     case Step::Exit: //[06] 出站使能
     {
       // chu++;
+
+      car_changepid=1;
       carExitting = true;//让电机赋值为负数
       if(entryLeft)
       flagchul=1;//左进库标志位
@@ -583,6 +596,8 @@ private:
   bool again = false; // 第二次进入救援区标志
   double _distance = 0;
   int levelCones = 0; // 锥桶的平均高度
+  POINT _pointNearConeL;
+  POINT _pointNearConeR;
   POINT _pointNearCone;
   POINT pointHCone;
   vector<POINT> pointConeLeft;      // AI元素检测边缘点集
@@ -606,12 +621,13 @@ private:
    * @param predict AI检测结果
    * @return vector<POINT>
    */
-  void searchCones(vector<PredictResult> predict) {
+  void searchCones(vector<PredictResult> predict,Motion &motion) {
     pointConeLeft.clear();
     pointConeRight.clear();
     for (int i = 0; i < predict.size(); i++) {
       if (predict[i].type == LABEL_CONE) // 锥桶检测
       {
+        if(predict[i].height*predict[i].width>motion .params.areaMax)continue;////////如果锥桶面积大于一定值，就排除他
         if ((predict[i].x + predict[i].width / 2) < COLSIMAGE / 2)
           pointConeLeft.push_back(POINT(predict[i].y + predict[i].height,
                                         predict[i].x + predict[i].width));
@@ -826,3 +842,24 @@ private:
     }
   }
 };
+
+
+  // /**
+  //  * @brief 去除不合理的锥桶 // 框面积
+  //  *
+  //  * @param pointsEdgeRight
+  //  * @void
+  //  */void  cone_square( vector<PredictResult> resultsObs,int areaMax)
+  //  {
+  // // 选取距离最近的锥桶，面积最大的就最近
+  //   int index = 0;   // 目标序号
+  //   for (int i = 0; i < resultsObs.size(); i++) {
+  //     int area = resultsObs[i].width * resultsObs[i].height;
+  //     if (resultsObs[i].type == LABEL_CONE) {
+  //       if (area >= areaMax) {
+  //         index = i;
+  //         areaMax = area;
+  //       }
+  //     }
+  //   }
+  //  }

@@ -100,7 +100,7 @@ public:
     // 障碍物方向判定（左/右）
     int row = track.pointsEdgeLeft.size() -
               (resultsObs[index].y + resultsObs[index].height - track.rowCutUp);////这个计算有问题？切行？
-    cout << "障碍物所在row" << row << endl; // row导致障碍物在不同侧---判断不出不同侧   以下面为0到上面的
+    // cout << "障碍物所在row" << row << endl; // row导致障碍物在不同侧---判断不出不同侧   以下面为0到上面的
     if (row < 0)  // 无需规划路径
       return enable;
 
