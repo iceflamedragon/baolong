@@ -298,12 +298,12 @@ int car_changepid=0;
         {
           for (int i = 0; i < pointConeLeft.size(); i++) {
           // int area = pointConeLeft[i].width * pointConeLeft[i].height;
-          //  if (area<areaMax){
+           // if (area<areaMax){
             if (pointConeLeft[i].y > 110 &&
               pointConeLeft[i].y < 210) // 小于车身大小  原来减少了20
             if (pointConeLeft[i].x > smallestcone)
               smallestcone = pointConeLeft[i].x;
-          // }
+           //}
           if (smallestcone > motion.params.stop_num) // 距离车辆多少开始停车
           {
           cout << "停车了老司机5555" << endl << endl;
@@ -311,9 +311,9 @@ int car_changepid=0;
           }}
           cout<<"开始左入库了"<<endl;
           POINT start = POINT(ROWSIMAGE - 40, COLSIMAGE - 1);
-          POINT end = POINT(50, 0);
+          POINT end = POINT(50, 40);//原先为0
           POINT middle =
-              POINT((start.x + end.x) * 0.4, (start.y + end.y) * 0.6);
+              POINT((start.x + end.x) * 0.4, (start.y + end.y) * 0.7);//原先乘0.6
           vector<POINT> input = {start, middle, end};
           track.pointsEdgeRight = Bezier(0.05, input); // 补线
           track.pointsEdgeLeft =
@@ -328,20 +328,20 @@ int car_changepid=0;
           for (int i = 0; i < pointConeRight.size(); i++) {
 
           if (pointConeRight[i].y > 110 &&
-              pointConeRight[i].y < 210) // 小于车身大小
+              pointConeRight[i].y < 210) // 小于车身大小  原先为210
             if (pointConeRight[i].x > smallestcone)
               smallestcone = pointConeRight[i].x;
-        }
-        if (smallestcone > motion.params.stop_num) // 距离车辆多少开始停车
+          }
+          if (smallestcone > motion.params.stop_num) // 距离车辆多少开始停车
           {
             cout << "停车了老司机5555" << endl << endl;
-        step = Step::Stop; // 停车使能
+          step = Step::Stop; // 停车使能
           }
           cout<<"开始右入库了"<<endl;
           POINT start = POINT(ROWSIMAGE - 40, 0);
-          POINT end = POINT(50, COLSIMAGE - 1);
+          POINT end = POINT(50, COLSIMAGE - 40);//原来为减1  后来减40
           POINT middle =
-              POINT((start.x + end.x) * 0.4, (start.y + end.y) * 0.6);
+              POINT((start.x + end.x) * 0.4, (start.y + end.y) * 0.4);//原来为乘0.6
           vector<POINT> input = {start, middle, end};
           track.pointsEdgeLeft = Bezier(0.05, input); // 补线
           track.pointsEdgeRight =
@@ -469,7 +469,7 @@ int car_changepid=0;
     {
       carStoping = true;
       counterRec++;
-      if (counterRec > 5) // 停车：20场 = 2s  停车时间  为多少？
+      if (counterRec > 10) // 停车：20场 = 2s  停车时间  为多少？
       {
         carStoping = false;
         carExitting = true;
