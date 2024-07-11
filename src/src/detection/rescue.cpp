@@ -289,6 +289,7 @@ public:
       int smallestcone = 0;
       if (entryLeft) // 左入库
       {
+        // 判断停车
         for (int i = 0; i < pointConeLeft.size(); i++) {
           // int area = pointConeLeft[i].width * pointConeLeft[i].height;
           //  if (area<areaMax){
@@ -302,6 +303,88 @@ public:
             cout << "停车了老司机5555" << endl << endl;
             step = Step::Stop; // 停车使能
           }
+        }
+        // 搜索顶点锥桶
+        POINT heighestCone = POINT(0, 0);
+        for (int i = 0; i < pointConeLeft.size(); i++) {
+          heighestCone = pointConeLeft[0];
+          if (pointConeLeft[i].x < heighestCone.x)
+            heighestCone = pointConeLeft[i];
+        }
+        for (int i = 0; i < pointConeRight.size(); i++) {
+          if (pointConeRight[i].x < heighestCone.x)
+            heighestCone = pointConeRight[i];
+        }
+
+        if (heighestCone.x > 0 && heighestCone.y > 0) {
+          if (heighestCone.y >= COLSIMAGE / 3) // 顶角锥桶靠近右边→继续右转
+          {
+            vector<POINT> points;
+            for (int i = 0; i < pointConeLeft.size();
+                 i++) // 搜索以最高点为分界线左边的锥桶
+            {
+              if (pointConeLeft[i].y <= heighestCone.y)
+                points.push_back(pointConeLeft[i]);
+            }
+
+            if (points.size() >= 3) // 曲线补偿，把三个锥桶作为边线
+            {
+              pointsSortForY(points); // 排序
+              vector<POINT> input = {points[0], points[points.size() / 2],
+                                     points[points.size() - 1]};
+              track.pointsEdgeLeft = Bezier(0.05, input); // 补线
+              track.pointsEdgeRight =
+                  predictEdgeRight(points); // 由左边缘补偿右边缘
+
+              indexDebug = 1;
+            } else if (points.size() >=
+                       2) { // 曲线补偿，把两个锥桶加一个中点作为边线
+              pointsSortForY(points); // 排序
+              POINT middle =
+                  POINT((points[0].x + points[points.size() - 1].x) / 2,
+                        (points[0].y + points[points.size() - 1].y) / 2);
+              vector<POINT> input = {points[0], middle,
+                                     points[points.size() - 1]};
+              track.pointsEdgeLeft = Bezier(0.05, input); // 补线
+              track.pointsEdgeRight =
+                  predictEdgeRight(points); // 由左边缘补偿右边缘
+              indexDebug = 2;
+            } else if (points.size() >= 1) {
+              if (points[0].x > ROWSIMAGE / 2)
+                step = Step::Exit; // 出站使能
+            }
+          } else // 顶角锥桶太靠近左边，认为识别错误→继续右转
+          {
+            indexDebug = 3;
+            track.pointsEdgeLeft = lastPointsEdgeLeft;
+            track.pointsEdgeRight = lastPointsEdgeRight;
+          }
+
+          // 计算所有锥桶的平均高度
+          int num = 0;
+          for (int i = 0; i < pointConeLeft.size(); i++)
+            num += pointConeLeft[i].x;
+          for (int i = 0; i < pointConeRight.size(); i++)
+            num += pointConeRight[i].x;
+
+          if (pointConeLeft.size() + pointConeRight.size() > 0)
+            levelCones = num / (pointConeLeft.size() +
+                                pointConeRight.size()); // 锥桶高度足够小停车
+          else
+            levelCones = 0;
+          if (levelCones > ROWSIMAGE * 0.5 || levelCones == 0) {
+            counterRec++;
+            if (counterRec > 2) {
+              step = Step::Stop; // 停车使能
+              counterRec = 0;
+            }
+          }
+        }
+        // 没有识别到任何锥桶，继续拐弯
+        else {
+          indexDebug = 4;
+          track.pointsEdgeLeft = lastPointsEdgeLeft;
+          track.pointsEdgeRight = lastPointsEdgeRight;
         }
         cout << "开始左入库了" << endl;
         POINT start = POINT(ROWSIMAGE - 40, COLSIMAGE - 1);
@@ -318,6 +401,7 @@ public:
         pathsEdgeRight.push_back(track.pointsEdgeRight);
       } else // 右入库
       {
+        // 判断停车
         for (int i = 0; i < pointConeRight.size(); i++) {
 
           if (pointConeRight[i].y > 110 &&
