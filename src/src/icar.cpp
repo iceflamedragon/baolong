@@ -198,15 +198,16 @@ int main(int argc, char const *argv[]) {
         MORPH_RECT, Size(9, 9)); // 小于8*8方块的白色噪点都会被腐蚀
     erode(imgBinary, imgBinary, element);
     cout << "scene" << scene << endl;
-    if (ai_check > 1 || detection->ai_flag && sceneLast != Scene::RingScene) {
+    if (ai_check > 1 || detection->ai_flag && sceneLast != Scene::RingScene &&
+                            sceneLast != BridgeScene) {
 
       //[03] 启动AI推理
-          detection->inference(imgCorrect);
+      detection->inference(imgCorrect);
       ai_check = 0;
     }
     //  detection->inference(imgCorrect);
     //   detection->set_ai_flag(0);//清零ai标志
-      ai_check++;
+    ai_check++;
     auto startTime = chrono::duration_cast<chrono::milliseconds>(
                          chrono::system_clock::now().time_since_epoch())
                          .count();
@@ -244,7 +245,7 @@ int main(int argc, char const *argv[]) {
     //[06] 救援区检测
     if ((scene == Scene::NormalScene || scene == Scene::RescueScene) &&
         motion.params.rescue) {
-      if (rescue.process(tracking, detection->results,motion)) {
+      if (rescue.process(tracking, detection->results, motion)) {
         scene = Scene::RescueScene;
         if (rescue.entryLeft)
           printf("Rescue Left\n");
@@ -253,10 +254,10 @@ int main(int argc, char const *argv[]) {
       } else
         scene = Scene::NormalScene;
     }
-if(rescue.car_changepid==1)
-{ uart->carpid(300, 750, 0, 0); // 调pid，参数分别为p，i，d，是否存入flash
-  rescue.car_changepid=0;
-}
+    if (rescue.car_changepid == 1) {
+      uart->carpid(300, 750, 0, 0); // 调pid，参数分别为p，i，d，是否存入flash
+      rescue.car_changepid = 0;
+    }
     //[07] 追逐区检测
     if ((scene == Scene::NormalScene || scene == Scene::RacingScene) &&
         motion.params.racing) {
@@ -330,9 +331,10 @@ if(rescue.car_changepid==1)
 
       if ((scene == Scene::RescueScene && rescue.carStoping) || parking.park ||
           racing.carStoping) // 特殊区域停车
-          {uart->carpid(500, 1000, 0, 0);    // 刹车pid
-        motion.speed = 0;}
-      else if (scene == Scene::RescueScene && rescue.carExitting) // 倒车出库
+      {
+        uart->carpid(500, 1000, 0, 0); // 刹车pid
+        motion.speed = 0;
+      } else if (scene == Scene::RescueScene && rescue.carExitting) // 倒车出库
       {
         motion.speed = -motion.params.speedDown;
         cout << "速度值为" << motion.speed << endl;
@@ -346,11 +348,11 @@ if(rescue.car_changepid==1)
       if (rescue.flagchur) {
         cout << "危险区右出库舵机打角定了" << endl;
         motion.poseCtrl(
-            210); // 姿态控制（舵机）  此处为救援区出站固定打角 --使其偏差值为0
+            190); // 姿态控制（舵机）  此处为救援区出站固定打角 --使其偏差值为0
       } else if (rescue.flagchul) {
         cout << "危险区左出库舵机打角定了" << endl;
         motion.poseCtrl(
-            110); // 姿态控制（舵机）  此处为救援区出站固定打角 --使其偏差值为0
+            130); // 姿态控制（舵机）  此处为救援区出站固定打角 --使其偏差值为0
       } else if (ring.center_sum_flag == Center_Sum_Start) {
         center_sum += ctrlCenter.controlCenter;
         center_sum_n++;

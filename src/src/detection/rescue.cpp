@@ -312,9 +312,9 @@ public:
         // }}
         cout << "开始左入库了" << endl;
         POINT start = POINT(ROWSIMAGE - 40, COLSIMAGE - 1);
-        POINT end = POINT(50, 40); // 原先为0
+        POINT end = POINT(50, 60); // 原先为0
         POINT middle = POINT((start.x + end.x) * 0.4,
-                             (start.y + end.y) * 0.7); // 原先乘0.6
+                             (start.y + end.y) * 0.8); // 原先乘0.6
         vector<POINT> input = {start, middle, end};
         track.pointsEdgeRight = Bezier(0.05, input); // 补线
         track.pointsEdgeLeft =
@@ -374,6 +374,7 @@ public:
         counterExit++;
         if (counterExit > 15) {
           counterExit = 0;
+          cout << "边线判断停车" << endl;
           step = Step::Stop; // 停车使能
           counterRec = 0;
         }
@@ -398,7 +399,7 @@ public:
             for (int i = 0; i < pointConeLeft.size();
                  i++) // 搜索以最高点为分界线左边的锥桶
             {
-              if (pointConeLeft[i].y <= heighestCone.y)
+              if (pointConeLeft[i].y >= heighestCone.y)
                 points.push_back(pointConeLeft[i]);
             }
 
