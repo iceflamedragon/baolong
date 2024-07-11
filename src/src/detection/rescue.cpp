@@ -390,72 +390,141 @@ public:
         if (pointConeRight[i].x < heighestCone.x)
           heighestCone = pointConeRight[i];
       }
-
-      if (heighestCone.x > 0 && heighestCone.y > 0) {
-        if (heighestCone.y >= COLSIMAGE / 3) // 顶角锥桶靠近右边→继续右转
-        {
-          vector<POINT> points;
-          for (int i = 0; i < pointConeLeft.size();
-               i++) // 搜索以最高点为分界线左边的锥桶
+      if (entryLeft) {
+        if (heighestCone.x > 0 && heighestCone.y > 0) {
+          if (heighestCone.y >= COLSIMAGE / 3) // 顶角锥桶靠近右边→继续右转
           {
-            if (pointConeLeft[i].y <= heighestCone.y)
-              points.push_back(pointConeLeft[i]);
+            vector<POINT> points;
+            for (int i = 0; i < pointConeLeft.size();
+                 i++) // 搜索以最高点为分界线左边的锥桶
+            {
+              if (pointConeLeft[i].y <= heighestCone.y)
+                points.push_back(pointConeLeft[i]);
+            }
+
+            if (points.size() >= 3) // 曲线补偿
+            {
+              pointsSortForY(points); // 排序
+              vector<POINT> input = {points[0], points[points.size() / 2],
+                                     points[points.size() - 1]};
+              track.pointsEdgeLeft = Bezier(0.05, input); // 补线
+              track.pointsEdgeRight =
+                  predictEdgeRight(points); // 由左边缘补偿右边缘
+
+              indexDebug = 1;
+            } else if (points.size() >= 2) {
+              pointsSortForY(points); // 排序
+              POINT middle =
+                  POINT((points[0].x + points[points.size() - 1].x) / 2,
+                        (points[0].y + points[points.size() - 1].y) / 2);
+              vector<POINT> input = {points[0], middle,
+                                     points[points.size() - 1]};
+              track.pointsEdgeLeft = Bezier(0.05, input); // 补线
+              track.pointsEdgeRight =
+                  predictEdgeRight(points); // 由左边缘补偿右边缘
+              indexDebug = 2;
+            } else if (points.size() >= 1) {
+              if (points[0].x > ROWSIMAGE / 2)
+                step = Step::Exit; // 出站使能
+            }
+          } else // 顶角锥桶靠近左边→继续右转
+          {
+            indexDebug = 3;
+            track.pointsEdgeLeft = lastPointsEdgeLeft;
+            track.pointsEdgeRight = lastPointsEdgeRight;
           }
 
-          if (points.size() >= 3) // 曲线补偿
-          {
-            pointsSortForY(points); // 排序
-            vector<POINT> input = {points[0], points[points.size() / 2],
-                                   points[points.size() - 1]};
-            track.pointsEdgeLeft = Bezier(0.05, input); // 补线
-            track.pointsEdgeRight =
-                predictEdgeRight(points); // 由左边缘补偿右边缘
+          // 计算所有锥桶的平均高度
+          int num = 0;
+          for (int i = 0; i < pointConeLeft.size(); i++)
+            num += pointConeLeft[i].x;
+          for (int i = 0; i < pointConeRight.size(); i++)
+            num += pointConeRight[i].x;
 
-            indexDebug = 1;
-          } else if (points.size() >= 2) {
-            pointsSortForY(points); // 排序
-            POINT middle =
-                POINT((points[0].x + points[points.size() - 1].x) / 2,
-                      (points[0].y + points[points.size() - 1].y) / 2);
-            vector<POINT> input = {points[0], middle,
-                                   points[points.size() - 1]};
-            track.pointsEdgeLeft = Bezier(0.05, input); // 补线
-            track.pointsEdgeRight =
-                predictEdgeRight(points); // 由左边缘补偿右边缘
-            indexDebug = 2;
-          } else if (points.size() >= 1) {
-            if (points[0].x > ROWSIMAGE / 2)
-              step = Step::Exit; // 出站使能
+          if (pointConeLeft.size() + pointConeRight.size() > 0)
+            levelCones = num / (pointConeLeft.size() + pointConeRight.size());
+          else
+            levelCones = 0;
+          if (levelCones > ROWSIMAGE * 0.45 || levelCones == 0) {
+            counterRec++;
+            if (counterRec > 2) {
+              step = Step::Stop; // 停车使能
+              counterRec = 0;
+            }
           }
-        } else // 顶角锥桶靠近左边→继续右转
-        {
-          indexDebug = 3;
+        } else {
+          indexDebug = 4;
           track.pointsEdgeLeft = lastPointsEdgeLeft;
           track.pointsEdgeRight = lastPointsEdgeRight;
         }
+      } else // 右入库
+      {
+        if (heighestCone.x > 0 && heighestCone.y > 0) {
+          if (heighestCone.y <= COLSIMAGE * 2 / 3) // 顶角锥桶靠近右边→继续右转
+          {
+            vector<POINT> points;
+            for (int i = 0; i < pointConeRight.size();
+                 i++) // 搜索以最高点为分界线左边的锥桶
+            {
+              if (pointConeRight[i].y <= heighestCone.y)
+                points.push_back(pointConeRight[i]);
+            }
 
-        // 计算所有锥桶的平均高度
-        int num = 0;
-        for (int i = 0; i < pointConeLeft.size(); i++)
-          num += pointConeLeft[i].x;
-        for (int i = 0; i < pointConeRight.size(); i++)
-          num += pointConeRight[i].x;
+            if (points.size() >= 3) // 曲线补偿
+            {
+              pointsSortForY(points); // 排序
+              vector<POINT> input = {points[0], points[points.size() / 2],
+                                     points[points.size() - 1]};
+              track.pointsEdgeRight = Bezier(0.05, input); // 补线
+              track.pointsEdgeLeft =
+                  predictEdgeLeft(points); // 由左边缘补偿右边缘
 
-        if (pointConeLeft.size() + pointConeRight.size() > 0)
-          levelCones = num / (pointConeLeft.size() + pointConeRight.size());
-        else
-          levelCones = 0;
-        if (levelCones > ROWSIMAGE * 0.45 || levelCones == 0) {
-          counterRec++;
-          if (counterRec > 2) {
-            step = Step::Stop; // 停车使能
-            counterRec = 0;
+              indexDebug = 1;
+            } else if (points.size() >= 2) {
+              pointsSortForY(points); // 排序
+              POINT middle =
+                  POINT((points[0].x + points[points.size() - 1].x) / 2,
+                        (points[0].y + points[points.size() - 1].y) / 2);
+              vector<POINT> input = {points[0], middle,
+                                     points[points.size() - 1]};
+              track.pointsEdgeRight = Bezier(0.05, input); // 补线
+              track.pointsEdgeLeft =
+                  predictEdgeLeft(points); // 由左边缘补偿右边缘
+              indexDebug = 2;
+            } else if (points.size() >= 1) {
+              if (points[0].x > ROWSIMAGE / 2)
+                step = Step::Exit; // 出站使能
+            }
+          } else // 顶角锥桶靠近左边→继续右转
+          {
+            indexDebug = 3;
+            track.pointsEdgeLeft = lastPointsEdgeLeft;
+            track.pointsEdgeRight = lastPointsEdgeRight;
           }
+
+          // 计算所有锥桶的平均高度
+          int num = 0;
+          for (int i = 0; i < pointConeLeft.size(); i++)
+            num += pointConeLeft[i].x;
+          for (int i = 0; i < pointConeRight.size(); i++)
+            num += pointConeRight[i].x;
+
+          if (pointConeLeft.size() + pointConeRight.size() > 0)
+            levelCones = num / (pointConeLeft.size() + pointConeRight.size());
+          else
+            levelCones = 0;
+          if (levelCones > ROWSIMAGE * 0.45 || levelCones == 0) {
+            counterRec++;
+            if (counterRec > 2) {
+              step = Step::Stop; // 停车使能
+              counterRec = 0;
+            }
+          }
+        } else {
+          indexDebug = 4;
+          track.pointsEdgeLeft = lastPointsEdgeLeft;
+          track.pointsEdgeRight = lastPointsEdgeRight;
         }
-      } else {
-        indexDebug = 4;
-        track.pointsEdgeLeft = lastPointsEdgeLeft;
-        track.pointsEdgeRight = lastPointsEdgeRight;
       }
 
       lastPointsEdgeLeft = track.pointsEdgeLeft;
