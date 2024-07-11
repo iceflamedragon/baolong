@@ -601,11 +601,11 @@ public:
     }
     if (ringStep == RingStep::Entering) //&&distance_now - distance_in>1400
     {
-      cout << "设置了flagpid" << endl << endl << endl;
+      // cout << "设置了flagpid" << endl << endl << endl;
       save_common_pid(motion);
       //  motion.set_direction_pid(motion.params.ring_p1,motion.params.ring_p2,
       //  motion.params.ring_d);
-      flagpid = 1;
+      // flagpid = 1;
     }
     /*********************状态三判断结束 */
     int tmp_ttttt = 0;
@@ -721,7 +721,7 @@ public:
                                              // mpu6050_later) >= 30  原来是2250
       ringStep = RingStep::Inside; // 纯粹陀螺仪积分到一定值就正常巡线
       // set_ring_pid(ring_p1, ring_p2, ring_d, motion);
-      // flagpid=1;
+      flagpid = 1;
       cout << "到小环了" << endl << endl << endl;
       motion.set_direction_pid(motion.params.ring_p1s, motion.params.ring_p2s,
                                motion.params.ring_ds);
