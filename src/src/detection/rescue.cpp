@@ -38,6 +38,8 @@ using namespace std;
 
 class Rescue {
 public:
+int mpu6050_now;
+int mpu6050_in;
 int car_changepid=0;
   bool carStoping = false;  // 停车标志
   bool carExitting = false; // 出库标志
@@ -60,10 +62,12 @@ int car_changepid=0;
 
   Step step = Step::None;
   bool entryLeft = true; // 左入库使能标志
+  void setmpu6050(float mpu6050_now_read) { mpu6050_now = mpu6050_now_read; }
   /**
    * @brief 检测初始化
    *
    */
+  
   void reset(void) {
     carStoping = false;
     carExitting = false;
@@ -157,6 +161,7 @@ int car_changepid=0;
 
     case Step::Enable: //[02] 使能
     {
+            mpu6050_in =mpu6050_now;
       cout<<"到达enable了"<<endl<<endl;
       counterExit++;
       if (counterExit > 150) // 超时退出
@@ -268,7 +273,8 @@ int car_changepid=0;
     }
     case Step::Enter: //[03] 入库使能
     {
-            searchCones(predict,motion);
+
+            // searchCones(predict,motion);
           // if (counterExit > 11) {  //此处设置为了总的延时   用距离判断吗？距离写个  右侧为9-10
           //  //stoptime++;
           // // cout<<"stoptime"<<stoptime<<endl<<endl;
@@ -281,34 +287,34 @@ int car_changepid=0;
           //   counterSession = 0;
           // // }
           // }
-        if (track.pointsEdgeLeft.size() < ROWSIMAGE / 2 &&
-            track.pointsEdgeRight.size() < ROWSIMAGE / 2) // 赛道还未丢失
+        if (abs(mpu6050_now-mpu6050_in)>20) // 赛道还未丢失  (track.pointsEdgeLeft.size()-45 < ROWSIMAGE / 2 &&track.pointsEdgeRight.size() -45< ROWSIMAGE / 2)||
+            
         {
           counterRec++;
-          if (counterRec > 15) {
+          // if (counterRec > 15) {
             counterRec = 0;
             cout<<"维持原先状态进行巡航666"<<endl<<endl<<endl;
             step = Step::Cruise; // 巡航使能
             counterSession = 0;
-          }
+          // }
         }
 
       int smallestcone = 0;
         if (entryLeft) // 左入库
         {
-          for (int i = 0; i < pointConeLeft.size(); i++) {
-          // int area = pointConeLeft[i].width * pointConeLeft[i].height;
-           // if (area<areaMax){
-            if (pointConeLeft[i].y > 110 &&
-              pointConeLeft[i].y < 210) // 小于车身大小  原来减少了20
-            if (pointConeLeft[i].x > smallestcone)
-              smallestcone = pointConeLeft[i].x;
-           //}
-          if (smallestcone > motion.params.stop_num) // 距离车辆多少开始停车
-          {
-          cout << "停车了老司机5555" << endl << endl;
-          step = Step::Stop; // 停车使能
-          }}
+          // for (int i = 0; i < pointConeLeft.size(); i++) {
+          // // int area = pointConeLeft[i].width * pointConeLeft[i].height;
+          //  // if (area<areaMax){
+          //   if (pointConeLeft[i].y > 110 &&
+          //     pointConeLeft[i].y < 210) // 小于车身大小  原来减少了20
+          //   if (pointConeLeft[i].x > smallestcone)
+          //     smallestcone = pointConeLeft[i].x;
+          //  //}
+          // if (smallestcone > motion.params.stop_num) // 距离车辆多少开始停车
+          // {
+          // cout << "停车了老司机5555" << endl << endl;
+          // step = Step::Stop; // 停车使能
+          // }}
           cout<<"开始左入库了"<<endl;
           POINT start = POINT(ROWSIMAGE - 40, COLSIMAGE - 1);
           POINT end = POINT(50, 40);//原先为0
@@ -325,21 +331,21 @@ int car_changepid=0;
           pathsEdgeRight.push_back(track.pointsEdgeRight);
         } else // 右入库
         { 
-          for (int i = 0; i < pointConeRight.size(); i++) {
+          // for (int i = 0; i < pointConeRight.size(); i++) {
 
-          if (pointConeRight[i].y > 110 &&
-              pointConeRight[i].y < 210) // 小于车身大小  原先为210
-            if (pointConeRight[i].x > smallestcone)
-              smallestcone = pointConeRight[i].x;
-          }
-          if (smallestcone > motion.params.stop_num) // 距离车辆多少开始停车
-          {
-            cout << "停车了老司机5555" << endl << endl;
-          step = Step::Stop; // 停车使能
-          }
+          // if (pointConeRight[i].y > 110 &&
+          //     pointConeRight[i].y < 210) // 小于车身大小  原先为210
+          //   if (pointConeRight[i].x > smallestcone)
+          //     smallestcone = pointConeRight[i].x;
+          // }
+          // if (smallestcone > motion.params.stop_num) // 距离车辆多少开始停车
+          // {
+          //   cout << "停车了老司机5555" << endl << endl;
+          // step = Step::Stop; // 停车使能
+          // }
           cout<<"开始右入库了"<<endl;
           POINT start = POINT(ROWSIMAGE - 40, 0);
-          POINT end = POINT(50, COLSIMAGE - 40);//原来为减1  后来减40
+          POINT end = POINT(50, COLSIMAGE - 60);//原来为减1  后来减40
           POINT middle =
               POINT((start.x + end.x) * 0.4, (start.y + end.y) * 0.4);//原来为乘0.6
           vector<POINT> input = {start, middle, end};
@@ -444,7 +450,7 @@ int car_changepid=0;
           levelCones = num / (pointConeLeft.size() + pointConeRight.size());
         else
           levelCones = 0;
-        if (levelCones > ROWSIMAGE * 0.5 || levelCones == 0) {
+        if (levelCones > ROWSIMAGE * 0.45 || levelCones == 0) {
           counterRec++;
           if (counterRec > 2) {
             step = Step::Stop; // 停车使能
