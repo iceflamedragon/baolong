@@ -374,7 +374,7 @@ public:
         counterExit++;
         if (counterExit > 15) {
           counterExit = 0;
-          cout<<"边线判断停车"<<endl;
+          cout << "边线判断停车" << endl;
           step = Step::Stop; // 停车使能
           counterRec = 0;
         }

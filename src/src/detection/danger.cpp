@@ -82,26 +82,29 @@ public:
     for (int i = 0; i < resultsObs.size(); i++) {
       int area = resultsObs[i].width * resultsObs[i].height;
       if (resultsObs[i].type == LABEL_CONE) {
-          cone_num++;
+        cone_num++;
         if (area >= areaMax) {
           index = i;
           areaMax = area;
         }
       }
-
     }
-    cone_temp=cone_num;
-    if(cone_num==2)  flag_cone_first=1;
-    if(cone_num==1&&cone_temp==2) flag_cone_first=0;
-    cone_num=0;
+    cone_temp = cone_num;
+    if (cone_num == 2)
+      flag_cone_first = 1;
+    if (cone_num == 1 && cone_temp == 2)
+      flag_cone_first = 0;
+    cone_num = 0;
     resultObs = resultsObs[index];
     enable = true; // 场景检测使能标志
 
     // 障碍物方向判定（左/右）
     int row = track.pointsEdgeLeft.size() -
-              (resultsObs[index].y + resultsObs[index].height - track.rowCutUp);////这个计算有问题？切行？
-    // cout << "障碍物所在row" << row << endl; // row导致障碍物在不同侧---判断不出不同侧   以下面为0到上面的
-    if (row < 0)  // 无需规划路径
+              (resultsObs[index].y + resultsObs[index].height -
+               track.rowCutUp); ////这个计算有问题？切行？
+    // cout << "障碍物所在row" << row << endl; //
+    // row导致障碍物在不同侧---判断不出不同侧   以下面为0到上面的
+    if (row < 0) // 无需规划路径
       return enable;
 
     int disLeft = resultsObs[index].x + resultsObs[index].width -
@@ -137,12 +140,19 @@ public:
 
         cout << "第0个点的y坐标" << track.pointsEdgeLeft[row / 2].y + 20
              << endl;
-        points[0] =track.pointsEdgeLeft[row / 2]; // points[0] = track.pointsEdgeLeft[row / 2]  row / 2
+        points[0] =
+            track.pointsEdgeLeft
+                [row /
+                 2]; // points[0] = track.pointsEdgeLeft[row / 2]  row / 2
                      // {track.pointsEdgeLeft[150].x,track.pointsEdgeLeft[150].y+20}
-        points[1] = {resultsObs[index].y + resultsObs[index].height ,//原来加了20
-                     resultsObs[index].x + resultsObs[index].width + 80}; // 原来为70
-        points[2] = {(resultsObs[index].y + resultsObs[index].height +resultsObs[index].y) /  2, // 原先为除以2   之后调为乘0.8
-                     resultsObs[index].x + resultsObs[index].width + 80}; // 第二个位置仍然为y，
+        points[1] = {
+            resultsObs[index].y + resultsObs[index].height, // 原来加了20
+            resultsObs[index].x + resultsObs[index].width + 80}; // 原来为70
+        points[2] = {(resultsObs[index].y + resultsObs[index].height +
+                      resultsObs[index].y) /
+                         2, // 原先为除以2   之后调为乘0.8
+                     resultsObs[index].x + resultsObs[index].width +
+                         80}; // 第二个位置仍然为y，
         if (resultsObs[index].y >
             track.pointsEdgeLeft[track.pointsEdgeLeft.size() - 1].x) {
           cout << "第三个点为第一种情况" << endl;
@@ -183,19 +193,19 @@ public:
                    track.pointsEdgeLeft[row].y &&
                track.pointsEdgeRight[row].y > resultsObs[index].x &&
                disLeft > disRight) //[2] 障碍物靠右&&resultsObs[index].type ==
-                                   //LABEL_CONE
+                                   // LABEL_CONE
     {
       cout << "两种障碍物在右侧" << endl;
       // cout<<"障碍物的x坐标"<<resultsObs[index].x<<endl;
       // cout<<"障碍物的y坐标"<<resultsObs[index].y<<endl;
 
-      
       if (resultsObs[index].type == LABEL_CONE) {
         flagright = 1;
 
         vector<POINT> points(4); // 三阶贝塞尔曲线
         points[0] = track.pointsEdgeRight[row / 2];
-        points[1] = {resultsObs[index].y + resultsObs[index].height+10 ,//原来减少20
+        points[1] = {resultsObs[index].y + resultsObs[index].height +
+                         10, // 原来减少20
                      resultsObs[index].x - resultsObs[index].width - 50};
         points[2] = {(resultsObs[index].y + resultsObs[index].height +
                       resultsObs[index].y) /
@@ -324,17 +334,17 @@ private:
       if (track.pointsEdgeRight.size() > track.pointsEdgeLeft.size())
         track.pointsEdgeRight.resize(track.pointsEdgeLeft.size());
 
-      for (int i = block_x+20; i < track.pointsEdgeRight.size(); i++) {
+      for (int i = block_x + 20; i < track.pointsEdgeRight.size(); i++) {
         track.pointsEdgeRight[i].y =
-            (track.pointsEdgeRight[i].y + track.pointsEdgeLeft[i].y) /
-            2-15; // 重新规划巡线  减少10还可以
+            (track.pointsEdgeRight[i].y + track.pointsEdgeLeft[i].y) / 2 -
+            15; // 重新规划巡线  减少10还可以
       }
     } else // 向右侧缩进  障碍物在左侧
     {
       if (track.pointsEdgeRight.size() < track.pointsEdgeLeft.size())
         track.pointsEdgeLeft.resize(track.pointsEdgeRight.size());
 
-      for (int i = block_x+20; i < track.pointsEdgeLeft.size(); i++) {
+      for (int i = block_x + 20; i < track.pointsEdgeLeft.size(); i++) {
         track.pointsEdgeLeft[i].y =
             (track.pointsEdgeRight[i].y + track.pointsEdgeLeft[i].y) /
             4; // 原来为除以2
