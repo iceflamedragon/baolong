@@ -696,14 +696,14 @@ public:
     }
     if(ringStep == RingStep::Inside) cout<<"距离差值"<<distance_now-distance_in<<endl;
     // 状态4  环中，正常巡线
-    if (ringStep == RingStep::Entering &&abs(mpu6050_now - mpu6050_later) >=30&&distance_now-distance_in<2000) {//原先为60度  && abs(mpu6050_now - mpu6050_later) >= 30  原来是2250
+    if (ringStep == RingStep::Entering &&abs(mpu6050_now - mpu6050_later) >=30&&distance_now-distance_in<2100) {//原先为60度  && abs(mpu6050_now - mpu6050_later) >= 30  原来是2250
       ringStep = RingStep::Inside; // 纯粹陀螺仪积分到一定值就正常巡线
       // set_ring_pid(ring_p1, ring_p2, ring_d, motion);
       // flagpid=1;
       cout<<"到小环了"<<endl<<endl<<endl;
       motion.set_direction_pid(motion.params.ring_p1s,motion.params.ring_p2s, motion.params.ring_ds);
     }
-    else if  (ringStep == RingStep::Entering &&abs(mpu6050_now - mpu6050_later) >=30&&distance_now-distance_in>2000) {//原先为60度  && abs(mpu6050_now - mpu6050_later) >= 30
+    else if  (ringStep == RingStep::Entering &&abs(mpu6050_now - mpu6050_later) >=30&&distance_now-distance_in>2100) {//原先为60度  && abs(mpu6050_now - mpu6050_later) >= 30
       ringStep = RingStep::Inside; // 纯粹陀螺仪积分到一定值就正常巡
       cout<<"到大环了"<<endl<<endl<<endl;
       cout<<"两个状态间距离差值"<<distance_now-distance_in<<endl;

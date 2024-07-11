@@ -54,7 +54,7 @@ d:2
 
 速度为1.2
 "runP1": 1,
-    "runP2": 0.020,
+    "runP2": 0.020,  
     "runP3": 0,
     "turnP": 0,
     "turnD": 2.5,
@@ -64,7 +64,16 @@ d:2
     "danger_p1": 1,
     "danger_p2": 0.018,
     "danger_d": 2.5,
+新的：
+"runP1": 0.5,
+    "runP2": 0.028,
+    "runP3": 0,
+    "turnP": 0,
+    "turnD": 1.1,
 
+
+
+    
 速度1.2的小环pid
      "ring_p1": 0.6,
     "ring_p2": 0.012,

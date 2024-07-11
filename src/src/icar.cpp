@@ -206,7 +206,7 @@ int main(int argc, char const *argv[]) {
     if (ai_check > 1 || detection->ai_flag && sceneLast !=Scene::RingScene&& sceneLast!=BridgeScene) {
 
       //[03] 启动AI推理
-          detection->inference(imgCorrect);
+          // detection->inference(imgCorrect);
       ai_check = 0;
     }
     //  detection->inference(imgCorrect);
@@ -365,8 +365,9 @@ if(rescue.car_changepid==1)
         }
         else if(ring.center_sum_flag==Center_Sum_End)
         {
-        cout<<"固定舵机打角"<<ctrlCenter.controlCenter<<endl;
+        
         ctrlCenter.controlCenter=center_sum/center_sum_n;
+        cout<<"固定舵机打角"<<ctrlCenter.controlCenter<<endl;
         motion.poseCtrl(ctrlCenter.controlCenter); // 出环平均的中心姿态控制（舵机）
         } 
         else if(danger.flag_cone_first)
