@@ -54,6 +54,7 @@ public:
   int block_x;
   int flag_cone_first;
   int cone_temp;
+  bool set_AI_detection(void){return is_ai_detection}
   void save_common_pid(Motion &motion) {
     common_p1 = motion.params.runP1;
     common_p2 = motion.params.runP2;
@@ -129,7 +130,6 @@ public:
       cout << "两种障碍物在左侧" << endl;
       // cout<<"障碍物的x坐标"<<resultsObs[index].x<<endl;
       // cout<<"障碍物的y坐标"<<resultsObs[index].y<<endl;
-
       if (resultsObs[index].type == LABEL_CONE) {
         flagleft = 1;
         save_common_pid(motion);
@@ -137,7 +137,6 @@ public:
                                  motion.params.danger_p2,
                                  motion.params.danger_d);
         vector<POINT> points(4); // 三阶贝塞尔曲线
-
         cout << "第0个点的y坐标" << track.pointsEdgeLeft[row / 2].y + 20
              << endl;
         points[0] =
@@ -264,13 +263,11 @@ private:
   float common_p1;
   float common_p2;
   float common_d;
+   bool is_ai_detection=false;//是否开启AI标志
 /*
 是否开启AI
 1开，0不开
 */
-  void set_AI_detection(int  num){
-    flag=num ;
-  }
   // /**
   //  * @brief 在俯视域由左边缘预测右边缘
   //  *

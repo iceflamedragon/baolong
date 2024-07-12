@@ -96,6 +96,8 @@ public:
     float danger_p2;
     float danger_d;
     int areaMax;
+    int Rsecue_distance;//经过救援区后关闭AI的距离
+    int Danger_distance;//经过危险区后关闭AI的距离
     float speedLow = 1.5;        // 智能车最低速
     float speedHigh = 4;         // 智能车最高速
     float speedBridge = 0.6;     // 坡道速度
@@ -126,7 +128,7 @@ int stop_num;
                                    bridge, danger, rescue, racing, parking,
                                    ring, cross, score, model, ring_p1b, ring_p2b,
                                    ring_db,ring_p1s, ring_p2s,ring_p2s,record_video, video, danger_p1,
-                                   danger_p2,stop_num, danger_d, areaMax); // 添加构造函数
+                                   danger_p2,stop_num, danger_d, areaMax,Rsecue_distance,Danger_distance); // 添加构造函数
   };
 
   Params params; // 读取控制参数

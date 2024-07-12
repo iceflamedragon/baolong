@@ -47,6 +47,15 @@ int flag = 1;
 int start = 0;                        // 发车计数器
 int center_sum = 0, center_sum_n = 0; // 中心总值 ,计数
 bool Is_AI_detection=0;       //是否开启AI
+double AI_distance_start=0,AI_distance_end=0;//AI标志与距离积分的开始和结束
+
+enum AI_Distance_Postion{
+    AI_Distance_None=0,
+    AI_Rescue_Start=1,
+    AI_Rescue_End,
+    AI_Danger_Start,
+    AI_Danger_End
+}AI_distance_postion;
 shared_ptr<Uart> uart = make_shared<Uart>("/dev/ttyUSB0"); // 初始化串口驱动
 int main(int argc, char const *argv[]) {
   Preprocess preprocess;    // 图像预处理类
@@ -198,7 +207,30 @@ int main(int argc, char const *argv[]) {
     erode(imgBinary, imgBinary, element);
     cout << "scene" << scene << endl;
 
-    Is_AI_detection=rescue.set_AI_detection()&&danger.set_AI_detection();
+    if(rescue.set_AI_detection()&&AI_distance_postion==AI_Distance_None)
+    {
+      AI_distance_postion=AI_Rescue_Start;
+       AI_distance_start=distance_now;
+    }
+    if(AI_distance_postion==AI_Rescue_Start){
+      Is_AI_detection=false;
+      if(abs(distance_now-AI_distance_start)>montion.Rsecue_distance){
+      Is_AI_detection=true;
+      AI_distance_postion=AI_Rescue_End;
+      }
+    }
+   if(danger.set_AI_detection()&&AI_distance_postion==AI_Rescue_End)
+    {
+      AI_distance_postion=AI_Danger_Start;
+       AI_distance_start=distance_now;
+    }
+    if(AI_distance_postion==AI_Danger_Start){
+      Is_AI_detection=false;
+      if(abs(distance_now-AI_distance_start)>montion.Danger_distance){
+      Is_AI_detection=true;
+      AI_distance_postion=AI_Danger_End;
+      }
+    }
     if (ai_check > 1 || detection->ai_flag && sceneLast != Scene::RingScene && sceneLast != BridgeScene&&Is_AI_detection) {
       //[03] 启动AI推理
       detection->inference(imgCorrect);
