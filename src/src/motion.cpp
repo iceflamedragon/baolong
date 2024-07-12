@@ -163,11 +163,11 @@ int stop_num;
     
      if(flagbigringl)
      {
-      error=error+30;
+      error=error;//加30
      }
      else if(flagbigringr)
      {
-       error=error-30;
+       error=error;//减30
      }
      else
      {
