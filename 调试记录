@@ -119,3 +119,13 @@ detection.hpp中 ----score是置信度---提高一下防止误判
     "turnD": 1.6,
 
 
+
+最新：1.2（去掉ai之后的pid）
+"runP1": 1,
+    "runP2": 0.03,
+    "runP3": 0,
+    "turnP": 0,
+    "turnD": 1.5,
+
+    1.2（开ai的pid）
+

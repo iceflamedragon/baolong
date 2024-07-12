@@ -241,8 +241,8 @@ public: // int leftpoint;
       part_stdevEdgeCal_left=Part_stdevEdgeCal(track.pointsEdgeLeft, ROWSIMAGE,40,160);
       // cout<<"左环右侧拐点周围斜率方差"<<part_stdevEdgeCal_left<<endl;
       // cout<<"kaishipanduan9999999999"<<endl;s
-      left_breakpoint = Find_Left_Breakpoint(track, 40, 160);
-      right_breakpoint = Find_Right_Breakpoint(track, 40, 160); // 原来150
+      left_breakpoint = Find_Left_Breakpoint(track, 80, 140);
+      right_breakpoint = Find_Right_Breakpoint(track, 80, 140); // 原来150
       if (left_breakpoint) // 有左下拐点
       {
         lostline_left =
@@ -381,14 +381,14 @@ public: // int leftpoint;
         cout << "圆弧的判断" << (int)RoundaboutGetArc(track, 1, 20, 30, 160)<< endl;
         cout << "右边线连续的判断"<< Monotonicity_Right(track, monotonicity_change_line[0] + 20,monotonicity_change_line[0] - 20)<< endl;
         
-           ///入环补线
-        int breakpoint_in=0;
-         breakpoint_in = Find_Left_Breakpoint(track, 40, 160); // 找到拐点
-        if(breakpoint_in<140&&breakpoint_in>40)
-        {K_Add_Boundry_Left(regression(track.pointsEdgeLeft, breakpoint_in -2,breakpoint_in -6),
-                           track.pointsEdgeLeft[breakpoint_in -2].y,
-                          breakpoint_in-2, 140,track); // 根据斜率作直线
-          cout<<"开始左环入环直线补线！"<<endl;}
+        //    ///入环补线
+        // int breakpoint_in=0;
+        //  breakpoint_in = Find_Left_Breakpoint(track, 40, 160); // 找到拐点
+        // if(breakpoint_in<140&&breakpoint_in>40)
+        // {K_Add_Boundry_Left(regression(track.pointsEdgeLeft, breakpoint_in -2,breakpoint_in -6),
+        //                    track.pointsEdgeLeft[breakpoint_in -2].y,
+        //                   breakpoint_in-2, 140,track); // 根据斜率作直线
+        //   cout<<"开始左环入环直线补线！"<<endl;}
 
 
         if ( roundaboutArc&&!monotonicity_right) { // 当左边不单调点较低，或者左侧的斜率较大
@@ -420,14 +420,14 @@ public: // int leftpoint;
         cout<<"右圆环左边单调性"<<!Monotonicity_Left(track,  monotonicity_change_line[0] + 20,monotonicity_change_line[0] - 20)<<endl;// 左边单调
         
         
-        //////////////先判断再补线,不影响判断
-        int breakpoint_in=0;
-         breakpoint_in = Find_Right_Breakpoint(track, 20, 160); // 找到拐点
-        if(breakpoint_in<140&&breakpoint_in>20)
-        {K_Add_Boundry_Right(regression(track.pointsEdgeRight, breakpoint_in -2,breakpoint_in -6),
-                           track.pointsEdgeRight[breakpoint_in -2].y,
-                          breakpoint_in-2, 140,track); // 根据斜率作直线
-          cout<<"开始右环入环直线补线！"<<endl;}
+        // //////////////先判断再补线,不影响判断
+        // int breakpoint_in=0;
+        //  breakpoint_in = Find_Right_Breakpoint(track, 20, 160); // 找到拐点
+        // if(breakpoint_in<140&&breakpoint_in>20)
+        // {K_Add_Boundry_Right(regression(track.pointsEdgeRight, breakpoint_in -2,breakpoint_in -6),
+        //                    track.pointsEdgeRight[breakpoint_in -2].y,
+        //                   breakpoint_in-2, 140,track); // 根据斜率作直线
+        //   cout<<"开始右环入环直线补线！"<<endl;}
 
        
         if (roundaboutArc&&!monotonicity_left) { //RoundaboutGetArc(track, 2, 10, 10, 180) && 右边上面有拐点 && right_breakpoint)

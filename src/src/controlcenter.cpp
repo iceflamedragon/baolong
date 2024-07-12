@@ -64,8 +64,8 @@ public:
     track.stdevLeft = track.stdevEdgeCal(track.pointsEdgeLeft, ROWSIMAGE);
     track.stdevRight = track.stdevEdgeCal(track.pointsEdgeRight, ROWSIMAGE);
 
-    if (track.validRowsLeft> 15 &&
-        track.validRowsRight> 15) // 通过双边缘有效点的差来判断赛道类型  原来有4
+    if (track.pointsEdgeLeft.size() > 4 &&
+        track.pointsEdgeRight.size() > 4) // 通过双边缘有效点的差来判断赛道类型
     {
       v_center[0] = {
           (track.pointsEdgeLeft[0].x + track.pointsEdgeRight[0].x) / 2,
@@ -98,32 +98,28 @@ public:
       centerEdge = Bezier(0.03, v_center);
 
       style = "STRIGHT";
-      cout<<"STRIGHT"<<endl;
     }
     // 左单边
-    else if ((track.validRowsLeft > 5 &&  //原来为0
-              track.validRowsRight <= 15) ||  //原来有4
-             (track.validRowsLeft > 0 &&
-              track.validRowsRight > 0 &&
+    else if ((track.pointsEdgeLeft.size() > 0 &&
+              track.pointsEdgeRight.size() <= 4) ||
+             (track.pointsEdgeLeft.size() > 0 &&
+              track.pointsEdgeRight.size() > 0 &&
               track.pointsEdgeLeft[0].x - track.pointsEdgeRight[0].x >
                   ROWSIMAGE / 2)) {
       style = "RIGHT";
       centerEdge = centerCompute(track.pointsEdgeLeft, 0);
-      cout<<"右单边"<<endl;
     }
     // 右单边
-    else if ((track.validRowsRight> 5 &&
-              track.validRowsLeft<= 15) ||
-             (track.validRowsRight> 0 &&
-              track.validRowsLeft > 0 &&
+    else if ((track.pointsEdgeRight.size() > 0 &&
+              track.pointsEdgeLeft.size() <= 4) ||
+             (track.pointsEdgeRight.size() > 0 &&
+              track.pointsEdgeLeft.size() > 0 &&
               track.pointsEdgeRight[0].x - track.pointsEdgeLeft[0].x >
-                  ROWSIMAGE / 2)) {//
-
+                  ROWSIMAGE / 2)) {
       style = "LEFT";
       centerEdge = centerCompute(track.pointsEdgeRight, 1);
-      cout<<"左单边"<<endl;
-    } else if (track.validRowsLeft > 15 &&
-               track.validRowsRight == 0) // 左单边
+    } else if (track.pointsEdgeLeft.size() > 4 &&
+               track.pointsEdgeRight.size() == 0) // 左单边
     {
       v_center[0] = {track.pointsEdgeLeft[0].x,
                      (track.pointsEdgeLeft[0].y + COLSIMAGE - 1) / 2};
@@ -147,9 +143,8 @@ public:
       centerEdge = Bezier(0.02, v_center);
 
       style = "RIGHT";
-      cout<<"右单边的RIGHT"<<endl;
-    } else if (track.validRowsLeft == 0 &&
-               track.validRowsRight> 15) // 右单边
+    } else if (track.pointsEdgeLeft.size() == 0 &&
+               track.pointsEdgeRight.size() > 4) // 右单边
     {
       v_center[0] = {track.pointsEdgeRight[0].x,
                      track.pointsEdgeRight[0].y / 2};
@@ -169,7 +164,6 @@ public:
       centerEdge = Bezier(0.02, v_center);
 
       style = "LEFT";
-      cout<<"右单边的LEFT"<<endl;
     }
 
     // 加权控制中心计算
@@ -377,7 +371,7 @@ private:
    */
   vector<POINT> centerCompute(vector<POINT> pointsEdge, int side) {
     int step = 4;                    // 间隔尺度
-    int offsetWidth = COLSIMAGE / 2 -submiterror; // 首行偏移量//原先除以2
+    int offsetWidth = COLSIMAGE / 2; // 首行偏移量//原先除以2
     int offsetHeight = 0;            // 纵向偏移量
 
     vector<POINT> center; // 控制中心集合

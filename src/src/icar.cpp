@@ -207,7 +207,7 @@ int main(int argc, char const *argv[]) {
                             sceneLast != BridgeScene) {
 
       //[03] 启动AI推理
-      // detection->inference(imgCorrect);
+       detection->inference(imgCorrect);
       ai_check = 0;
     }
     //  detection->inference(imgCorrect);
