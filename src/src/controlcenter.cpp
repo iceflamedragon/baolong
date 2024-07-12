@@ -183,8 +183,11 @@ public:
       }
     } else { // 圆环pid
       for (auto p : centerEdge) {
-        if (p.x == ROWSIMAGE / 4)
-          controlCenter = p.y * ROWSIMAGE;
+        if (p.x < ROWSIMAGE * 4 / 5 && p.x > ROWSIMAGE * 3 / 4) {
+          controlCenter += p.y * ROWSIMAGE;
+          controlNum += ROWSIMAGE;
+          // cout<<"我要的数字"<<p.y * ROWSIMAGE<<endl<<endl<<endl;
+        }
         //   // cout<<"切换到环内的加权算法了"<<endl;
         // // if (p.x < ROWSIMAGE / 4) { // 远离车辆的地方加权更大
         // //   controlNum +=
@@ -215,6 +218,7 @@ public:
     else if (controlCenter < 0)
       controlCenter = 0;
 
+    cout << "此时算出的控制中心" << controlCenter << endl << endl << endl;
     // 控制率计算
     if (centerEdge.size() > 20) {
       vector<POINT> centerV;
