@@ -23,7 +23,8 @@
  */
 
 #include "../include/common.hpp"
-#include "recognition/tracking.cpp"
+ #include "recognition/tracking.cpp"
+// #include "motion.cpp"
 // #include "recognition/ring.cpp"      //环岛道路识别与路径规划类
 #include <cmath>
 #include <fstream>
@@ -36,6 +37,7 @@ using namespace std;
 
 class ControlCenter {
 public:
+  int submiterror;
   int controlCenter;           // 智能车控制中心（0~320）
   vector<POINT> centerEdge;    // 赛道中心点集
   uint16_t validRowsLeft = 0;  // 边缘有效行数（左）
@@ -55,8 +57,8 @@ public:
     centerEdge.clear();
     vector<POINT> v_center(4); // 三阶贝塞尔曲线
     style = "STRIGHT";
-vector<POINT> new_edge_left;
-vector<POINT> new_edge_right;
+    vector<POINT> new_edge_left;
+    vector<POINT> new_edge_right;
 
     // 边缘斜率重计算（边缘修正之后）
     track.stdevLeft = track.stdevEdgeCal(track.pointsEdgeLeft, ROWSIMAGE);
@@ -107,7 +109,7 @@ vector<POINT> new_edge_right;
                   ROWSIMAGE / 2)) {
       style = "RIGHT";
       centerEdge = centerCompute(track.pointsEdgeLeft, 0);
-      cout<<"左单边"<<endl;
+      cout<<"右单边"<<endl;
     }
     // 右单边
     else if ((track.validRowsRight> 5 &&
@@ -119,7 +121,7 @@ vector<POINT> new_edge_right;
 
       style = "LEFT";
       centerEdge = centerCompute(track.pointsEdgeRight, 1);
-      cout<<"右单边"<<endl;
+      cout<<"左单边"<<endl;
     } else if (track.validRowsLeft > 15 &&
                track.validRowsRight == 0) // 左单边
     {
@@ -145,7 +147,7 @@ vector<POINT> new_edge_right;
       centerEdge = Bezier(0.02, v_center);
 
       style = "RIGHT";
-      cout<<"左单边的RIGHT"<<endl;
+      cout<<"右单边的RIGHT"<<endl;
     } else if (track.validRowsLeft == 0 &&
                track.validRowsRight> 15) // 右单边
     {
@@ -370,17 +372,17 @@ private:
    * @brief 赛道中心点计算：单边控制
    *
    * @param pointsEdge 赛道边缘点集
-   * @param side 单边类型：左边0/右边1
+   * @param side 单边类型：右单边0/左单边1
    * @return vector<POINT>
    */
   vector<POINT> centerCompute(vector<POINT> pointsEdge, int side) {
     int step = 4;                    // 间隔尺度
-    int offsetWidth = COLSIMAGE / 2; // 首行偏移量
+    int offsetWidth = COLSIMAGE / 2 -submiterror; // 首行偏移量//原先除以2
     int offsetHeight = 0;            // 纵向偏移量
 
     vector<POINT> center; // 控制中心集合
 
-    if (side == 0) // 左边缘
+    if (side == 0) // 左边缘    右单边
     {
       uint16_t counter = 0, rowStart = 0;
       for (int i = 0; i < pointsEdge.size(); i++) // 删除底部无效行
@@ -408,7 +410,7 @@ private:
           center.emplace_back(pointsEdge[i].x - offsetHeight, py);
         }
       }
-    } else if (side == 1) // 右边沿
+    } else if (side == 1) // 右边沿  左单边
     {
       uint16_t counter = 0, rowStart = 0;
       for (int i = 0; i < pointsEdge.size(); i++) // 删除底部无效行

@@ -24,7 +24,7 @@
 #pragma once
 #include "../include/common.hpp"
 #include "../include/json.hpp"
-#include "controlcenter.cpp"
+#include "./controlcenter.cpp"
 
 #include <cmath>
 #include <fstream>
@@ -70,7 +70,7 @@ public:
       std::cerr << "Json Params Parse failed :" << e.what() << '\n';
       exit(-1);
     }
-
+    
     speed = params.speedLow;
     cout << "--- runP1:" << params.runP1 << " | runP2:" << params.runP2
          << " | runP3:" << params.runP3 << endl;
@@ -84,6 +84,7 @@ public:
    *
    */
   struct Params {
+    int submit;
     int record_video;
     float ring_p1b; // 圆环的pid
     float ring_p2b;
@@ -126,7 +127,7 @@ int stop_num;
                                    bridge, danger, rescue, racing, parking,
                                    ring, cross, score, model, ring_p1b, ring_p2b,
                                    ring_db,ring_p1s, ring_p2s,ring_p2s,record_video, video, danger_p1,
-                                   danger_p2,stop_num, danger_d, areaMax); // 添加构造函数
+                                   danger_p2,stop_num, danger_d, areaMax,submit); // 添加构造函数
   };
 
   Params params; // 读取控制参数
@@ -157,9 +158,10 @@ int stop_num;
    * @param controlCenter 智能车控制中心
    */
 
-  void poseCtrl(int controlCenter) {
+  void poseCtrl(int controlCenter,ControlCenter &control) {
     // if(ring.flagpid )flag=1;
     float error = controlCenter - COLSIMAGE / 2;
+    control.submiterror=params.submit;
     
      if(flagbigringl)
      {
