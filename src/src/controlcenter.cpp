@@ -24,6 +24,7 @@
 
 #include "../include/common.hpp"
 #include "recognition/tracking.cpp"
+// #include "recognition/ring.cpp"      //环岛道路识别与路径规划类
 #include <cmath>
 #include <fstream>
 #include <iostream>
@@ -40,7 +41,7 @@ public:
   uint16_t validRowsLeft = 0;  // 边缘有效行数（左）
   uint16_t validRowsRight = 0; // 边缘有效行数（右）
   double sigmaCenter = 0;      // 中心点集的方差
-
+  int flagring;
   /**
    * @brief 控制中心计算
    *
@@ -163,7 +164,7 @@ public:
 
     // 加权控制中心计算
     int controlNum = 1;
-    if (ring.flag.pid != 1) { // 直线pid
+    if (flagring != 1) { // 直线pid
       for (auto p : centerEdge) {
 
         if (p.x < ROWSIMAGE / 4) { // 远离车辆的地方加权更大
@@ -182,23 +183,27 @@ public:
       }
     } else { // 圆环pid
       for (auto p : centerEdge) {
+        if (p.x == ROWSIMAGE / 4)
+          controlCenter = p.y * ROWSIMAGE;
+        //   // cout<<"切换到环内的加权算法了"<<endl;
+        // // if (p.x < ROWSIMAGE / 4) { // 远离车辆的地方加权更大
+        // //   controlNum +=
+        // //       (ROWSIMAGE / 4); // 赛道的纵坐标的加权，需要跟下面的数相同
+        // //   controlCenter += p.y * (ROWSIMAGE / 4); // 需要跟上面的数相同
+        // // } else if (p.x > ROWSIMAGE / 4 && p.x < ROWSIMAGE * (1 / 2)) {
 
-        if (p.x < ROWSIMAGE / 4) { // 远离车辆的地方加权更大
-          controlNum +=
-              (ROWSIMAGE / 4); // 赛道的纵坐标的加权，需要跟下面的数相同
-          controlCenter += p.y * (ROWSIMAGE / 4); // 需要跟上面的数相同
-        } else if (p.x > ROWSIMAGE / 4 && p.x < ROWSIMAGE * (1 / 2)) {
-
-          controlNum += (ROWSIMAGE + p.x); // 赛道的纵坐标的加权，小于上面的那个
-          controlCenter += p.y * (ROWSIMAGE + p.x);
-        } else if (p.x < ROWSIMAGE * (5 / 8) && p.x > ROWSIMAGE * (1 / 2)) {
-          controlNum +=
-              (ROWSIMAGE + 50 + p.x); // 赛道的纵坐标的加权，小于上面的那个
-          controlCenter += p.y * (ROWSIMAGE + 50 + p.x);
-        } else if (p.x < ROWSIMAGE && p.x > ROWSIMAGE * (5 / 8)) {
-          controlNum += (ROWSIMAGE - p.x); // 赛道的纵坐标的加权，小于上面的那个
-          controlCenter += p.y * (ROWSIMAGE - p.x);
-        }
+        // //   controlNum += (ROWSIMAGE + p.x); //
+        // 赛道的纵坐标的加权，小于上面的那个
+        // //   controlCenter += p.y * (ROWSIMAGE + p.x);
+        // if (p.x < ROWSIMAGE * (5 / 8) && p.x > ROWSIMAGE * (1 / 2)) {
+        //   controlNum +=
+        //       (ROWSIMAGE  ); // 赛道的纵坐标的加权，小于上面的那个
+        //   controlCenter += p.y * (ROWSIMAGE  );
+        // } else if (p.x < ROWSIMAGE && p.x > ROWSIMAGE * (5 / 8)) {
+        //   controlNum += (ROWSIMAGE+170+ p.x ); //
+        //   赛道的纵坐标的加权，小于上面的那个 controlCenter += p.y *
+        //   (ROWSIMAGE+170+ p.x );
+        // }
       }
     }
     if (controlNum > 1) {

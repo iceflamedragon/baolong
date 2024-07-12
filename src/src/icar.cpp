@@ -131,6 +131,9 @@ int main(int argc, char const *argv[]) {
   while (1) {
     //  ring.RoundaboutGetArc(tracking, 1, 20, 30, 160);
 
+    if(ring.flagpid)ctrlCenter.flagring=1;
+    else ctrlCenter.flagring=0;
+
     if (ring.flagbigringl) {
       motion.flagbigringl = 1;
 
@@ -202,7 +205,7 @@ int main(int argc, char const *argv[]) {
                             sceneLast != BridgeScene) {
 
       //[03] 启动AI推理
-      detection->inference(imgCorrect);
+      // detection->inference(imgCorrect);
       ai_check = 0;
     }
     //  detection->inference(imgCorrect);

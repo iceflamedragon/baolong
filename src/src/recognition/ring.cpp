@@ -380,6 +380,7 @@ public:
             !Monotonicity_Right(track, monotonicity_change_line[0] + 20,
                 monotonicity_change_line[0] -20)) { // 当左边不单调点较低，或者左侧的斜率较大
           ringStep = RingStep::Entering;
+          flagpid=1;
           mpu6050_later = mpu6050_now;
           cout << "////////////////////////////////左入环前" << endl;
         }
@@ -410,6 +411,7 @@ public:
                                monotonicity_change_line[0] + 20,
                                monotonicity_change_line[0] - 20) ) { //RoundaboutGetArc(track, 2, 10, 10, 180) && 右边上面有拐点 && right_breakpoint)
           ringStep = RingStep::Entering;
+          flagpid=1;
           mpu6050_later = mpu6050_now;
           cout << "////////////////////////////////右入环前" << endl;
         }
@@ -452,9 +454,9 @@ public:
           flagjiao) //    &&left_breakpoint     left_breakpoint < 50
                     //    !continuity_change_right_flag   原来路程积分1300
       {
-        cout << "进入状态三,入环判断拐点" << endl;
+        // cout << "进入状态三,入环判断拐点" << endl;
         for (int i = 1; i < track.widthBlock.size(); ++i) {
-          cout << "进入状态三,入环判断" << endl;
+          // cout << "进入状态三,入环判断" << endl;
           if (track.pointsEdgeLeft[i].y < track.pointsEdgeLeft[i - 5].y) {
             //ringTypeTemp = RingLeft; // 环岛类型：左入环
             colEnterRing = track.pointsEdgeLeft[i - 5].y; // 入环点列号
@@ -480,7 +482,7 @@ public:
 
           {
             // 判断入环成功
-            cout << "内圆检测" << endl;
+            // cout << "内圆检测" << endl;
             // mpu6050_later = mpu6050_now;
 
             ringEnable = true;
@@ -582,7 +584,7 @@ public:
       cout<<"设置了flagpid"<<endl<<endl<<endl;
         save_common_pid(motion);
       //  motion.set_direction_pid(motion.params.ring_p1,motion.params.ring_p2, motion.params.ring_d); 
-        flagpid=1;
+        // flagpid=1;
 
 
     }
@@ -699,12 +701,13 @@ public:
     if (ringStep == RingStep::Entering &&abs(mpu6050_now - mpu6050_later) >=30&&distance_now-distance_in<2100) {//原先为60度  && abs(mpu6050_now - mpu6050_later) >= 30  原来是2250
       ringStep = RingStep::Inside; // 纯粹陀螺仪积分到一定值就正常巡线
       // set_ring_pid(ring_p1, ring_p2, ring_d, motion);
-      // flagpid=1;
+      //  flagpid=1;
       cout<<"到小环了"<<endl<<endl<<endl;
       motion.set_direction_pid(motion.params.ring_p1s,motion.params.ring_p2s, motion.params.ring_ds);
     }
     else if  (ringStep == RingStep::Entering &&abs(mpu6050_now - mpu6050_later) >=30&&distance_now-distance_in>2100) {//原先为60度  && abs(mpu6050_now - mpu6050_later) >= 30
       ringStep = RingStep::Inside; // 纯粹陀螺仪积分到一定值就正常巡
+      // flagpid=1;
       cout<<"到大环了"<<endl<<endl<<endl;
       cout<<"两个状态间距离差值"<<distance_now-distance_in<<endl;
       //  if(distance_now-distance_in>2250)//rightpoint>110||leftpoint>110   //小环--2100   大环----2446
