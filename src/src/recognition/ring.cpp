@@ -238,7 +238,7 @@ public:
     if (ringStep == RingStep::None) {
       // 判断左入环
       part_stdevEdgeCal_left=Part_stdevEdgeCal(track.pointsEdgeLeft, ROWSIMAGE,80,120);
-      cout<<"左环右侧拐点周围斜率方差"<<part_stdevEdgeCal_left<<endl;
+      // cout<<"左环右侧拐点周围斜率方差"<<part_stdevEdgeCal_left<<endl;
       // cout<<"kaishipanduan9999999999"<<endl;s
       left_breakpoint = Find_Left_Breakpoint(track, 80, 120);
       right_breakpoint = Find_Right_Breakpoint(track, 80, 120); // 原来150
@@ -288,7 +288,7 @@ public:
             }
           }
         }
-        cout<<"左环右侧拐点周围斜率方差"<<part_stdevEdgeCal_left<<endl;
+        // cout<<"左环右侧拐点周围斜率方差"<<part_stdevEdgeCal_left<<endl;
         ////判断右入环
       } else if (right_breakpoint) // 有右下拐点
       {
@@ -446,7 +446,7 @@ public:
                            160);
       cout<<"入环右角点的i值" << right_breakpoint<<endl;                   
       cout << "入环左角点的i值" << left_breakpoint << endl;
-      if ((left_breakpoint > 50 && left_breakpoint < 140) ||
+      if ((left_breakpoint > 50 && left_breakpoint < 155) ||
           (right_breakpoint > 50 && right_breakpoint < 150)) {//原先为130  95
         flagjiao = 1;
       }
@@ -1605,7 +1605,7 @@ public:
     {
       if (track.pointsEdgeRight[i].y >= COLSIMAGE - 1)
         lostline_right++;
-        cout<<"右边丢线函数"<<endl;
+        // cout<<"右边丢线函数"<<endl;
     }
     return lostline_right;
   }
