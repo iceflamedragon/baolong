@@ -43,6 +43,7 @@ private:
   float p1_former;
   float p2_former;
   float d_former;
+  float i_former;
   // Ring ring;                // 环岛识别类
 
 public:
@@ -106,6 +107,7 @@ public:
     float runP3 = 0.0;           // 三阶比例系数：弯道控制量
     float turnP = 3.5;           // 一阶比例系数：转弯控制量
     float turnD = 0;             // 一阶微分系数：转弯控制量
+    float turnI;                 // 积分项--减少漂移情况
     bool debug = false;          // 调试模式使能
     bool saveImg = false;        // 存图使能
     uint16_t rowCutUp = 200;     // 图像顶部切行
@@ -118,11 +120,11 @@ public:
     bool ring = true;            // 环岛使能
     bool cross = true;           // 十字道路使能
     float score = 0.5;           // AI检测置信度
-int stop_num;
+    int stop_num;
     string model = "../res/model/yolov3_mobilenet_v1"; // 模型路径
     string video = "../res/samples/demo.mp4";          // 视频路径
     NLOHMANN_DEFINE_TYPE_INTRUSIVE(Params, speedLow, speedHigh, speedBridge,
-                                   speedDown, runP1, runP2, runP3, turnP, turnD,
+                                   speedDown, runP1, runP2, runP3, turnP, turnD,turnI,
                                    debug, saveImg, rowCutUp, rowCutBottom,
                                    bridge, danger, rescue, racing, parking,
                                    ring, cross, score, model, ring_p1b, ring_p2b,
@@ -132,13 +134,15 @@ int stop_num;
 
   Params params; // 读取控制参数
   // 切换舵机pid并且保存原来数字，以用来还原
-  void set_direction_pid(float p1, float p2, float d) {
+  void set_direction_pid(float p1, float p2, float d, float i) {
     p1_former = params.runP1;
     p2_former = params.runP2;
     d_former = params.turnD;
+    i_former = params.turnI;
     params.runP1 = p1;
     params.runP2 = p2;
     params.turnD = d;
+    params.turnI = i;
     cout << "p2的值" << p2 << endl;
     cout << "切换舵机pid" << endl;
   }
@@ -148,33 +152,36 @@ int stop_num;
     params.runP1 = p1_former;
     params.runP2 = p2_former;
     params.turnD = d_former;
+    params.turnI = i_former;
     cout << "恢复舵机pid" << endl;
   }
   uint16_t servoPwm = PWMSERVOMID; // 发送给舵机的PWM
   float speed = 0.3;               // 发送给电机的速度
   /**
-   * @brief 姿态PD控制器
+   * @brief 姿态PD控制器  新加入I项
    *
    * @param controlCenter 智能车控制中心
    */
 
+  float errorsum;
   void poseCtrl(int controlCenter,ControlCenter &control) {
     // if(ring.flagpid )flag=1;
     float error = controlCenter - COLSIMAGE / 2;
-    control.submiterror=params.submit;
+    // control.submiterror=params.submit;
+      
     
-     if(flagbigringl)
-     {
-      error=error;//加30
-     }
-     else if(flagbigringr)
-     {
-       error=error;//减30
-     }
-     else
-     {
-      error=error;
-     }
+    //  if(flagbigringl)
+    //  {
+    //   error=error;//加30
+    //  }
+    //  else if(flagbigringr)
+    //  {
+    //    error=error;//减30
+    //  }
+    //  else
+    //  {
+    //   error=error;
+    //  }
     // cout<<"flag的值是    "<<flag<<endl<<endl;
     //  if(flag)
     // {
@@ -198,9 +205,11 @@ int stop_num;
       error = error > errorLast ? errorLast + COLSIMAGE / 10
                                 : errorLast - COLSIMAGE / 10;
     }
+     errorsum+=error;//加个限幅加和
+   
     // cout << "此时的P2值" << params.runP2 << endl << endl;
     params.turnP = abs(error) * params.runP2 + params.runP1;
-    int pwmDiff = (error * params.turnP) + (error - errorLast) * params.turnD;
+    int pwmDiff = (error * params.turnP) + (error - errorLast) * params.turnD +errorsum*params.turnI;
     errorLast = error;
 
     servoPwm = PWMSERVOMID - pwmDiff;

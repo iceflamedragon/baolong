@@ -8,6 +8,7 @@
     "runP3": 0,
     "turnP": 0,
     "turnD": 1.8,
+    "turnI":0,
     "ring_p1b": 0.35,
     "ring_p2b": 0.0145,
     "ring_db": 0.3,

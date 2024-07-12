@@ -58,6 +58,7 @@ public:
     common_p1 = motion.params.runP1;
     common_p2 = motion.params.runP2;
     common_d = motion.params.turnD;
+    common_i = motion.params.turnI;
   }
 
   bool process(Tracking &track, vector<PredictResult> predict, Motion &motion) {
@@ -135,7 +136,7 @@ public:
       // cout<<"障碍物的y坐标"<<resultsObs[index].y<<endl;
       save_common_pid(motion);
       motion.set_direction_pid(motion.params.danger_p1, motion.params.danger_p2,
-                               motion.params.danger_d);
+                               motion.params.danger_d,0);
 
       if (resultsObs[index].type == LABEL_CONE) {
         if (cone_temp == 1) {
@@ -207,7 +208,7 @@ public:
       // cout<<"障碍物的y坐标"<<resultsObs[index].y<<endl;
       save_common_pid(motion);
       motion.set_direction_pid(motion.params.danger_p1, motion.params.danger_p2,
-                               motion.params.danger_d);
+                               motion.params.danger_d,0);
       if (resultsObs[index].type == LABEL_CONE) {
         if (cone_temp == 1) {
           flagright = 1;
@@ -275,6 +276,7 @@ private:
   float common_p1;
   float common_p2;
   float common_d;
+  float common_i;
   // /**
   //  * @brief 在俯视域由左边缘预测右边缘
   //  *
@@ -341,7 +343,7 @@ private:
   void curtailTracking(Tracking &track, bool left, Motion &motion) {
     if (!left) // 向左侧缩进  改变补线问题  // 此时相当于实际在左侧
     {
-      motion.set_direction_pid(common_p1, common_p2, common_d);
+      motion.set_direction_pid(common_p1, common_p2, common_d,common_i);
       cout << "黑色路障相当于在左侧时右侧的补线" << endl;
       if (track.pointsEdgeRight.size() > track.pointsEdgeLeft.size())
         track.pointsEdgeRight.resize(track.pointsEdgeLeft.size());
@@ -353,7 +355,7 @@ private:
       }
     } else // 向右侧缩进  障碍物在右侧
     {
-      motion.set_direction_pid(common_p1, common_p2, common_d);
+      motion.set_direction_pid(common_p1, common_p2, common_d,common_i);
       cout << "黑色障碍物在右侧" << endl << endl;
       if (track.pointsEdgeRight.size() < track.pointsEdgeLeft.size())
         track.pointsEdgeLeft.resize(track.pointsEdgeRight.size());

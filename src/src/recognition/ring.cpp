@@ -59,6 +59,7 @@ private:
   float common_p1;
   float common_p2;
   float common_d;
+  float common_i;
   Crossroad c1;
   float distance_now;
   float distance_in;       // 状态一的编码器值
@@ -138,6 +139,7 @@ public: // int leftpoint;
     common_p1 = motion.params.runP1;
     common_p2 = motion.params.runP2;
     common_d = motion.params.turnD;
+    common_i = motion.params.turnI;
   }
   //  p RingType ringTypeTemp = RingTye::RingNone; // 环岛类型：临时变量
   // void ringtype_init(void)
@@ -722,7 +724,7 @@ public: // int leftpoint;
       // set_ring_pid(ring_p1, ring_p2, ring_d, motion);
        flagpid=1;
       cout<<"到小环了"<<endl<<endl<<endl;
-      motion.set_direction_pid(motion.params.ring_p1s,motion.params.ring_p2s, motion.params.ring_ds);
+      motion.set_direction_pid(motion.params.ring_p1s,motion.params.ring_p2s, motion.params.ring_ds,0);
     }
     else if  (ringStep == RingStep::Entering &&abs(mpu6050_now - mpu6050_later) >=30&&distance_now-distance_in>2100) {//原先为60度  && abs(mpu6050_now - mpu6050_later) >= 30
       ringStep = RingStep::Inside; // 纯粹陀螺仪积分到一定值就正常巡
@@ -731,7 +733,7 @@ public: // int leftpoint;
       cout<<"两个状态间距离差值"<<distance_now-distance_in<<endl;
       //  if(distance_now-distance_in>2250)//rightpoint>110||leftpoint>110   //小环--2100   大环----2446
       //  {
-      motion.set_direction_pid(motion.params.ring_p1b,motion.params.ring_p2b, motion.params.ring_db); //大环pid
+      motion.set_direction_pid(motion.params.ring_p1b,motion.params.ring_p2b, motion.params.ring_db,0); //大环pid
       if(ringTypeTemp == RingRight)
       flagbigringr=1;//遇到大环时打开
       else if(ringTypeTemp == RingLeft)flagbigringl=1;
@@ -1016,7 +1018,7 @@ public: // int leftpoint;
 
     // 出环，切回正常循迹        //这里应该依靠路程积分彻底出环
     if (ringStep == RingStep::Finish) {
-      motion.set_direction_pid(common_p1, common_p2, common_d);
+      motion.set_direction_pid(common_p1, common_p2, common_d,common_i);
       cout << "距离差值   " << distance_now - distance_final << endl;
       // if (track.pointsEdgeLeft.size() > 30 &&
       //     track.pointsEdgeRight.size() > 30 &&
