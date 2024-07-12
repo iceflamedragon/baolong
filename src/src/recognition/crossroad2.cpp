@@ -1,4 +1,4 @@
-#pragma once
+ s#pragma once
 /**
  ********************************************************************************************************
  *                                               示例代码
@@ -97,27 +97,28 @@ public:
           if (counterRec > 5) {
             crossroadType = CrossroadType::CrossroadLeft; // 左入十字
             _index = 2;
-            // counterRec=0;
-            // cout << counterRec << "左入十字1111111111111111111111" << endl;
+            //counterRec=0;
+            //cout << counterRec << "左入十字1111111111111111111111" << endl;
             break;
           }
         }
       }
     }
-
+     
     if (track.stdevLeft > 50) {
       // 通过色块突变-搜索十字类型   比较圆环和十字判断条件
       for (int i = 2; i < track.widthBlock.size() - 10; i++) {
         // 右入十字判断
-        // cout<<track.pointsEdgeRight[i].y<<"哈哈哈哈哈哈哈哈哈哈哈哈哈"<<endl;
+        //cout<<track.pointsEdgeRight[i].y<<"哈哈哈哈哈哈哈哈哈哈哈哈哈"<<endl;
         if (track.pointsEdgeRight[i].y > 300 &&
-            track.widthBlock[i].y > track.widthBlock[i - 2].y) {
+            track.widthBlock[i].y > track.widthBlock[i - 2].y)
+          {
           counterRec++;
-          // cout << counterRec << "6666666666666666666666" << endl;
-        }
+          //cout << counterRec << "6666666666666666666666" << endl;
+          }
         if (counterRec) {
           counterLinear++;
-          // cout<<counterLinear<<"重中之重啧啧啧啧啧啧咋咋咋咋咋咋"<<endl;
+          //cout<<counterLinear<<"重中之重啧啧啧啧啧啧咋咋咋咋咋咋"<<endl;
           if (counterLinear > 8) {
             counterLinear = 0;
             counterRec = 0;
@@ -131,22 +132,20 @@ public:
         }
       }
     }
-
+    ///cout<<counterRec<<"555555555555555555555555"<<endl;
     counterRec = 0;
-    if (crossroadType ==
-        CrossroadType::CrossroadLeft) // 左入十字   用了右下和左上两个点
+    if (crossroadType == CrossroadType::CrossroadLeft) // 左入十字   用了右下和左上两个点
     {
       uint16_t rowBreakRightDown = searchBreakRightDown(
           track.pointsEdgeRight); // 搜索十字赛道突变行（右下），应该就是角点
-      cout << "左入十字了" << rowBreakRightDown << endl;
-      cout << track.pointsEdgeRight[rowBreakRightDown].y << "右下方角点位置"
-           << endl;
+        cout<<"左入十字了"<<rowBreakRightDown<<endl;
+                cout<<track.pointsEdgeRight[rowBreakRightDown].y<<"右下方角点位置"<<endl;
       if (rowBreakRightDown > 0 &&
           track.pointsEdgeRight[rowBreakRightDown].y > 20) {
         pointBreakRD = track.pointsEdgeRight[rowBreakRightDown]; // 右下突变点
         if (track.spurroad.size() > 0) //[Step-1] 搜索到岔路
         {
-          cout << "左左左识别到岔路识别到岔路" << endl;
+          cout<<"左左左识别到岔路识别到岔路"<<endl;
           int indexSP = 0;
 
           for (int i = 0; i < track.spurroad.size();
@@ -205,7 +204,7 @@ public:
 
         if (!repaired && pointBreakRD.y < COLSIMAGE / 2) //[Step-2] 未搜索到岔路
         {
-          cout << "左左未识别到岔路未识别到岔路" << endl;
+          cout<<"左左未识别到岔路未识别到岔路"<<endl;
           _index = 4;
           uint16_t rowBreakLU = rowBreakRightDown; // 左上拐点
           for (int i = rowBreakRightDown; i < track.pointsEdgeLeft.size() - 10;
@@ -243,19 +242,19 @@ public:
       }
     }
 
+
     if (crossroadType == CrossroadType::CrossroadRight) // 右入十字
     {
       uint16_t rowBreakLeftDown = searchBreakLeftDown(
           track.pointsEdgeLeft); // 搜索十字赛道突变行（右下）
-      cout << track.pointsEdgeLeft[rowBreakLeftDown].y << "左下角坐标左下角"
-           << endl;
-      cout << rowBreakLeftDown << "左下角点的位置数目11111111111" << endl;
+        cout<<track.pointsEdgeLeft[rowBreakLeftDown].y<<"左下角坐标左下角"<<endl;
+        cout<<rowBreakLeftDown<<"左下角点的位置数目11111111111"<<endl;
       if (rowBreakLeftDown > 0 &&
           track.pointsEdgeLeft[rowBreakLeftDown].y > 20) {
         pointBreakLD = track.pointsEdgeLeft[rowBreakLeftDown]; // 左下突变点
         if (track.spurroad.size() > 0) //[Step-1] 搜索到岔路
         {
-          cout << "识别到了识别到了识别到了识别到了识别到了" << endl;
+          cout<<"识别到了识别到了识别到了识别到了识别到了"<<endl;
           int indexSP = 0;
 
           for (int i = 0; i < track.spurroad.size();
@@ -311,15 +310,15 @@ public:
             _index = 3;
           }
         }
-        cout << pointBreakLD.y << "角点坐标坐标坐标坐标" << endl;
+          cout<<pointBreakLD.y<<"角点坐标坐标坐标坐标"<<endl;
         if (!repaired && pointBreakLD.y > COLSIMAGE / 2) //[Step-2] 未搜索到岔路
         {
-          cout << "未识别到未识别未识别到未识别到" << endl;
+          cout<<"未识别到未识别未识别到未识别到"<<endl;
           _index = 4;
           uint16_t rowBreakRU = rowBreakLeftDown; // 右上拐点
           for (int i = rowBreakLeftDown; i < track.pointsEdgeRight.size() - 10;
                i++) {
-            if (track.pointsEdgeRight[i].y > 1)
+            if (track.pointsEdgeRight[i].y>1 )
               counterRec++;
             else
               counterRec = 0;
@@ -329,15 +328,13 @@ public:
             }
           }
 
-          POINT endPoint =
-              POINT(pointBreakLD.x, 319); // 补线终点   找的补线终点错误
+          POINT endPoint = POINT(pointBreakLD.x,319); // 补线终点   找的补线终点错误
           if (rowBreakRU < track.pointsEdgeRight.size()) {
-            pointBreakRU =
-                track.pointsEdgeRight[rowBreakRU]; // 右上拐点  取哪个点作为起点
-            cout << "成立成立成立成立成立成立" << endl;
+            pointBreakRU = track.pointsEdgeRight[rowBreakRU]; // 右上拐点  取哪个点作为起点
+            cout<<"成立成立成立成立成立成立"<<endl;
             endPoint =
                 POINT((pointBreakLD.x + pointBreakRU.x) / 2, 319); // 补线终点
-            track.pointsEdgeRight.resize(rowBreakRU); // 重绘边缘
+            track.pointsEdgeRight.resize(rowBreakRU);             // 重绘边缘
           }
 
           POINT startPoint = pointBreakLD; // 补线起点
@@ -365,8 +362,9 @@ public:
         // 直入十字判断
         if (track.spurroad.size() > 0 &&
             track.widthBlock[i].y > COLSIMAGE - 5 // 赛道足够宽
-            && LFguai > 5 // ？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？这是什么
-                          // ----拐点坐标（防止圆环误判为十字的）
+            &&
+            LFguai >
+                5 // ？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？这是什么 ----拐点坐标（防止圆环误判为十字的）
         ) {
           counterStrightA++;
         }
@@ -582,7 +580,7 @@ private:
     uint16_t rowBreakLeft = 0;
     uint16_t counter = 0;
 
-    for (int i = 0; i < pointsEdgeLeft.size() / 2; i++) // 寻找左边跳变点
+    for (int i = 0; i < pointsEdgeLeft.size() / 2; i++) // 寻找左边跳变点   
     {
       if (pointsEdgeLeft[i].y > pointsEdgeLeft[rowBreakLeft].y) {
         rowBreakLeft = i;
@@ -595,7 +593,7 @@ private:
           return rowBreakLeft;
       }
     }
-    // cout<<rowBreakLeft<<"左下角点的位置数目11111111111"<<endl;
+   //cout<<rowBreakLeft<<"左下角点的位置数目11111111111"<<endl;
     return rowBreakLeft;
   }
   /**

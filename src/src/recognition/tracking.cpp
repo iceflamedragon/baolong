@@ -413,6 +413,35 @@ public:
     } else
       return 0;
   }
+/**
+   * @brief 边缘斜率计算部分
+   *
+   * @param v_edge
+   * @param img_height
+   * @return double
+   */
+  double Part_stdevEdgeCal(vector<POINT> &v_edge, int img_height,int start,int end ) {
+    if (v_edge.size() < img_height / 4) {
+      return 1000;
+    }
+    vector<int> v_slope;
+    int step = 10; // v_edge.size()/10;
+    for (int i = step; i < v_edge.size(); i += step) {
+      if (v_edge[i].x - v_edge[i - step].x)
+        v_slope.push_back((v_edge[i].y - v_edge[i - step].y) * 100 /
+                          (v_edge[i].x - v_edge[i - step].x));
+    }
+    if (v_slope.size() > 1) {
+      double sum = accumulate(begin(v_slope), end(v_slope), 0.0);
+      double mean = sum / v_slope.size(); // 均值
+      double accum = 0.0;
+      for_each(begin(v_slope), end(v_slope),
+               [&](const double d) { accum += (d - mean) * (d - mean); });
+
+      return sqrt(accum / (v_slope.size() - 1)); // 方差
+    } else
+      return 0;
+  }
 
 private:
   Mat imagePath; // 赛道搜索图像

@@ -38,7 +38,7 @@ using namespace std;
 // USB通信帧
 #define USB_FRAME_HEAD 0x42 // USB通信帧头
 #define USB_FRAME_LENMIN 4  // USB通信帧最短字节长度
-#define USB_FRAME_LENMAX 12 // USB通信帧最长字节长度
+#define USB_FRAME_LENMAX 18 // USB通信帧最长字节长度
 
 // USB通信地址
 #define USB_ADDR_CARCTRL 1 // 智能车速度+方向控制
@@ -241,6 +241,7 @@ public:
    */
   Bit32Union Distance;
   Bit32Union mpu6050;
+  Bit32Union mpu6050_X;
   void receiveCheck(void) {
     if (!isOpen) // 串口是否正常打开
       return;
@@ -282,7 +283,6 @@ public:
         length = serialStr.buffRead[2]; // 读取本次数据的长度
         for (int i = 0; i < length - 1; i++)
           check += serialStr.buffRead[i]; // 累加校验和
-
         if (check == serialStr.buffRead[length - 1]) // 校验和相等
         {
           if (serialStr.buffRead[1] == 3)
@@ -294,6 +294,12 @@ public:
           Distance.buff[1] = serialStr.buffRead[8];
           Distance.buff[2] = serialStr.buffRead[9];
           Distance.buff[3] = serialStr.buffRead[10];
+
+          mpu6050_X.buff[0]=serialStr.buffRead[11];
+          mpu6050_X.buff[1]=serialStr.buffRead[12];
+          mpu6050_X.buff[2]=serialStr.buffRead[13];
+          mpu6050_X.buff[3]=serialStr.buffRead[14];
+
           // memcpy(&mpu6050, &serialStr.buffRead[3], 4); // 储存接收的数据
           // dataTransform();
         }
@@ -304,63 +310,6 @@ public:
     }
   }
 
-  void mpu6050_receiveCheck(void) {
-    if (!isOpen) // 串口是否正常打开
-      return;
-
-    uint8_t resByte = 0;
-    int ret = receiveBytes(resByte, 0);
-    if (ret == 0) {
-      if (resByte == USB_FRAME_HEAD && !serialStr.start) // 监听帧头
-      {
-        serialStr.start = true;                   // 开始接收数据
-        serialStr.buffRead[0] = resByte;          // 获取帧头
-        serialStr.buffRead[2] = USB_FRAME_LENMIN; // 初始化帧长
-        serialStr.index = 1;
-      } else if (serialStr.index == 2) // 接收帧的长度
-      {
-        serialStr.buffRead[serialStr.index] = resByte;
-        serialStr.index++;
-        if (resByte > USB_FRAME_LENMAX ||
-            resByte < USB_FRAME_LENMIN) // 帧长错误
-        {
-          serialStr.buffRead[2] = USB_FRAME_LENMIN; // 重置帧长
-          serialStr.index = 0;
-          serialStr.start = false; // 重新监听帧长
-        }
-      } else if (serialStr.start &&
-                 serialStr.index < USB_FRAME_LENMAX) // 开始接收数据
-      {
-        serialStr.buffRead[serialStr.index] = resByte; // 读取数据
-        serialStr.index++;                             // 索引下移
-      }
-
-      // 帧长接收完毕
-      if ((serialStr.index >= USB_FRAME_LENMAX ||
-           serialStr.index >= serialStr.buffRead[2]) &&
-          serialStr.index > USB_FRAME_LENMIN) // 检测是否接收完数据
-      {
-        uint8_t check = 0; // 初始化校验和
-        uint8_t length = USB_FRAME_LENMIN;
-        length = serialStr.buffRead[2]; // 读取本次数据的长度
-        for (int i = 0; i < length - 1; i++)
-          check += serialStr.buffRead[i]; // 累加校验和
-
-        if (check == serialStr.buffRead[length - 1]) // 校验和相等
-        {
-          mpu6050.buff[0] = serialStr.buffRead[3];
-          mpu6050.buff[1] = serialStr.buffRead[4];
-          mpu6050.buff[2] = serialStr.buffRead[5];
-          mpu6050.buff[3] = serialStr.buffRead[6];
-          // memcpy(&mpu6050, &serialStr.buffRead[3], 4); // 储存接收的数据
-          // dataTransform();
-        }
-
-        serialStr.index = 0;     // 重新开始下一轮数据接收
-        serialStr.start = false; // 重新监听帧头
-      }
-    }
-  }
   /**
    * @brief 串口通信协议数据转换
    */

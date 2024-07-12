@@ -44,8 +44,18 @@ using namespace cv;
 bool app_stopped = false;
 void sigint_handler(int sig);
 int flag = 1;
-int start = 0;  
-int center_sum=0,center_sum_n=0;//中心总值 ,计数                                          // 发车计数器
+int start = 0;                        // 发车计数器
+int center_sum = 0, center_sum_n = 0; // 中心总值 ,计数
+bool Is_AI_detection=0;       //是否开启AI
+double AI_distance_start=0,AI_distance_end=0;//AI标志与距离积分的开始和结束
+
+enum AI_Distance_Postion{
+    AI_Distance_None=0,
+    AI_Rescue_Start=1,
+    AI_Rescue_End,
+    AI_Danger_Start,
+    AI_Danger_End
+}AI_distance_postion;
 shared_ptr<Uart> uart = make_shared<Uart>("/dev/ttyUSB0"); // 初始化串口驱动
 int main(int argc, char const *argv[]) {
   Preprocess preprocess;    // 图像预处理类
@@ -129,6 +139,19 @@ int main(int argc, char const *argv[]) {
   int ai_check = 0;
 
   while (1) {
+    //  ring.RoundaboutGetArc(tracking, 1, 20, 30, 160);
+    if(ring.flagpid)ctrlCenter.flagring=1;
+    else ctrlCenter.flagring=0;
+
+    if (ring.flagbigringl) {
+      motion.flagbigringl = 1;
+
+    } else if (ring.flagbigringr) {
+      motion.flagbigringr = 1;
+    } else {
+      motion.flagbigringl = 0;
+      motion.flagbigringr = 0;
+    }
     //   cout<<"救援区出站时的flag值"<<rescue.flagchu<<endl;
     // //   if(ring.flagpid){
     // motion.flag=1;
@@ -152,6 +175,7 @@ int main(int argc, char const *argv[]) {
     ring.setmpu6050(mpu6050_now);
     ring.setdistance(distance_now);
     rescue.setdistancere(distance_now);
+    rescue.setmpu6050(mpu6050_now);
     crossroad.setmpu6050(mpu6050_now);
     preTime = chrono::duration_cast<chrono::milliseconds>(
                   chrono::system_clock::now().time_since_epoch())
@@ -159,7 +183,6 @@ int main(int argc, char const *argv[]) {
     // startTime = clock();
     //[01] 视频源读取
     // 读取mpu6050
-
     if (motion.params.debug) // 综合显示调试UI窗口
       preTime = chrono::duration_cast<chrono::milliseconds>(
                     chrono::system_clock::now().time_since_epoch())
@@ -169,32 +192,53 @@ int main(int argc, char const *argv[]) {
     // if (motion.params.saveImg && !motion.params.debug) // 存储原始图像
     //   savePicture(img);
     if (waitKey(1) == 27) { // 如果用户按下 ESC 键，退出循环
-
       // s1++;
       // imwrite("../res/calibration/temp/" + to_string(s1) + s2, img);
       // cout << "../res/calibration/temp/" + to_string(s1) + s2 << endl;
       uart->carpid(300, 750, 0, 0); // 调pid，参数分别为p，i，d，是否存入flash
       // cout << "fache" << endl << endl << endl << endl << endl;
-
       // 按键发车
     }
     //[02] 图像预处理
-
     Mat imgCorrect = img; // 图像矫正（已停止
     Mat imgBinary = preprocess.binaryzation(imgCorrect); // 图像二值化
     Mat element = getStructuringElement(
         MORPH_RECT, Size(9, 9)); // 小于8*8方块的白色噪点都会被腐蚀
     erode(imgBinary, imgBinary, element);
     cout << "scene" << scene << endl;
-    if (ai_check > 1 || detection->ai_flag) {
 
+    if(rescue.set_AI_detection()&&AI_distance_postion==AI_Distance_None)
+    {
+      AI_distance_postion=AI_Rescue_Start;
+       AI_distance_start=distance_now;
+    }
+    if(AI_distance_postion==AI_Rescue_Start){
+      Is_AI_detection=false;
+      if(abs(distance_now-AI_distance_start)>montion.Rsecue_distance){
+      Is_AI_detection=true;
+      AI_distance_postion=AI_Rescue_End;
+      }
+    }
+   if(danger.set_AI_detection()&&AI_distance_postion==AI_Rescue_End)
+    {
+      AI_distance_postion=AI_Danger_Start;
+       AI_distance_start=distance_now;
+    }
+    if(AI_distance_postion==AI_Danger_Start){
+      Is_AI_detection=false;
+      if(abs(distance_now-AI_distance_start)>montion.Danger_distance){
+      Is_AI_detection=true;
+      AI_distance_postion=AI_Danger_End;
+      }
+    }
+    if (ai_check > 1 || detection->ai_flag && sceneLast != Scene::RingScene && sceneLast != BridgeScene&&Is_AI_detection) {
       //[03] 启动AI推理
       detection->inference(imgCorrect);
       ai_check = 0;
     }
     //  detection->inference(imgCorrect);
     //   detection->set_ai_flag(0);//清零ai标志
-    //   ai_check++;
+    ai_check++;
     auto startTime = chrono::duration_cast<chrono::milliseconds>(
                          chrono::system_clock::now().time_since_epoch())
                          .count();
@@ -232,7 +276,7 @@ int main(int argc, char const *argv[]) {
     //[06] 救援区检测
     if ((scene == Scene::NormalScene || scene == Scene::RescueScene) &&
         motion.params.rescue) {
-      if (rescue.process(tracking, detection->results)) {
+      if (rescue.process(tracking, detection->results, motion)) {
         scene = Scene::RescueScene;
         if (rescue.entryLeft)
           printf("Rescue Left\n");
@@ -241,7 +285,10 @@ int main(int argc, char const *argv[]) {
       } else
         scene = Scene::NormalScene;
     }
-
+    if (rescue.car_changepid == 1) {
+      uart->carpid(300, 750, 0, 0); // 调pid，参数分别为p，i，d，是否存入flash
+      rescue.car_changepid = 0;
+    }
     //[07] 追逐区检测
     if ((scene == Scene::NormalScene || scene == Scene::RacingScene) &&
         motion.params.racing) {
@@ -289,7 +336,7 @@ int main(int argc, char const *argv[]) {
       } else
         scene = Scene::NormalScene;
     }
-
+    //  ring.RoundaboutGetArc(tracking, 1, 20, 30, 160);
     //[12] 车辆控制中心拟合
     ctrlCenter.fitting(tracking);
     // 冲出赛道 
@@ -309,13 +356,16 @@ int main(int argc, char const *argv[]) {
     // cout<<"motion.params.motion_start"<<motion.params.motion_start<<endl;
     if (motion.params.motion_start) // 是否运动
     {
+
       // cout << "motion.params.motion_start" << motion.params.motion_start
       //      << endl;
 
       if ((scene == Scene::RescueScene && rescue.carStoping) || parking.park ||
           racing.carStoping) // 特殊区域停车
+      {
+        uart->carpid(500, 1000, 0, 0); // 刹车pid
         motion.speed = 0;
-      else if (scene == Scene::RescueScene && rescue.carExitting) // 倒车出库
+      } else if (scene == Scene::RescueScene && rescue.carExitting) // 倒车出库
       {
         motion.speed = -motion.params.speedDown;
         cout << "速度值为" << motion.speed << endl;
@@ -328,25 +378,27 @@ int main(int argc, char const *argv[]) {
         motion.speedCtrl(true, false, ctrlCenter); // 车速控制
       if (rescue.flagchur) {
         cout << "危险区右出库舵机打角定了" << endl;
-        motion.poseCtrl(
-            220); // 姿态控制（舵机）  此处为救援区出站固定打角 --使其偏差值为0
+        motion.poseCtrl( 190); // 姿态控制（舵机）  此处为救援区出站固定打角 --使其偏差值为0
       } else if (rescue.flagchul) {
         cout << "危险区左出库舵机打角定了" << endl;
-        motion.poseCtrl(
-            100); // 姿态控制（舵机）  此处为救援区出站固定打角 --使其偏差值为0
-      } else if
-        motion.poseCtrl(ctrlCenter.controlCenter); // 姿态控制（舵机）
-        else if{ring.center_sum==Center_Sum_Flag::Start}
-        {
-        center_sum+=ctrlCenter.controlCenter;
+        motion.poseCtrl(130); // 姿态控制（舵机）  此处为救援区出站固定打角 --使其偏差值为0
+      } else if (ring.center_sum_flag == Center_Sum_Start) {
+        center_sum += ctrlCenter.controlCenter;
         center_sum_n++;
-        }
-        else if{ring.center_sum==Center_Sum_Flag::End}
-        {
-        ctrlCenter.controlCenter=center_sum/center_sum_n;
-        motion.poseCtrl(ctrlCenter.controlCenter); // 出环平均的中心姿态控制（舵机）
-        }
-
+        motion.poseCtrl(ctrlCenter.controlCenter); // 姿态控制（舵机） 别忘记打角
+      } else if (ring.center_sum_flag == Center_Sum_End) {
+       
+        ctrlCenter.controlCenter = center_sum / center_sum_n; 
+        cout << "固定舵机打角" << ctrlCenter.controlCenter << endl;
+        motion.poseCtrl( ctrlCenter.controlCenter); // 出环平均的中心姿态控制（舵机）
+      } else if (danger.flag_cone_first) {
+        motion.poseCtrl(ctrlCenter.controlCenter + 15); // 姿态控制（舵机）
+      } else
+        motion.poseCtrl(ctrlCenter.controlCenter); // 姿态控制（舵机）
+      if (ring.center_sum_flag == Center_Sum_Reset) {
+        center_sum = 0;
+        center_sum_n = 0;
+      }
       uart->carControl(motion.speed, motion.servoPwm); // 串口通信控制车辆
     }
     Mat imgRes =

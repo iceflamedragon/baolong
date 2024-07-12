@@ -22,6 +22,7 @@
 delay:track.stdevRight<30&&track.stdevLeft > 60
 delay1>450
 
+d:2
 
 
 速度为1.0的pid：
@@ -53,13 +54,68 @@ delay1>450
 
 速度为1.2
 "runP1": 1,
-    "runP2": 0.018,
+    "runP2": 0.020,     0.03
     "runP3": 0,
     "turnP": 0,
-    "turnD": 2.2,
+    "turnD": 2.5,
     "ring_p1": 1,
     "ring_p2": 0.012,
     "ring_d": 2.5,
     "danger_p1": 1,
     "danger_p2": 0.018,
     "danger_d": 2.5,
+新的：
+"runP1": 0.5,
+    "runP2": 0.028,
+    "runP3": 0,
+    "turnP": 0,
+    "turnD": 1.1,
+
+
+
+    
+速度1.2的小环pid
+     "ring_p1": 0.6,
+    "ring_p2": 0.012,
+    "ring_d": 2.4,
+     大环pid:
+     "ring_p1b": 1,
+    "ring_p2b": 0.016,
+    "ring_db": 3.4,
+
+速度1.8
+    "runP1": 1,
+    "runP2": 0.09,
+    "runP3": 0,
+    "turnP": 0,
+    "turnD": 8.5,
+detection.hpp中 ----score是置信度---提高一下防止误判
+
+速度2
+"speedLow": 2,
+    "speedHigh": 2,
+    "speedBridge": 1.5,
+    "speedDown": 0.6,
+    "runP1": 0.3,
+    "runP2": 0.04,
+    "runP3": 0,
+    "turnP": 0,
+    "turnD": 2,
+    "ring_p1b": 1,
+    "ring_p2b": 0.016,
+    "ring_db": 3.4,
+    "ring_p1s": 0.6,
+    "ring_p2s": 0.012,
+    "ring_ds": 2.4,
+    "danger_p1": 1,
+    "danger_p2": 0.018,
+    "danger_d": 2.5,
+
+    速度1.6
+     "runP1": 0.3,
+    "runP2": 0.028,
+    "runP3": 0,
+    "turnP": 0,
+    "turnD": 1.6,
+
+
