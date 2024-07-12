@@ -46,6 +46,7 @@ void sigint_handler(int sig);
 int flag = 1;
 int start = 0;                        // 发车计数器
 int center_sum = 0, center_sum_n = 0; // 中心总值 ,计数
+bool Is_AI_detection=0;       //是否开启AI
 shared_ptr<Uart> uart = make_shared<Uart>("/dev/ttyUSB0"); // 初始化串口驱动
 int main(int argc, char const *argv[]) {
   Preprocess preprocess;    // 图像预处理类
@@ -130,7 +131,6 @@ int main(int argc, char const *argv[]) {
 
   while (1) {
     //  ring.RoundaboutGetArc(tracking, 1, 20, 30, 160);
-
     if(ring.flagpid)ctrlCenter.flagring=1;
     else ctrlCenter.flagring=0;
 
@@ -174,7 +174,6 @@ int main(int argc, char const *argv[]) {
     // startTime = clock();
     //[01] 视频源读取
     // 读取mpu6050
-
     if (motion.params.debug) // 综合显示调试UI窗口
       preTime = chrono::duration_cast<chrono::milliseconds>(
                     chrono::system_clock::now().time_since_epoch())
@@ -184,28 +183,25 @@ int main(int argc, char const *argv[]) {
     // if (motion.params.saveImg && !motion.params.debug) // 存储原始图像
     //   savePicture(img);
     if (waitKey(1) == 27) { // 如果用户按下 ESC 键，退出循环
-
       // s1++;
       // imwrite("../res/calibration/temp/" + to_string(s1) + s2, img);
       // cout << "../res/calibration/temp/" + to_string(s1) + s2 << endl;
       uart->carpid(300, 750, 0, 0); // 调pid，参数分别为p，i，d，是否存入flash
       // cout << "fache" << endl << endl << endl << endl << endl;
-
       // 按键发车
     }
     //[02] 图像预处理
-
     Mat imgCorrect = img; // 图像矫正（已停止
     Mat imgBinary = preprocess.binaryzation(imgCorrect); // 图像二值化
     Mat element = getStructuringElement(
         MORPH_RECT, Size(9, 9)); // 小于8*8方块的白色噪点都会被腐蚀
     erode(imgBinary, imgBinary, element);
     cout << "scene" << scene << endl;
-    if (ai_check > 1 || detection->ai_flag && sceneLast != Scene::RingScene &&
-                            sceneLast != BridgeScene) {
 
+    Is_AI_detection=rescue.set_AI_detection()&&danger.set_AI_detection();
+    if (ai_check > 1 || detection->ai_flag && sceneLast != Scene::RingScene && sceneLast != BridgeScene&&Is_AI_detection) {
       //[03] 启动AI推理
-      // detection->inference(imgCorrect);
+      detection->inference(imgCorrect);
       ai_check = 0;
     }
     //  detection->inference(imgCorrect);
@@ -350,25 +346,21 @@ int main(int argc, char const *argv[]) {
         motion.speedCtrl(true, false, ctrlCenter); // 车速控制
       if (rescue.flagchur) {
         cout << "危险区右出库舵机打角定了" << endl;
-        motion.poseCtrl(
-            190); // 姿态控制（舵机）  此处为救援区出站固定打角 --使其偏差值为0
+        motion.poseCtrl( 190); // 姿态控制（舵机）  此处为救援区出站固定打角 --使其偏差值为0
       } else if (rescue.flagchul) {
         cout << "危险区左出库舵机打角定了" << endl;
-        motion.poseCtrl(
-            130); // 姿态控制（舵机）  此处为救援区出站固定打角 --使其偏差值为0
+        motion.poseCtrl(130); // 姿态控制（舵机）  此处为救援区出站固定打角 --使其偏差值为0
       } else if (ring.center_sum_flag == Center_Sum_Start) {
         center_sum += ctrlCenter.controlCenter;
         center_sum_n++;
-        motion.poseCtrl(
-            ctrlCenter.controlCenter); // 姿态控制（舵机） 别忘记打角
+        motion.poseCtrl(ctrlCenter.controlCenter); // 姿态控制（舵机） 别忘记打角
       } else if (ring.center_sum_flag == Center_Sum_End) {
+       
+        ctrlCenter.controlCenter = center_sum / center_sum_n; 
         cout << "固定舵机打角" << ctrlCenter.controlCenter << endl;
-        ctrlCenter.controlCenter = center_sum / center_sum_n;
-        motion.poseCtrl(
-            ctrlCenter.controlCenter); // 出环平均的中心姿态控制（舵机）
+        motion.poseCtrl( ctrlCenter.controlCenter); // 出环平均的中心姿态控制（舵机）
       } else if (danger.flag_cone_first) {
         motion.poseCtrl(ctrlCenter.controlCenter + 15); // 姿态控制（舵机）
-
       } else
         motion.poseCtrl(ctrlCenter.controlCenter); // 姿态控制（舵机）
       if (ring.center_sum_flag == Center_Sum_Reset) {

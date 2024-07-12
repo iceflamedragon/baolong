@@ -264,6 +264,13 @@ private:
   float common_p1;
   float common_p2;
   float common_d;
+/*
+是否开启AI
+1开，0不开
+*/
+  void set_AI_detection(int  num){
+    flag=num ;
+  }
   // /**
   //  * @brief 在俯视域由左边缘预测右边缘
   //  *
