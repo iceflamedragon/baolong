@@ -57,7 +57,8 @@ public:
     style = "STRIGHT";
     vector<POINT> new_edge_left;
     vector<POINT> new_edge_right;
-
+    fill_vector_right(track, new_edge_right);
+    fill_vector_left(track, new_edge_left);
     // 边缘斜率重计算（边缘修正之后）
     track.stdevLeft = track.stdevEdgeCal(track.pointsEdgeLeft, ROWSIMAGE);
     track.stdevRight = track.stdevEdgeCal(track.pointsEdgeRight, ROWSIMAGE);
@@ -359,7 +360,24 @@ private:
 
     return 0;
   }
+  // 将动态数组填入另一个动态数组
 
+  void fill_vector_right(Track &track, std::vector<POINT> &new_edge_right) {
+    new_edge_right.clear();
+    for (auto p : track.pointsEdgeRight) {
+      if (track.pointsEdgeRight[pointsEdgeRight.size() - 1].x < ROWSIMAGE / 4) {
+        new_edge_right.push_back(p);
+      }
+    }
+  }
+  void fill_vector_left(Track &track, std::vector<POINT> &new_edge_left) {
+    new_edge_left.clear();
+    for (auto p : track.pointsEdgeLeft) {
+      if (track.pointsEdgeLeft[pointsEdgeLeft.size() - 1].x < ROWSIMAGE / 4) {
+        new_edge_left.push_back(p);
+      }
+    }
+  }
   /**
    * @brief 赛道中心点计算：单边控制
    *
