@@ -183,23 +183,7 @@ public:
     } else { // 圆环pid
       for (auto p : centerEdge) {
 
-        if (p.x < ROWSIMAGE / 4) { // 远离车辆的地方加权更大
-          controlNum +=
-              (ROWSIMAGE / 4); // 赛道的纵坐标的加权，需要跟下面的数相同
-          controlCenter += p.y * (ROWSIMAGE / 4); // 需要跟上面的数相同
-        } else if (p.x > ROWSIMAGE / 4 && p.x < ROWSIMAGE * (1 / 2)) {
-
-          controlNum += (ROWSIMAGE + p.x); // 赛道的纵坐标的加权，小于上面的那个
-          controlCenter += p.y * (ROWSIMAGE + p.x);
-        } else if (p.x < ROWSIMAGE * (5 / 8) && p.x > ROWSIMAGE * (1 / 2)) {
-          controlNum +=
-              (ROWSIMAGE + 50 + p.x); // 赛道的纵坐标的加权，小于上面的那个
-          controlCenter += p.y * (ROWSIMAGE + 50 + p.x);
-        } else if (p.x < ROWSIMAGE && p.x > ROWSIMAGE * (5 / 8)) {
-          controlNum += (ROWSIMAGE - p.x); // 赛道的纵坐标的加权，小于上面的那个
-          controlCenter += p.y * (ROWSIMAGE - p.x);
-        }
-      }
+        
     }
     if (controlNum > 1) {
       controlCenter = controlCenter / controlNum;
