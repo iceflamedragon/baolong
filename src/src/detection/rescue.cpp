@@ -38,6 +38,9 @@ using namespace std;
 
 class Rescue {
 public:
+
+  bool set_AI_detection(void){return is_ai_detection;}
+  bool is_ai_detection=true;//是否开启AI标志
   int mpu6050_now;
   int mpu6050_in;
   int car_changepid = 0;
@@ -50,6 +53,9 @@ public:
   int flagchur;
   int flagchul;
   int a;
+  int rescue_out;
+  float distance_out;
+ 
   void setdistancere(float distance) { distance_now = distance; };
   enum Step {
     None = 0, // AI检测
@@ -107,6 +113,8 @@ public:
     if (reflag == 1) {
       retime++;
     }
+
+    if(distance_now-distance_out>10&&rescue_out) is_ai_detection=false;
     // step = Step::Exit;
     switch (step) {
     case Step::None: //[01] 标志检测
@@ -573,6 +581,8 @@ public:
                      // pathsEdgeRight.size() < 1    也是用延时  chu>80
         cout << "出站完成辣辣" << endl << endl;
         step = Step::None; // 出站完成
+        distance_out=distance_now;
+        rescue_out=1;
         flagchur = 0;
         flagchul = 0;
         carExitting = false;

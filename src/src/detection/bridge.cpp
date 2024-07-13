@@ -36,6 +36,9 @@ using namespace std;
 
 class Bridge {
 public:
+
+ bool set_AI_detection(void){return is_ai_detection;}
+ bool is_ai_detection;
   bool process(Tracking &track, vector<PredictResult> predict) {
     if (bridgeEnable) // 进入坡道
     {

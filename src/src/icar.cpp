@@ -38,6 +38,7 @@
 #include <opencv2/opencv.hpp>  //OpenCV终端部署
 #include <signal.h>
 #include <unistd.h>
+#include<math.h>
 
 using namespace std;
 using namespace cv;
@@ -46,6 +47,18 @@ void sigint_handler(int sig);
 int flag = 1;
 int start = 0;                        // 发车计数器
 int center_sum = 0, center_sum_n = 0; // 中心总值 ,计数
+bool Is_AI_detection=0;       //是否开启AI
+double AI_distance_start=0,AI_distance_end=0;//AI标志与距离积分的开始和结束
+
+enum AI_Distance_Postion{
+    AI_Distance_None=0,
+    AI_Rescue_Start=1,
+    AI_Rescue_End,
+    AI_Danger_Start,
+    AI_Danger_End,
+    AI_Bridge_Start,
+    AI_Bridge_End
+}AI_distance_postion;
 shared_ptr<Uart> uart = make_shared<Uart>("/dev/ttyUSB0"); // 初始化串口驱动
 int main(int argc, char const *argv[]) {
   Preprocess preprocess;    // 图像预处理类
@@ -127,10 +140,10 @@ int main(int argc, char const *argv[]) {
   float mpu6050_later;
   float distance_now;
   int ai_check = 0;
-
+int ai_middle_quanzhong;
   while (1) {
     //  ring.RoundaboutGetArc(tracking, 1, 20, 30, 160);
-
+    ctrlCenter.set_ai_middle_quanzhong(0);
     if (ring.flagpid)
       ctrlCenter.flagring = 1;
     else
@@ -170,6 +183,7 @@ int main(int argc, char const *argv[]) {
     rescue.setdistancere(distance_now);
     rescue.setmpu6050(mpu6050_now);
     crossroad.setmpu6050(mpu6050_now);
+    danger.setdistance(distance_now);
     preTime = chrono::duration_cast<chrono::milliseconds>(
                   chrono::system_clock::now().time_since_epoch())
                   .count();
@@ -203,11 +217,56 @@ int main(int argc, char const *argv[]) {
         MORPH_RECT, Size(9, 9)); // 小于8*8方块的白色噪点都会被腐蚀
     erode(imgBinary, imgBinary, element);
     cout << "scene" << scene << endl;
-    if (ai_check > 1 || detection->ai_flag && sceneLast != Scene::RingScene &&
-                            sceneLast != BridgeScene) {
+
+    
+    //速度切换根据AI的情况
+    if(!Is_AI_detection)
+    {
+        motion.set_direction_pid(motion.params.runP1_fast,motion.params.runP2_fast, motion.params.turnD_fast,0);
+
+    }else  motion.set_direction_pid(motion.params.runP1,motion.params.runP2, motion.params.turnD,0);
+
+    if(rescue.set_AI_detection()&&AI_distance_postion==AI_Distance_None)
+    {
+      AI_distance_postion=AI_Rescue_Start;
+       AI_distance_start=distance_now;
+    }
+    if(AI_distance_postion==AI_Rescue_Start){
+      Is_AI_detection=false;
+      if(abs(distance_now-AI_distance_start)>motion.params.Rescue_distance){
+      Is_AI_detection=true;
+      AI_distance_postion=AI_Rescue_End;
+      }
+    }
+   if(danger.set_AI_detection()&&AI_distance_postion==AI_Rescue_End)
+    {
+      AI_distance_postion=AI_Danger_Start;
+       AI_distance_start=distance_now;
+    }
+    if(AI_distance_postion==AI_Danger_Start){
+      Is_AI_detection=false;
+      if(abs(distance_now-AI_distance_start)>motion.params.Danger_distance){
+      Is_AI_detection=true;
+      AI_distance_postion=AI_Danger_End;
+      }
+    }
+   if(danger.set_AI_detection()&&AI_distance_postion==AI_Rescue_End)
+    {
+      AI_distance_postion=AI_Bridge_Start;
+       AI_distance_start=distance_now;
+    }
+    if(AI_distance_postion==AI_Bridge_Start){
+      Is_AI_detection=false;
+      if(abs(distance_now-AI_distance_start)>motion.params.Bridge_distance){
+      Is_AI_detection=true;
+      AI_distance_postion=AI_Bridge_End;
+      }
+    }
+
+    if (ai_check > 1 || detection->ai_flag && sceneLast != Scene::RingScene &&sceneLast != BridgeScene) {
 
       //[03] 启动AI推理
-       detection->inference(imgCorrect);
+    // detection->inference(imgCorrect);
       ai_check = 0;
     }
     //  detection->inference(imgCorrect);
@@ -215,14 +274,15 @@ int main(int argc, char const *argv[]) {
     ai_check++;
     auto startTime = chrono::duration_cast<chrono::milliseconds>(
                          chrono::system_clock::now().time_since_epoch())
-                         .count();
+                         .count();//原来这里有个q
     printf(">> FrameTime: %ldms | %.2ffps \n", startTime - preTime,
            1000.0 / (startTime - preTime));
-    //[04] 赛道识别
+    //[04] 赛道识别q
     tracking.rowCutUp = motion.params.rowCutUp; // 图像顶部切行（前瞻距离）
     tracking.rowCutBottom =
         motion.params.rowCutBottom; // 图像底部切行（盲区距离）
     tracking.trackRecognition(imgBinary); // 扫线
+
     Mat imgTrack = imgCorrect.clone();
     if (motion.params.debug) // 综合显示调试UI窗口
     {
@@ -313,6 +373,8 @@ int main(int argc, char const *argv[]) {
     //  ring.RoundaboutGetArc(tracking, 1, 20, 30, 160);
     //[12] 车辆控制中心拟合
     ctrlCenter.fitting(tracking);
+      motion.angle=  atan(ring.regression(ctrlCenter.centerEdge,20,ctrlCenter.centerEdge.size()-1))/3.14*180;//此处得到的是弧度  ctrlCenter.centerEdge.size()-1
+      cout<<"角度"<<motion.angle<<endl;
     // 冲出赛道
     //  if (scene != Scene::RescueScene) {
     //    if (ctrlCenter.derailmentCheck(tracking)) //
@@ -345,11 +407,16 @@ int main(int argc, char const *argv[]) {
         cout << "速度值为" << motion.speed << endl;
 
       } else if (scene == Scene::RescueScene) // 减速
-        motion.speedCtrl(true, true, ctrlCenter);
+        motion.speedCtrl(true, true, ctrlCenter,false);
       else if (scene == Scene::BridgeScene) // 坡道速度
         motion.speed = motion.params.speedBridge;
       else
-        motion.speedCtrl(true, false, ctrlCenter); // 车速控制
+      {
+        if(Is_AI_detection)
+        motion.speedCtrl(true, false, ctrlCenter,false); // 车速控制  false指的是是否切换高速2.0  false是不切换速度
+        else
+        motion.speedCtrl(true, false, ctrlCenter,true); // 车速控制
+      }
       if (rescue.flagchur) {
         cout << "危险区右出库舵机打角定了" << endl;
         motion.poseCtrl(
@@ -360,14 +427,16 @@ int main(int argc, char const *argv[]) {
             130,ctrlCenter); // 姿态控制（舵机）  此处为救援区出站固定打角 --使其偏差值为0
       } else if (ring.center_sum_flag == Center_Sum_Start) {
         center_sum += ctrlCenter.controlCenter;
+        cout<<"中心偏差加和"<<center_sum<<endl;
         center_sum_n++;
+        cout<<"偏差点计数"<<center_sum_n<<endl;
         motion.poseCtrl(
             ctrlCenter.controlCenter,ctrlCenter); // 姿态控制（舵机） 别忘记打角
       } else if (ring.center_sum_flag == Center_Sum_End) {
-        cout << "固定舵机打角" << ctrlCenter.controlCenter << endl;
         ctrlCenter.controlCenter = center_sum / center_sum_n;
+         cout << "固定舵机打角" << ctrlCenter.controlCenter << endl;
         motion.poseCtrl(
-            ctrlCenter.controlCenter,ctrlCenter); // 出环平均的中心姿态控制（舵机）
+            220,ctrlCenter); // 出环平均的中心姿态控制（舵机）ctrlCenter.controlCenter
       } else if (danger.flag_cone_first && danger.flagleft) {
         motion.poseCtrl(ctrlCenter.controlCenter + 15,ctrlCenter); // 姿态控制（舵机）
 

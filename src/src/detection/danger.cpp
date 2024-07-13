@@ -47,6 +47,8 @@ public:
    * @return true
    * @return false
    */
+ bool set_AI_detection(void){return is_ai_detection;}
+  bool is_ai_detection=true;//是否开启AI标志
   int cone_num;
   int flagleft;
   int flagright;
@@ -54,6 +56,9 @@ public:
   int block_x;
   int flag_cone_first;
   int cone_temp;
+  float distance_out;
+  float distance_now;
+  int danger_out;
   void save_common_pid(Motion &motion) {
     common_p1 = motion.params.runP1;
     common_p2 = motion.params.runP2;
@@ -61,7 +66,9 @@ public:
     common_i = motion.params.turnI;
   }
 
+  void setdistance(float distance) { distance_now = distance; }; 
   bool process(Tracking &track, vector<PredictResult> predict, Motion &motion) {
+    if(distance_now-distance_out>500&&danger_out)is_ai_detection=false;
     enable = false; // 场景检测使能标志
     if (track.pointsEdgeLeft.size() < ROWSIMAGE / 2 ||
         track.pointsEdgeRight.size() < ROWSIMAGE / 2)
@@ -191,10 +198,13 @@ public:
         if (resultsObs[j].type ==
             LABEL_BLOCK) // 黑色路障特殊处理&&resultsObs[index].x>200&&resultsObs[index].y>75
         {
+
           block_x = resultsObs[j].x;
           cout << "黑色路障在左侧" << endl << endl;
           curtailTracking(track, true,
                           motion); // 缩减优化车道线（双车道→单车道）
+          distance_out=distance_now;
+          danger_out=1;
         }
       }
     } else if (resultsObs[index].x + resultsObs[index].width >
@@ -244,10 +254,13 @@ public:
         if (resultsObs[j].type ==
             LABEL_BLOCK) // 黑色路障特殊处理&&resultsObs[index].x>200&&resultsObs[index].y>75
         {
+         
           block_x = resultsObs[j].x;
           cout << "黑色路障在右侧" << endl << endl;
           curtailTracking(track, true,
                           motion); // 缩减优化车道线（双车道→单车道）
+          distance_out=distance_now;
+          danger_out=1;
         }
       }
     }

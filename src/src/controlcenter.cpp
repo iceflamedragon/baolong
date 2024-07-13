@@ -21,9 +21,10 @@
  * @copyright Copyright (c) 2022
  *
  */
-
+#include <math.h>
 #include "../include/common.hpp"
 #include "recognition/tracking.cpp"
+// #include "../src/recognition/ring.cpp"
 // #include "motion.cpp"
 // #include "recognition/ring.cpp"      //环岛道路识别与路径规划类
 #include <cmath>
@@ -36,7 +37,14 @@ using namespace cv;
 using namespace std;
 
 class ControlCenter {
+  private:
+  int ai_middle_quanzhong;
 public:
+void set_ai_middle_quanzhong(int num)
+{
+  ai_middle_quanzhong=num;
+}
+
   int submiterror;
   int controlCenter;           // 智能车控制中心（0~320）
   vector<POINT> centerEdge;    // 赛道中心点集
@@ -149,7 +157,7 @@ public:
 
     // 加权控制中心计算
     int controlNum = 1;
-    if (flagring != 1) { // 直线pid
+    if (flagring != 1&&ai_middle_quanzhong!=1) { // 直线pid
       for (auto p : centerEdge) {
 
         if (p.x < ROWSIMAGE / 4) { // 远离车辆的地方加权更大
@@ -166,7 +174,7 @@ public:
           controlCenter += p.y * (ROWSIMAGE + 170 + p.x);
         }
       }
-    } else { // 圆环pid
+    } else if(flagring = 1){ // 圆环pid
       for (auto p : centerEdge) {
         if (p.x < ROWSIMAGE * 4 / 5 + 5 && p.x > ROWSIMAGE * 3 / 4 - 5) {
           controlCenter += p.y * ROWSIMAGE;
@@ -194,8 +202,21 @@ public:
         // }
       }
     }
+    else if(ai_middle_quanzhong==1)
+    {
+      
+      //  angle=atan();
+      // cout<<"angle"<<angle<<endl;
+      for (auto p : centerEdge) {
+        if (p.x < ROWSIMAGE * 3/4  && p.x > ROWSIMAGE * 1/2) {  //*3/4-50
+          controlCenter += p.y * ROWSIMAGE;
+          controlNum += ROWSIMAGE;
+          // cout<<"我要的数字"<<p.y * ROWSIMAGE<<endl<<endl<<endl;
+        }
+      }
+    }
     if (controlNum > 1) {
-      controlCenter = controlCenter / controlNum;
+      controlCenter = controlCenter / controlNum;//+angle*angle_p
     }
 
     if (controlCenter > COLSIMAGE)
@@ -345,19 +366,19 @@ private:
 
   void fill_vector_right(Tracking &track, std::vector<POINT> &new_edge_right) {
     new_edge_right.clear();
-    for (auto p : track.pointsEdgeRight) {
-      if (track.pointsEdgeRight[track.pointsEdgeRight.size() - 1].x <
-          ROWSIMAGE / 4) {
-        new_edge_right.push_back(p);
+    for (int i;i<track.pointsEdgeRight.size();i++) {
+      if (track.pointsEdgeRight[i].x >
+          ROWSIMAGE / 2-20) {
+        new_edge_right.push_back(track.pointsEdgeRight[i]);
       }
     }
   }
   void fill_vector_left(Tracking &track, std::vector<POINT> &new_edge_left) {
     new_edge_left.clear();
-    for (auto p : track.pointsEdgeLeft) {
-      if (track.pointsEdgeLeft[track.pointsEdgeLeft.size() - 1].x <
-          ROWSIMAGE / 4) {
-        new_edge_left.push_back(p);
+    for (int i;i<track.pointsEdgeLeft.size();i++) {
+      if (track.pointsEdgeLeft[i].x >
+          ROWSIMAGE / 2-20) {
+        new_edge_left.push_back(track.pointsEdgeLeft[i]);
       }
     }
   }

@@ -92,7 +92,7 @@ d:2
 detection.hpp中 ----score是置信度---提高一下防止误判
 
 速度2
-"speedLow": 2,
+    "speedLow": 2,
     "speedHigh": 2,
     "speedBridge": 1.5,
     "speedDown": 0.6,
@@ -121,11 +121,17 @@ detection.hpp中 ----score是置信度---提高一下防止误判
 
 
 最新：1.2（去掉ai之后的pid）
-"runP1": 1,
-    "runP2": 0.03,
+"runP1": 1.5,
+    "runP2": 0.02,
     "runP3": 0,
     "turnP": 0,
-    "turnD": 1.5,
-
-    1.2（开ai的pid）
+    "turnD": 1.6,
+    1.2（开ai的pid,加了angle的情况）
+    "runP1": 1,
+    "runP2": 0.0125,
+    "runP3": 0,
+    "turnP": 0,
+    "turnD": 1.1,
+    "turnI":0,
+    "angle_p":0.3,
 

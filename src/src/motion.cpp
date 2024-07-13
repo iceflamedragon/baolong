@@ -51,6 +51,8 @@ public:
    * @brief 初始化：加载配置文件
    *
    */
+  double angle_p;
+  double angle;
   int flagbigringl;
   int flagbigringr;
   int flag = 0;
@@ -85,8 +87,12 @@ public:
    *
    */
   struct Params {
+    
     int submit;
     int record_video;
+    float runP1_fast;
+    float runP2_fast;
+    float turnD_fast;
     float ring_p1b; // 圆环的pid
     float ring_p2b;
     float ring_db;
@@ -98,6 +104,12 @@ public:
     float danger_p2;
     float danger_d;
     int areaMax;
+    double angle_p;
+    float speedLowpro;
+    float speedHighpro;
+    int Danger_distance;
+    int Rescue_distance;
+    int Bridge_distance;
     float speedLow = 1.5;        // 智能车最低速
     float speedHigh = 4;         // 智能车最高速
     float speedBridge = 0.6;     // 坡道速度
@@ -129,7 +141,9 @@ public:
                                    bridge, danger, rescue, racing, parking,
                                    ring, cross, score, model, ring_p1b, ring_p2b,
                                    ring_db,ring_p1s, ring_p2s,ring_p2s,record_video, video, danger_p1,
-                                   danger_p2,stop_num, danger_d, areaMax,submit); // 添加构造函数
+                                   danger_p2,stop_num, danger_d, areaMax,submit,angle_p,
+                                   Danger_distance,Rescue_distance,Bridge_distance,speedLowpro,speedHighpro,
+                                   runP1_fast,runP2_fast,turnD_fast); // 添加构造函数
   };
 
   Params params; // 读取控制参数
@@ -166,7 +180,24 @@ public:
   float errorsum;
   void poseCtrl(int controlCenter,ControlCenter &control) {
     // if(ring.flagpid )flag=1;
-    float error = controlCenter - COLSIMAGE / 2;
+    cout<<"点集加权偏差值"<<controlCenter - COLSIMAGE / 2<<endl;
+    if(angle<0)
+    {
+      cout<<"角度为负值"<<endl;
+    controlCenter+=(abs(angle)-90)*params.angle_p;//车偏右，controlCenter小，angle为负的，直接加即可
+    cout<<"角度系数"<<params.angle_p<<endl;
+    cout<<"角度偏差"<<(abs(angle)-90)*params.angle_p<<endl;
+    }
+    else if(angle>0){
+    controlCenter+=(90-angle)*params.angle_p;
+  cout<<"角度为正值"<<endl;
+    }else{
+      controlCenter+=angle*params.angle_p;//angle_p乘的系数记得加params.
+      cout<<"角度为零"<<endl;
+    }
+    float error = controlCenter - COLSIMAGE / 2;//error为负向左转
+ cout<<"角度偏差值"<<error<<endl;
+    
     // control.submiterror=params.submit;
       
     
@@ -199,7 +230,7 @@ public:
     // cout<<error<<endl;
     // 图像控制中心转换偏差
 
-    // cout << "偏差值" << error << endl;
+    
     static int errorLast = 0; // 记录前一次的偏差
     if (abs(error - errorLast) > COLSIMAGE / 10) {
       error = error > errorLast ? errorLast + COLSIMAGE / 10
@@ -224,7 +255,7 @@ public:
    * @param enable 加速使能
    * @param control
    */
-  void speedCtrl(bool enable, bool slowDown, ControlCenter control) {
+  void speedCtrl(bool enable, bool slowDown, ControlCenter control,bool speedup) {
     // 控制率
     uint8_t controlLow = 0;   // 速度控制下限
     uint8_t controlMid = 5;   // 控制率
@@ -235,6 +266,8 @@ public:
       speed = params.speedDown;
     } else if (enable) // 加速使能
     {
+      if(!speedup)
+      {
       if (control.centerEdge.size() < 10) {
         speed = params.speedLow;
         countShift = controlLow;
@@ -259,7 +292,35 @@ public:
         speed = params.speedHigh;
       else
         speed = params.speedLow;
-    } else {
+    } 
+    else{
+      if (control.centerEdge.size() < 10) {
+        speed = params.speedLowpro;
+        countShift = controlLow;
+        return;
+      }
+      if (control.centerEdge[control.centerEdge.size() - 1].x > ROWSIMAGE / 2) {
+        speed = params.speedLowpro;
+        countShift = controlLow;
+        return;
+      }
+      if (abs(control.sigmaCenter) < 100.0) {
+        countShift++;
+        if (countShift > controlHigh)
+          countShift = controlHigh;
+      } else {
+        countShift--;
+        if (countShift < controlLow)
+          countShift = controlLow;
+      }
+
+      if (countShift > controlMid)
+        speed = params.speedHighpro;
+      else
+        speed = params.speedLowpro;
+    }
+    }
+    else {
       countShift = controlLow;
       speed = params.speedLow;
     }
