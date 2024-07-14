@@ -47,7 +47,7 @@ void sigint_handler(int sig);
 int flag = 1;
 int start = 0;                        // 发车计数器
 int center_sum = 0, center_sum_n = 0; // 中心总值 ,计数
-bool Is_AI_detection=0;       //是否开启AI
+bool Is_AI_detection=1;       //是否开启AI
 double AI_distance_start=0,AI_distance_end=0;//AI标志与距离积分的开始和结束
 
 enum AI_Distance_Postion{
@@ -141,6 +141,7 @@ int main(int argc, char const *argv[]) {
   float distance_now;
   int ai_check = 0;
 int ai_middle_quanzhong;
+AI_distance_postion=AI_Distance_None;
   while (1) {
     //  ring.RoundaboutGetArc(tracking, 1, 20, 30, 160);
     ctrlCenter.set_ai_middle_quanzhong(0);
@@ -220,20 +221,18 @@ int ai_middle_quanzhong;
 
     
     //速度切换根据AI的情况
-    if(!Is_AI_detection)
-    {
-        motion.set_direction_pid(motion.params.runP1_fast,motion.params.runP2_fast, motion.params.turnD_fast,0);
+    
 
-    }else  motion.set_direction_pid(motion.params.runP1,motion.params.runP2, motion.params.turnD,0);
-
-    if(rescue.set_AI_detection()&&AI_distance_postion==AI_Distance_None)
+    if(!rescue.set_AI_detection()&&AI_distance_postion==AI_Distance_None)
     {
+      cout<<"出rescue后之后关闭AI"<<endl;
       AI_distance_postion=AI_Rescue_Start;
        AI_distance_start=distance_now;
     }
     if(AI_distance_postion==AI_Rescue_Start){
       Is_AI_detection=false;
       if(abs(distance_now-AI_distance_start)>motion.params.Rescue_distance){
+        cout<<"经历rescue后一段之后AI打开"<<endl;
       Is_AI_detection=true;
       AI_distance_postion=AI_Rescue_End;
       }
@@ -263,10 +262,17 @@ int ai_middle_quanzhong;
       }
     }
 
-    if (ai_check > 1 || detection->ai_flag && sceneLast != Scene::RingScene &&sceneLast != BridgeScene) {
+    if(!Is_AI_detection)
+    {
+        motion.set_direction_pid(motion.params.runP1_fast,motion.params.runP2_fast, motion.params.turnD_fast,0);
+
+    }else  motion.set_direction_pid(motion.params.runP1,motion.params.runP2, motion.params.turnD,0);
+
+    if ((ai_check > 1 || detection->ai_flag && sceneLast != Scene::RingScene &&sceneLast != BridgeScene)&& Is_AI_detection) {
 
       //[03] 启动AI推理
-    // detection->inference(imgCorrect);
+      // cout<<
+    //  detection->inference(imgCorrect);
       ai_check = 0;
     }
     //  detection->inference(imgCorrect);
@@ -373,8 +379,12 @@ int ai_middle_quanzhong;
     //  ring.RoundaboutGetArc(tracking, 1, 20, 30, 160);
     //[12] 车辆控制中心拟合
     ctrlCenter.fitting(tracking);
+    if(ctrlCenter.flagring==0)
+    {
       motion.angle=  atan(ring.regression(ctrlCenter.centerEdge,20,ctrlCenter.centerEdge.size()-1))/3.14*180;//此处得到的是弧度  ctrlCenter.centerEdge.size()-1
       cout<<"角度"<<motion.angle<<endl;
+    }
+    else motion.angle=0;
     // 冲出赛道
     //  if (scene != Scene::RescueScene) {
     //    if (ctrlCenter.derailmentCheck(tracking)) //
@@ -427,16 +437,16 @@ int ai_middle_quanzhong;
             130,ctrlCenter); // 姿态控制（舵机）  此处为救援区出站固定打角 --使其偏差值为0
       } else if (ring.center_sum_flag == Center_Sum_Start) {
         center_sum += ctrlCenter.controlCenter;
-        cout<<"中心偏差加和"<<center_sum<<endl;
+        // cout<<"中心偏差加和"<<center_sum<<endl;
         center_sum_n++;
-        cout<<"偏差点计数"<<center_sum_n<<endl;
+        // cout<<"偏差点计数"<<center_sum_n<<endl;
         motion.poseCtrl(
             ctrlCenter.controlCenter,ctrlCenter); // 姿态控制（舵机） 别忘记打角
       } else if (ring.center_sum_flag == Center_Sum_End) {
         ctrlCenter.controlCenter = center_sum / center_sum_n;
          cout << "固定舵机打角" << ctrlCenter.controlCenter << endl;
         motion.poseCtrl(
-            220,ctrlCenter); // 出环平均的中心姿态控制（舵机）ctrlCenter.controlCenter
+            ctrlCenter.controlCenter,ctrlCenter); // 出环平均的中心姿态控制（舵机）ctrlCenter.controlCenter
       } else if (danger.flag_cone_first && danger.flagleft) {
         motion.poseCtrl(ctrlCenter.controlCenter + 15,ctrlCenter); // 姿态控制（舵机）
 

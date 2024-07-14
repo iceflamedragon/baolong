@@ -180,23 +180,23 @@ public:
   float errorsum;
   void poseCtrl(int controlCenter,ControlCenter &control) {
     // if(ring.flagpid )flag=1;
-    cout<<"点集加权偏差值"<<controlCenter - COLSIMAGE / 2<<endl;
+    // cout<<"点集加权偏差值"<<controlCenter - COLSIMAGE / 2<<endl;
     if(angle<0)
     {
-      cout<<"角度为负值"<<endl;
+      // cout<<"角度为负值"<<endl;
     controlCenter+=(abs(angle)-90)*params.angle_p;//车偏右，controlCenter小，angle为负的，直接加即可
-    cout<<"角度系数"<<params.angle_p<<endl;
-    cout<<"角度偏差"<<(abs(angle)-90)*params.angle_p<<endl;
+    // cout<<"角度系数"<<params.angle_p<<endl;
+    // cout<<"角度偏差"<<(abs(angle)-90)*params.angle_p<<endl;
     }
     else if(angle>0){
     controlCenter+=(90-angle)*params.angle_p;
-  cout<<"角度为正值"<<endl;
+  // cout<<"角度为正值"<<endl;
     }else{
       controlCenter+=angle*params.angle_p;//angle_p乘的系数记得加params.
-      cout<<"角度为零"<<endl;
+      // cout<<"角度为零"<<endl;
     }
     float error = controlCenter - COLSIMAGE / 2;//error为负向左转
- cout<<"角度偏差值"<<error<<endl;
+//  cout<<"角度偏差值"<<error<<endl;
     
     // control.submiterror=params.submit;
       
@@ -294,6 +294,7 @@ public:
         speed = params.speedLow;
     } 
     else{
+      cout<<"切换到快速了"<<endl;
       if (control.centerEdge.size() < 10) {
         speed = params.speedLowpro;
         countShift = controlLow;

@@ -377,21 +377,21 @@ public: // int leftpoint;
 
         cout << "要进行entering的判断了" << endl;
         monotonicity_change_line[0] = Monotonicity_Change_Right(track, 30, 160);
-        roundaboutArc=RoundaboutGetArc(track, 1, 20, 30, 160);
+        roundaboutArc=RoundaboutGetArc(track, 1, 10, 30, 160);
         monotonicity_right=Monotonicity_Right(track, monotonicity_change_line[0] + 20,
                 monotonicity_change_line[0] -20);
-        cout << "圆弧的判断" << (int)RoundaboutGetArc(track, 1, 20, 30, 160)<< endl;
-        cout << "右边线连续的判断"<< Monotonicity_Right(track, monotonicity_change_line[0] + 20,monotonicity_change_line[0] - 20)<< endl;
+        cout << "圆弧的判断" << (int)RoundaboutGetArc(track, 1, 10, 30, 160)<< endl;
+        cout << "右边线连续的判断"<< Monotonicity_Right(track, monotonicity_change_line[0] + 10,monotonicity_change_line[0] - 10)<< endl;
         
            ///入环补线
-        // int breakpoint_in=0;
-        //  breakpoint_in = Find_Left_Breakpoint(track, 20, 140); // 找到拐点
-
-        // if(breakpoint_in<140&&breakpoint_in>20)
-        // {K_Add_Boundry_Left(regression(track.pointsEdgeLeft, breakpoint_in -2,breakpoint_in -6),
-        //                    track.pointsEdgeLeft[breakpoint_in -2].y,
-        //                   breakpoint_in-2, 140,track); // 根据斜率作直线
-        //   cout<<"开始左环入环直线补线！"<<endl;}
+        int breakpoint_in=0;
+         breakpoint_in = Find_Left_Breakpoint(track, 20, 140); // 找到拐点
+        cout<<"breakpoint_in"<<breakpoint_in<<endl;
+        if(breakpoint_in<140&&breakpoint_in>20)
+        {K_Add_Boundry_Left(regression(track.pointsEdgeLeft, breakpoint_in -2,breakpoint_in -6),
+                           track.pointsEdgeLeft[breakpoint_in -2].y,
+                          breakpoint_in-2, 140,track); // 根据斜率作直线
+          cout<<"开始左环入环直线补线！"<<endl;}
 
 
         if ( roundaboutArc&&!monotonicity_right) { // 当左边不单调点较低，或者左侧的斜率较大
@@ -416,22 +416,22 @@ public: // int leftpoint;
 
         cout << "右入环Entering判断" << endl;
         monotonicity_change_line[0] =Monotonicity_Change_Left(track, 30, 160); // 寻找单调性改变点，x
-        roundaboutArc=RoundaboutGetArc(track, 2, 20, 30, 160);
+        roundaboutArc=RoundaboutGetArc(track, 2, 10, 30, 160);
         monotonicity_left=Monotonicity_Left(track,  monotonicity_change_line[0] + 20,monotonicity_change_line[0] - 20);
         
-        cout<<"右圆弧判断"<<RoundaboutGetArc(track, 2, 20, 30, 160)<<endl;
-        cout<<"右圆环左边单调性"<<!Monotonicity_Left(track,  monotonicity_change_line[0] + 20,monotonicity_change_line[0] - 20)<<endl;// 左边单调
+        cout<<"右圆弧判断"<<RoundaboutGetArc(track, 2, 10, 30, 160)<<endl;
+        cout<<"右圆环左边单调性"<<!Monotonicity_Left(track,  monotonicity_change_line[0] + 10,monotonicity_change_line[0] - 10)<<endl;// 左边单调
         
         
-        //////////////先判断再补线,不影响判断
-        // int breakpoint_in=0;
-        //  breakpoint_in = Find_Right_Breakpoint(track, 20, 140); // 找到拐点
-        // if(breakpoint_in<140&&breakpoint_in>20)
-        // {K_Add_Boundry_Right(regression(track.pointsEdgeRight, breakpoint_in -2,breakpoint_in -6),
-        //                    track.pointsEdgeRight[breakpoint_in -2].y,
-        //                   breakpoint_in-2, 140,track); // 根据斜率作直线
-        //   cout<<"开始右环入环直线补线！"<<endl;
-        //   }
+        ////////////先判断再补线,不影响判断
+        int breakpoint_in=0;
+         breakpoint_in = Find_Right_Breakpoint(track, 20, 140); // 找到拐点
+        if(breakpoint_in<140&&breakpoint_in>20)
+        {K_Add_Boundry_Right(regression(track.pointsEdgeRight, breakpoint_in -2,breakpoint_in -6),
+                           track.pointsEdgeRight[breakpoint_in -2].y,
+                          breakpoint_in-2, 140,track); // 根据斜率作直线
+          cout<<"开始右环入环直线补线！"<<endl;
+          }
 
        
         if (roundaboutArc&&!monotonicity_left) { //RoundaboutGetArc(track, 2, 10, 10, 180) && 右边上面有拐点 && right_breakpoint)
@@ -1857,7 +1857,7 @@ void K_Add_Boundry_Left(float k, int startY, int startI, int endI,Tracking &trac
     endI = track.pointsEdgeLeft.size() - 1;
   else if (endI <= 0)
     endI = 0;
-    track.pointsEdgeLeft.resize(track.pointsEdgeLeft.size() + 1);
+    // track.pointsEdgeLeft.resize(track.pointsEdgeLeft.size() + 1);
   if (startI < endI) //--操作，start需要大
   {for (i = startI; i <= endI; i++) 
     track.pointsEdgeLeft[i].y =

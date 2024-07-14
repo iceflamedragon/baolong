@@ -202,7 +202,7 @@ void set_ai_middle_quanzhong(int num)
         // }
       }
     }
-    else if(ai_middle_quanzhong==1)
+    else if(ai_middle_quanzhong==1&&flagring==0)
     {
       
       //  angle=atan();
