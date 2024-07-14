@@ -21,9 +21,9 @@
  * @copyright Copyright (c) 2022
  *
  */
-#include <math.h>
 #include "../include/common.hpp"
 #include "recognition/tracking.cpp"
+#include <math.h>
 // #include "../src/recognition/ring.cpp"
 // #include "motion.cpp"
 // #include "recognition/ring.cpp"      //环岛道路识别与路径规划类
@@ -37,14 +37,12 @@ using namespace cv;
 using namespace std;
 
 class ControlCenter {
-  private:
+private:
   int ai_middle_quanzhong;
-public:
-void set_ai_middle_quanzhong(int num)
-{
-  ai_middle_quanzhong=num;
-}
 
+public:
+  void set_ai_middle_quanzhong(int num) { ai_middle_quanzhong = num; }
+  int flagrescue=0;
   int submiterror;
   int controlCenter;           // 智能车控制中心（0~320）
   vector<POINT> centerEdge;    // 赛道中心点集
@@ -60,104 +58,229 @@ void set_ai_middle_quanzhong(int num)
    */
 
   void fitting(Tracking &track) {
-    sigmaCenter = 0;
-    controlCenter = COLSIMAGE / 2;
-    centerEdge.clear();
-    vector<POINT> v_center(4); // 三阶贝塞尔曲线
-    style = "STRIGHT";
-    vector<POINT> new_edge_left;
-    vector<POINT> new_edge_right;
-    fill_vector_right(track, new_edge_right);
-    fill_vector_left(track, new_edge_left);
-    // 边缘斜率重计算（边缘修正之后）
-    track.stdevLeft = track.stdevEdgeCal(new_edge_left, ROWSIMAGE);
-    track.stdevRight = track.stdevEdgeCal(new_edge_right, ROWSIMAGE);
-
-    if (new_edge_left.size() > 4 &&
-        new_edge_right.size() > 4) // 通过双边缘有效点的差来判断赛道类型
-    {
-      v_center[0] = {(new_edge_left[0].x + new_edge_right[0].x) / 2,
-                     (new_edge_left[0].y + new_edge_right[0].y) / 2};
-
-      v_center[1] = {(new_edge_left[new_edge_left.size() / 3].x +
-                      new_edge_right[new_edge_right.size() / 3].x) /
-                         2,
-                     (new_edge_left[new_edge_left.size() / 3].y +
-                      new_edge_right[new_edge_right.size() / 3].y) /
-                         2};
-
-      v_center[2] = {(new_edge_left[new_edge_left.size() * 2 / 3].x +
-                      new_edge_right[new_edge_right.size() * 2 / 3].x) /
-                         2,
-                     (new_edge_left[new_edge_left.size() * 2 / 3].y +
-                      new_edge_right[new_edge_right.size() * 2 / 3].y) /
-                         2};
-
-      v_center[3] = {(new_edge_left[new_edge_left.size() - 1].x +
-                      new_edge_right[new_edge_right.size() - 1].x) /
-                         2,
-                     (new_edge_left[new_edge_left.size() - 1].y +
-                      new_edge_right[new_edge_right.size() - 1].y) /
-                         2};
-
-      centerEdge = Bezier(0.03, v_center);
-
+    // cout<<"进入fitting"<<endl;
+    // cout<<"救援区标志位"<<flagrescue<<endl;
+    if (flagrescue == 0) {
+      // cout<<"非rescue"<<endl;
+      sigmaCenter = 0;
+      controlCenter = COLSIMAGE / 2;
+      centerEdge.clear();
+      vector<POINT> v_center(4); // 三阶贝塞尔曲线
       style = "STRIGHT";
+      vector<POINT> new_edge_left;
+      vector<POINT> new_edge_right;
+      fill_vector_right(track, new_edge_right);
+      fill_vector_left(track, new_edge_left);
+      // 边缘斜率重计算（边缘修正之后）
+      track.stdevLeft = track.stdevEdgeCal(new_edge_left, ROWSIMAGE);
+      track.stdevRight = track.stdevEdgeCal(new_edge_right, ROWSIMAGE);
+
+      if (new_edge_left.size() > 4 &&
+          new_edge_right.size() > 4) // 通过双边缘有效点的差来判断赛道类型
+      {
+        v_center[0] = {(new_edge_left[0].x + new_edge_right[0].x) / 2,
+                       (new_edge_left[0].y + new_edge_right[0].y) / 2};
+
+        v_center[1] = {(new_edge_left[new_edge_left.size() / 3].x +
+                        new_edge_right[new_edge_right.size() / 3].x) /
+                           2,
+                       (new_edge_left[new_edge_left.size() / 3].y +
+                        new_edge_right[new_edge_right.size() / 3].y) /
+                           2};
+
+        v_center[2] = {(new_edge_left[new_edge_left.size() * 2 / 3].x +
+                        new_edge_right[new_edge_right.size() * 2 / 3].x) /
+                           2,
+                       (new_edge_left[new_edge_left.size() * 2 / 3].y +
+                        new_edge_right[new_edge_right.size() * 2 / 3].y) /
+                           2};
+
+        v_center[3] = {(new_edge_left[new_edge_left.size() - 1].x +
+                        new_edge_right[new_edge_right.size() - 1].x) /
+                           2,
+                       (new_edge_left[new_edge_left.size() - 1].y +
+                        new_edge_right[new_edge_right.size() - 1].y) /
+                           2};
+
+        centerEdge = Bezier(0.03, v_center);
+
+        style = "STRIGHT";
+      }
+      // 左单边
+      else if ((new_edge_left.size() > 0 && new_edge_right.size() <= 4) ||
+               (new_edge_left.size() > 0 && new_edge_right.size() > 0 &&
+                new_edge_left[0].x - new_edge_right[0].x > ROWSIMAGE / 2)) {
+        style = "RIGHT";
+        centerEdge = centerCompute(new_edge_left, 0);
+      }
+      // 右单边
+      else if ((new_edge_right.size() > 0 && new_edge_left.size() <= 4) ||
+               (new_edge_right.size() > 0 && new_edge_left.size() > 0 &&
+                new_edge_right[0].x - new_edge_left[0].x > ROWSIMAGE / 2)) {
+        style = "LEFT";
+        centerEdge = centerCompute(new_edge_right, 1);
+      } else if (new_edge_left.size() > 4 &&
+                 new_edge_right.size() == 0) // 左单边
+      {
+        v_center[0] = {new_edge_left[0].x,
+                       (new_edge_left[0].y + COLSIMAGE - 1) / 2};
+
+        v_center[1] = {
+            new_edge_left[new_edge_left.size() / 3].x,
+            (new_edge_left[new_edge_left.size() / 3].y + COLSIMAGE - 1) / 2};
+
+        v_center[2] = {
+            new_edge_left[new_edge_left.size() * 2 / 3].x,
+            (new_edge_left[new_edge_left.size() * 2 / 3].y + COLSIMAGE - 1) /
+                2};
+
+        v_center[3] = {
+            new_edge_left[new_edge_left.size() - 1].x,
+            (new_edge_left[new_edge_left.size() - 1].y + COLSIMAGE - 1) / 2};
+
+        centerEdge = Bezier(0.02, v_center);
+
+        style = "RIGHT";
+      } else if (new_edge_left.size() == 0 &&
+                 new_edge_right.size() > 4) // 右单边
+      {
+        v_center[0] = {new_edge_right[0].x, new_edge_right[0].y / 2};
+
+        v_center[1] = {new_edge_right[new_edge_right.size() / 3].x,
+                       new_edge_right[new_edge_right.size() / 3].y / 2};
+
+        v_center[2] = {new_edge_right[new_edge_right.size() * 2 / 3].x,
+                       new_edge_right[new_edge_right.size() * 2 / 3].y / 2};
+
+        v_center[3] = {new_edge_right[new_edge_right.size() - 1].x,
+                       new_edge_right[new_edge_right.size() - 1].y / 2};
+
+        centerEdge = Bezier(0.02, v_center);
+
+        style = "LEFT";
+      }
     }
-    // 左单边
-    else if ((new_edge_left.size() > 0 && new_edge_right.size() <= 4) ||
-             (new_edge_left.size() > 0 && new_edge_right.size() > 0 &&
-              new_edge_left[0].x - new_edge_right[0].x > ROWSIMAGE / 2)) {
-      style = "RIGHT";
-      centerEdge = centerCompute(new_edge_left, 0);
+    if (flagrescue == 1) {
+      // cout<<"rescue"<<endl;
+      sigmaCenter = 0;
+      controlCenter = COLSIMAGE / 2;
+      centerEdge.clear();
+      vector<POINT> v_center(4); // 三阶贝塞尔曲线
+      style = "STRIGHT";
+
+      // 边缘斜率重计算（边缘修正之后）
+      track.stdevLeft = track.stdevEdgeCal(track.pointsEdgeLeft, ROWSIMAGE);
+      track.stdevRight = track.stdevEdgeCal(track.pointsEdgeRight, ROWSIMAGE);
+
+      if (track.pointsEdgeLeft.size() > 4 &&
+          track.pointsEdgeRight.size() >
+              4) // 通过双边缘有效点的差来判断赛道类型
+      {
+        v_center[0] = {
+            (track.pointsEdgeLeft[0].x + track.pointsEdgeRight[0].x) / 2,
+            (track.pointsEdgeLeft[0].y + track.pointsEdgeRight[0].y) / 2};
+
+        v_center[1] = {
+            (track.pointsEdgeLeft[track.pointsEdgeLeft.size() / 3].x +
+             track.pointsEdgeRight[track.pointsEdgeRight.size() / 3].x) /
+                2,
+            (track.pointsEdgeLeft[track.pointsEdgeLeft.size() / 3].y +
+             track.pointsEdgeRight[track.pointsEdgeRight.size() / 3].y) /
+                2};
+
+        v_center[2] = {
+            (track.pointsEdgeLeft[track.pointsEdgeLeft.size() * 2 / 3].x +
+             track.pointsEdgeRight[track.pointsEdgeRight.size() * 2 / 3].x) /
+                2,
+            (track.pointsEdgeLeft[track.pointsEdgeLeft.size() * 2 / 3].y +
+             track.pointsEdgeRight[track.pointsEdgeRight.size() * 2 / 3].y) /
+                2};
+
+        v_center[3] = {
+            (track.pointsEdgeLeft[track.pointsEdgeLeft.size() - 1].x +
+             track.pointsEdgeRight[track.pointsEdgeRight.size() - 1].x) /
+                2,
+            (track.pointsEdgeLeft[track.pointsEdgeLeft.size() - 1].y +
+             track.pointsEdgeRight[track.pointsEdgeRight.size() - 1].y) /
+                2};
+
+        centerEdge = Bezier(0.03, v_center);
+
+        style = "STRIGHT";
+      }
+      // 左单边
+      else if ((track.pointsEdgeLeft.size() > 0 &&
+                track.pointsEdgeRight.size() <= 4) ||
+               (track.pointsEdgeLeft.size() > 0 &&
+                track.pointsEdgeRight.size() > 0 &&
+                track.pointsEdgeLeft[0].x - track.pointsEdgeRight[0].x >
+                    ROWSIMAGE / 2)) {
+        style = "RIGHT";
+        centerEdge = centerCompute(track.pointsEdgeLeft, 0);
+      }
+      // 右单边
+      else if ((track.pointsEdgeRight.size() > 0 &&
+                track.pointsEdgeLeft.size() <= 4) ||
+               (track.pointsEdgeRight.size() > 0 &&
+                track.pointsEdgeLeft.size() > 0 &&
+                track.pointsEdgeRight[0].x - track.pointsEdgeLeft[0].x >
+                    ROWSIMAGE / 2)) {
+        style = "LEFT";
+        centerEdge = centerCompute(track.pointsEdgeRight, 1);
+      } else if (track.pointsEdgeLeft.size() > 4 &&
+                 track.pointsEdgeRight.size() == 0) // 左单边
+      {
+        v_center[0] = {track.pointsEdgeLeft[0].x,
+                       (track.pointsEdgeLeft[0].y + COLSIMAGE - 1) / 2};
+
+        v_center[1] = {
+            track.pointsEdgeLeft[track.pointsEdgeLeft.size() / 3].x,
+            (track.pointsEdgeLeft[track.pointsEdgeLeft.size() / 3].y +
+             COLSIMAGE - 1) /
+                2};
+
+        v_center[2] = {
+            track.pointsEdgeLeft[track.pointsEdgeLeft.size() * 2 / 3].x,
+            (track.pointsEdgeLeft[track.pointsEdgeLeft.size() * 2 / 3].y +
+             COLSIMAGE - 1) /
+                2};
+
+        v_center[3] = {
+            track.pointsEdgeLeft[track.pointsEdgeLeft.size() - 1].x,
+            (track.pointsEdgeLeft[track.pointsEdgeLeft.size() - 1].y +
+             COLSIMAGE - 1) /
+                2};
+
+        centerEdge = Bezier(0.02, v_center);
+
+        style = "RIGHT";
+      } else if (track.pointsEdgeLeft.size() == 0 &&
+                 track.pointsEdgeRight.size() > 4) // 右单边
+      {
+        v_center[0] = {track.pointsEdgeRight[0].x,
+                       track.pointsEdgeRight[0].y / 2};
+
+        v_center[1] = {
+            track.pointsEdgeRight[track.pointsEdgeRight.size() / 3].x,
+            track.pointsEdgeRight[track.pointsEdgeRight.size() / 3].y / 2};
+
+        v_center[2] = {
+            track.pointsEdgeRight[track.pointsEdgeRight.size() * 2 / 3].x,
+            track.pointsEdgeRight[track.pointsEdgeRight.size() * 2 / 3].y / 2};
+
+        v_center[3] = {
+            track.pointsEdgeRight[track.pointsEdgeRight.size() - 1].x,
+            track.pointsEdgeRight[track.pointsEdgeRight.size() - 1].y / 2};
+
+        centerEdge = Bezier(0.02, v_center);
+
+        style = "LEFT";
+      }
     }
-    // 右单边
-    else if ((new_edge_right.size() > 0 && new_edge_left.size() <= 4) ||
-             (new_edge_right.size() > 0 && new_edge_left.size() > 0 &&
-              new_edge_right[0].x - new_edge_left[0].x > ROWSIMAGE / 2)) {
-      style = "LEFT";
-      centerEdge = centerCompute(new_edge_right, 1);
-    } else if (new_edge_left.size() > 4 && new_edge_right.size() == 0) // 左单边
-    {
-      v_center[0] = {new_edge_left[0].x,
-                     (new_edge_left[0].y + COLSIMAGE - 1) / 2};
-
-      v_center[1] = {
-          new_edge_left[new_edge_left.size() / 3].x,
-          (new_edge_left[new_edge_left.size() / 3].y + COLSIMAGE - 1) / 2};
-
-      v_center[2] = {
-          new_edge_left[new_edge_left.size() * 2 / 3].x,
-          (new_edge_left[new_edge_left.size() * 2 / 3].y + COLSIMAGE - 1) / 2};
-
-      v_center[3] = {
-          new_edge_left[new_edge_left.size() - 1].x,
-          (new_edge_left[new_edge_left.size() - 1].y + COLSIMAGE - 1) / 2};
-
-      centerEdge = Bezier(0.02, v_center);
-
-      style = "RIGHT";
-    } else if (new_edge_left.size() == 0 && new_edge_right.size() > 4) // 右单边
-    {
-      v_center[0] = {new_edge_right[0].x, new_edge_right[0].y / 2};
-
-      v_center[1] = {new_edge_right[new_edge_right.size() / 3].x,
-                     new_edge_right[new_edge_right.size() / 3].y / 2};
-
-      v_center[2] = {new_edge_right[new_edge_right.size() * 2 / 3].x,
-                     new_edge_right[new_edge_right.size() * 2 / 3].y / 2};
-
-      v_center[3] = {new_edge_right[new_edge_right.size() - 1].x,
-                     new_edge_right[new_edge_right.size() - 1].y / 2};
-
-      centerEdge = Bezier(0.02, v_center);
-
-      style = "LEFT";
-    }
-
     // 加权控制中心计算
     int controlNum = 1;
-    if (flagring != 1&&ai_middle_quanzhong!=1) { // 直线pid
+    if (flagring != 1 && ai_middle_quanzhong != 1 &&
+        flagrescue) { // 直线pid  不开ai的直线权重
       for (auto p : centerEdge) {
 
         if (p.x < ROWSIMAGE / 4) { // 远离车辆的地方加权更大
@@ -174,7 +297,7 @@ void set_ai_middle_quanzhong(int num)
           controlCenter += p.y * (ROWSIMAGE + 170 + p.x);
         }
       }
-    } else if(flagring = 1){ // 圆环pid
+    } else if (flagring = 1) { // 圆环pid
       for (auto p : centerEdge) {
         if (p.x < ROWSIMAGE * 4 / 5 + 5 && p.x > ROWSIMAGE * 3 / 4 - 5) {
           controlCenter += p.y * ROWSIMAGE;
@@ -201,14 +324,12 @@ void set_ai_middle_quanzhong(int num)
         //   (ROWSIMAGE+170+ p.x );
         // }
       }
-    }
-    else if(ai_middle_quanzhong==1)
-    {
-      
+    } else if (ai_middle_quanzhong == 1) {
+
       //  angle=atan();
       // cout<<"angle"<<angle<<endl;
       for (auto p : centerEdge) {
-        if (p.x < ROWSIMAGE * 3/4  && p.x > ROWSIMAGE * 1/2) {  //*3/4-50
+        if (p.x < ROWSIMAGE * 3 / 4 && p.x > ROWSIMAGE * 1 / 2) { //*3/4-50
           controlCenter += p.y * ROWSIMAGE;
           controlNum += ROWSIMAGE;
           // cout<<"我要的数字"<<p.y * ROWSIMAGE<<endl<<endl<<endl;
@@ -216,7 +337,7 @@ void set_ai_middle_quanzhong(int num)
       }
     }
     if (controlNum > 1) {
-      controlCenter = controlCenter / controlNum;//+angle*angle_p
+      controlCenter = controlCenter / controlNum; //+angle*angle_p
     }
 
     if (controlCenter > COLSIMAGE)
@@ -366,18 +487,16 @@ private:
 
   void fill_vector_right(Tracking &track, std::vector<POINT> &new_edge_right) {
     new_edge_right.clear();
-    for (int i;i<track.pointsEdgeRight.size();i++) {
-      if (track.pointsEdgeRight[i].x >
-          ROWSIMAGE / 2-20) {
+    for (int i; i < track.pointsEdgeRight.size(); i++) {
+      if (track.pointsEdgeRight[i].x > ROWSIMAGE / 2 - 20) {
         new_edge_right.push_back(track.pointsEdgeRight[i]);
       }
     }
   }
   void fill_vector_left(Tracking &track, std::vector<POINT> &new_edge_left) {
     new_edge_left.clear();
-    for (int i;i<track.pointsEdgeLeft.size();i++) {
-      if (track.pointsEdgeLeft[i].x >
-          ROWSIMAGE / 2-20) {
+    for (int i; i < track.pointsEdgeLeft.size(); i++) {
+      if (track.pointsEdgeLeft[i].x > ROWSIMAGE / 2 - 20) {
         new_edge_left.push_back(track.pointsEdgeLeft[i]);
       }
     }

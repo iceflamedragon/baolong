@@ -38,7 +38,7 @@ using namespace std;
 
 class Rescue {
 public:
-
+  int flag_control=0;
   bool set_AI_detection(void){return is_ai_detection;}
   bool is_ai_detection=true;//是否开启AI标志
   int mpu6050_now;
@@ -114,13 +114,13 @@ public:
       retime++;
     }
 
-    if(distance_now-distance_out>10&&rescue_out) is_ai_detection=false;
+    if(distance_now-distance_out>100&&rescue_out) is_ai_detection=false;
     // step = Step::Exit;
     switch (step) {
     case Step::None: //[01] 标志检测
       // cout<<"识别标志牌的计数"<<counterImmunity<<endl;
       if ( //(counterImmunity > 200 && again) ||
-          (counterImmunity > 10 &&
+          (counterImmunity > 0 &&
            !again)) { // 此处上方注释为第二次进入救援区，，，第一次进入为计数器---识别到标志牌
         for (int i = 0; i < predict.size(); i++) {
           if (predict[i].type == LABEL_TUMBLE ||
@@ -143,7 +143,7 @@ public:
 
         if (counterRec || counterExit) {
           counterSession++;
-          if (counterRec > 0 && counterSession <= 8) { // 原来为3
+          if (counterRec > 5 && counterSession <= 8) { // 原来为3
             cout << "判断为左进了666" << endl;
             step = Step::Enable; // 使能
             entryLeft = true;
@@ -273,7 +273,7 @@ public:
     }
     case Step::Enter: //[03] 入库使能
     {
-
+        flag_control=1;
       // searchCones(predict,motion);
       // if (counterExit > 11) {  //此处设置为了总的延时 用距离判断吗？距离写个
       // 右侧为9-10
@@ -399,10 +399,12 @@ public:
         if (pointConeRight[i].x < heighestCone.x)
           heighestCone = pointConeRight[i];
       }
-      if (entryLeft) {
+      
+      if (!entryLeft) {
         if (heighestCone.x > 0 && heighestCone.y > 0) {
           if (heighestCone.y >= COLSIMAGE / 3) // 顶角锥桶靠近右边→继续右转
           {
+            cout<<"看到顶角锥桶了"<<endl;
             vector<POINT> points;
             for (int i = 0; i < pointConeLeft.size();
                  i++) // 搜索以最高点为分界线左边的锥桶
@@ -436,8 +438,10 @@ public:
               if (points[0].x > ROWSIMAGE / 2)
                 step = Step::Exit; // 出站使能
             }
-          } else // 顶角锥桶靠近左边→继续右转
+          }
+          else // 顶角锥桶靠近左边→继续右转
           {
+            cout<<"继续左转"<<endl;
             indexDebug = 3;
             track.pointsEdgeLeft = lastPointsEdgeLeft;
             track.pointsEdgeRight = lastPointsEdgeRight;
@@ -466,7 +470,7 @@ public:
           track.pointsEdgeLeft = lastPointsEdgeLeft;
           track.pointsEdgeRight = lastPointsEdgeRight;
         }
-      } else // 右入库
+      } else ////////////// 右入库
       {
         if (heighestCone.x > 0 && heighestCone.y > 0) {
           if (heighestCone.y <= COLSIMAGE * 2 / 3) // 顶角锥桶靠近右边→继续右转
@@ -580,6 +584,7 @@ public:
                4)) { // 原来为小于1 pathsEdgeLeft.size() < 1 ||
                      // pathsEdgeRight.size() < 1    也是用延时  chu>80
         cout << "出站完成辣辣" << endl << endl;
+        flag_control=0;
         step = Step::None; // 出站完成
         distance_out=distance_now;
         rescue_out=1;
