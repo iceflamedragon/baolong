@@ -135,3 +135,13 @@ detection.hpp中 ----score是置信度---提高一下防止误判
     "turnI":0,
     "angle_p":0.3,
 
+
+ "runP1": 1.2,
+    "runP2": 0.02,
+    "runP3": 0,
+    "turnP": 0,
+    "turnD": 1.5,
+
+ "ring_p1s": 0.35,
+    "ring_p2s": 0.0145,
+    "ring_ds": 0.3,
