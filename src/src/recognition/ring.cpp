@@ -77,6 +77,8 @@ public: // int leftpoint;
   int flagpid = 0;
   int left_breakpoint = 10;  // 左拐点行号
   int right_breakpoint = 10; // 右拐点行号
+  int addline_contine=0;//接着补线标志位
+  float addline_k=0;///斜率
   int monotonicity_change_line[2]; // 单调性改变点坐标，[0]寸某行，[1]寸某列
   int monotonicity_right = 0; // 右侧严格单调,单调为0
   int monotonicity_left = 0;  // 左侧严格单调，单调为0
@@ -385,7 +387,7 @@ public: // int leftpoint;
 
         cout << "要进行entering的判断了" << endl;
         monotonicity_change_line[0] = Monotonicity_Change_Right(track, 30, 160);
-        roundaboutArc = RoundaboutGetArc(track, 1, 20, 30, 160);
+        roundaboutArc = RoundaboutGetArc(track, 1, 10, 30, 160);
         monotonicity_right =
             Monotonicity_Right(track, monotonicity_change_line[0] + 20,
                                monotonicity_change_line[0] - 20);
@@ -405,8 +407,11 @@ public: // int leftpoint;
                                         breakpoint_in - 20),
                              track.pointsEdgeLeft[breakpoint_in - 2].y,
                              breakpoint_in - 2, 140, track); // 根据斜率作直线
-          cout << "开始左环入环直线补线！" << endl;
+           addline_contine=1;
+          addline_k=regression(track.pointsEdgeLeft,breakpoint_in - 2, breakpoint_in - 20);
+          cout<<"斜率值大小"<<addline_k<<endl<<endl<<endl;
         }
+        else if(addline_contine)K_Add_Boundry_Left(addline_k-1.3, track.pointsEdgeLeft[20].y,30,140,track);  //原来为30
 
         if (roundaboutArc &&
             !monotonicity_right) { // 当左边不单调点较低，或者左侧的斜率较大
@@ -434,12 +439,12 @@ public: // int leftpoint;
         cout << "右入环Entering判断" << endl;
         monotonicity_change_line[0] =
             Monotonicity_Change_Left(track, 30, 160); // 寻找单调性改变点，x
-        roundaboutArc = RoundaboutGetArc(track, 2, 20, 30, 160);
+        roundaboutArc = RoundaboutGetArc(track, 2, 16, 30, 160);
         monotonicity_left =
             Monotonicity_Left(track, monotonicity_change_line[0] + 20,
                               monotonicity_change_line[0] - 20);
 
-        cout << "右圆弧判断" << RoundaboutGetArc(track, 2, 20, 30, 160) << endl;
+        cout << "右圆弧判断" << RoundaboutGetArc(track, 2, 10, 30, 160) << endl;
         cout << "右圆环左边单调性"
              << !Monotonicity_Left(track, monotonicity_change_line[0] + 20,
                                    monotonicity_change_line[0] - 20)
@@ -454,7 +459,10 @@ public: // int leftpoint;
                               track.pointsEdgeRight[breakpoint_in - 2].y,
                               breakpoint_in - 2, 140, track); // 根据斜率作直线
           cout << "开始右环入环直线补线！" << endl;
+          addline_contine=1;
+          addline_k=regression(track.pointsEdgeRight,breakpoint_in - 2, breakpoint_in - 20);
         }
+        else if(addline_contine)K_Add_Boundry_Right(addline_k, track.pointsEdgeRight[30].y,30,140,track);
 
         if (roundaboutArc &&
             !monotonicity_left) { // RoundaboutGetArc(track, 2, 10, 10, 180) &&
@@ -825,7 +833,7 @@ public: // int leftpoint;
           }
         }
       }
-      if(abs(mpu6050_now - mpu6050_later) > 260)
+      if(abs(mpu6050_now - mpu6050_later) > 260)//原来是260
       {
         if (ringType == RingLeft) {
         center_flag_left=1;
@@ -1141,24 +1149,31 @@ public: // int leftpoint;
       // 结束出环补线  之前为1500
       ringStep = RingStep::None;
       center_sum_flag = Center_Sum_None;
-      flagpid = 0;
-      left_breakpoint = 0;  // 左拐点行号
-      right_breakpoint = 0; // 右拐点行号
-      monotonicity_change_line[0] = 0;
-      monotonicity_change_line[1] = 0; // 单调性改变点坐标，[0]寸某行，[1]寸某列
-      monotonicity_right = 0; // 右侧单调
-      monotonicity_left = 0;  // 左侧单调
-      lostline_left = 0;      // 左右丢线数量
-      lostline_right = 0;
-      monotonicity_change_left_flag = 0;  // 不转折是0
-      monotonicity_change_right_flag = 0; // 不转折是0
-      continuity_change_right_flag = 0;   // 连续是0
-      continuity_change_left_flag = 0;    // 连续是0
-      //  first_ring = 0;
-      //  left = 0;
-      //  right = 0;
-      ringTypeTemp = 0;
-      flagjiao = 0; //
+   center_flag_right=0;
+   center_flag_left=0;
+   flag_closeai;
+   flagbigringl = 0;
+   flagbigringr = 0;
+   flagpid = 0;
+   left_breakpoint = 10;  // 左拐点行号
+   right_breakpoint = 10; // 右拐点行号
+   addline_contine=0;//接着补线标志位
+   addline_k=0;///斜率
+   monotonicity_change_line[0]=0; // 单调性改变点坐标，[0]寸某行，[1]寸某列
+   monotonicity_right = 0; // 右侧严格单调,单调为0
+   monotonicity_left = 0;  // 左侧严格单调，单调为0
+   lostline_left = 0;      // 左右丢线数量
+   lostline_right = 0;
+   monotonicity_change_left_flag = 0;  // 不转折是0
+   monotonicity_change_right_flag = 0; // 不转折是0
+   continuity_change_right_flag = 0;   // 连续是0
+   continuity_change_left_flag = 0;    // 连续是0
+   roundaboutArc = 0;                 // 圆弧标志位
+   center_sum_flag;                    /// 中心值积分标志
+   part_stdevEdgeCal_left = 0;      // 左边缘部分斜率方差
+   part_stdevEdgeCal_right = 0;     // 左边缘部分斜率方差
+   ringTypeTemp = 0;                   // 环的类型
+   flagjiao = 0;                       //
       cout << "圆环完成" << endl;
       //  leftpoint=0;
       //  rightpoint=0;
@@ -1270,18 +1285,17 @@ public: // int leftpoint;
     if (track.validRowsRight <=
         0.05 * ROWSIMAGE) // 大部分都丢线，没有拐点判断的意义
       return right_down_line;
-    if (start < end) {
+       if (start < end) // 都是从下往上计算的，反了就互换一下
+    {
       t = start;
       start = end;
       end = t;
     }
-    if (start >=
-        ROWSIMAGE - 1 - 5) // 下面5行数据不稳定，不能作为边界点来判断，舍弃
-      start = ROWSIMAGE - 1 - 5;
-    if (end <= track.rowCutBottom)
-      end = track.rowCutBottom;
+    if (start >= track.pointsEdgeRight.size()) // 数组越界保护
+      start =  track.pointsEdgeRight.size();
     if (end <= 5)
       end = 5;
+   
     for (i = start; i >= end; i--) {
       if (right_down_line == 0 && // 只找第一个符合条件的点
           abs(track.pointsEdgeRight[i].y - track.pointsEdgeRight[i + 1].y) <=
@@ -1321,18 +1335,17 @@ public: // int leftpoint;
       // cout<<"右侧大部分丢线"<<endl<<endl;
       return right_down_line;
     }
-    if (start < end) {
+       if (start < end) // 都是从下往上计算的，反了就互换一下
+    {
       t = start;
       start = end;
       end = t;
     }
-    if (start >=
-        ROWSIMAGE - 1 - 5) // 下面5行数据不稳定，不能作为边界点来判断，舍弃
-      start = ROWSIMAGE - 1 - 5;
-    if (end <= track.rowCutBottom)
-      end = track.rowCutBottom;
+    if (start >= track.pointsEdgeRight.size()) // 数组越界保护
+      start =  track.pointsEdgeRight.size();
     if (end <= 5)
       end = 5;
+   
     for (i = start; i >= end; i--) {
       if (right_down_line == 0 && // 只找第一个符合条件的点
           abs(track.pointsEdgeLeft[i].y - track.pointsEdgeLeft[i + 1].y) <=
@@ -1369,17 +1382,16 @@ public: // int leftpoint;
     if (track.validRowsRight <=
         0.1 * ROWSIMAGE) // 大部分都丢线，没必要判断了，也就是左右的有效行数太少
       return 1;
-    if (start >= ROWSIMAGE - 5) // 数组越界保护
-      start = ROWSIMAGE - 5;
-    if (end <= 5)
-      end = 5;
-    if (start < end) // 都是从下往上计算的，反了就互换一下
+       if (start < end) // 都是从下往上计算的，反了就互换一下
     {
       t = start;
       start = end;
       end = t;
     }
-
+    if (start >= track.pointsEdgeRight.size()) // 数组越界保护
+      start =  track.pointsEdgeRight.size();
+    if (end <= 5)
+      end = 5;
     for (i = start; i >= end; i--) {
       if (abs(track.pointsEdgeRight[i].y - track.pointsEdgeRight[i - 1].y) >=
           3) // 连续性阈值是5，可更改
@@ -1405,17 +1417,16 @@ public: // int leftpoint;
     if (track.validRowsLeft <=
         0.1 * ROWSIMAGE) // 大部分都丢线，没必要判断了，也就是左右的有效行数太少
       return 1;
-    if (start >= ROWSIMAGE - 5) // 数组越界保护
-      start = ROWSIMAGE - 5;
-    if (end <= 5)
-      end = 5;
-    if (start < end) // 都是从下往上计算的，反了就互换一下
+       if (start < end) // 都是从下往上计算的，反了就互换一下
     {
       t = start;
       start = end;
       end = t;
     }
-
+    if (start >= track.pointsEdgeRight.size()) // 数组越界保护
+      start =  track.pointsEdgeRight.size();
+    if (end <= 5)
+      end = 5;
     for (i = start; i >= end; i--) {
       if (abs(track.pointsEdgeLeft[i].y - track.pointsEdgeLeft[i - 1].y) >=
           3) // 连续性阈值是5，可更改
@@ -1444,14 +1455,14 @@ public: // int leftpoint;
     if (track.validRowsRight <=
         0.1 * ROWSIMAGE) // 大部分都丢线，没有单调性判断的意义
       return monotonicity_change_line;
-    if (start < end) // 都是从下往上计算的，反了就互换一下
+       if (start < end) // 都是从下往上计算的，反了就互换一下
     {
       t = start;
       start = end;
       end = t;
     }
-    if (start >= ROWSIMAGE - 1 - 5) // 数组越界保护
-      start = ROWSIMAGE - 1 - 5;
+    if (start >= track.pointsEdgeRight.size()) // 数组越界保护
+      start =  track.pointsEdgeRight.size();
     if (end <= 5)
       end = 5;
     // if (start <= end)
@@ -1513,16 +1524,17 @@ public: // int leftpoint;
       return monotonicity_change_line;
       cout << "第一次return" << endl;
     }
-    if (start < end) // 都是从下往上计算的，反了就互换一下
+       if (start < end) // 都是从下往上计算的，反了就互换一下
     {
       t = start;
       start = end;
       end = t;
     }
-    if (start >= ROWSIMAGE - 1 - 5) // 数组越界保护
-      start = ROWSIMAGE - 1 - 5;
+    if (start >= track.pointsEdgeRight.size()) // 数组越界保护
+      start =  track.pointsEdgeRight.size();
     if (end <= 5)
       end = 5;
+   
     // if (start <= end)
     // {
     //   return monotonicity_change_line;
@@ -1593,16 +1605,17 @@ public: // int leftpoint;
     if (track.validRowsRight <=
         0.1 * ROWSIMAGE) // 大部分都丢线，没有单调性判断的意义
       return monotonicity_change_line;
-    if (start < end) // 都是从下往上计算的，反了就互换一下
+       if (start < end) // 都是从下往上计算的，反了就互换一下
     {
       t = start;
       start = end;
       end = t;
     }
-    if (start >= ROWSIMAGE - 1 - 5) // 数组越界保护
-      start = ROWSIMAGE - 1 - 5;
+    if (start >= track.pointsEdgeRight.size()) // 数组越界保护
+      start =  track.pointsEdgeRight.size();
     if (end <= 5)
       end = 5;
+   
     for (i = start; i >= end; i--) // 会读取前5后5数据，所以前面对输入范围有要求
     {
       if (((track.pointsEdgeRight[i + 5].y - track.pointsEdgeRight[i + 4].y) <=
@@ -1663,16 +1676,17 @@ public: // int leftpoint;
     if (track.validRowsLeft <=
         0.1 * ROWSIMAGE) // 大部分都丢线，没有单调性判断的意义
       return monotonicity_change_line;
-    if (start < end) // 都是从下往上计算的，反了就互换一下
+       if (start < end) // 都是从下往上计算的，反了就互换一下
     {
       t = start;
       start = end;
       end = t;
     }
-    if (start >= ROWSIMAGE - 1 - 5) // 数组越界保护
-      start = ROWSIMAGE - 1 - 5;
+    if (start >= track.pointsEdgeRight.size()) // 数组越界保护
+      start =  track.pointsEdgeRight.size();
     if (end <= 5)
       end = 5;
+   
     for (i = start; i >= end; i--) // 会读取前5后5数据，所以前面对输入范围有要求
     {
       if (((track.pointsEdgeLeft[i + 5].y - track.pointsEdgeLeft[i + 4].y) >=
@@ -1723,16 +1737,17 @@ public: // int leftpoint;
     int i;
     int t = 0;
     int lostline_right = 0;
-    if (start < end) // 都是从下往上计算的，反了就互换一下
+       if (start < end) // 都是从下往上计算的，反了就互换一下
     {
       t = start;
       start = end;
       end = t;
     }
-    if (start >= ROWSIMAGE - 1 - 5) // 数组越界保护
-      start = ROWSIMAGE - 1 - 5;
+    if (start >= track.pointsEdgeRight.size()) // 数组越界保护
+      start =  track.pointsEdgeRight.size();
     if (end <= 5)
       end = 5;
+   
     for (i = start; i >= end; i--) // 会读取前5后5数据，所以前面对输入范围有要求
     {
       if (track.pointsEdgeRight[i].y >= COLSIMAGE - 1)
@@ -1754,16 +1769,17 @@ public: // int leftpoint;
     int i;
     int t = 0;
     int lostline_left = 0;
-    if (start < end) // 都是从下往上计算的，反了就互换一下
+       if (start < end) // 都是从下往上计算的，反了就互换一下
     {
       t = start;
       start = end;
       end = t;
     }
-    if (start >= ROWSIMAGE - 1 - 5) // 数组越界保护
-      start = ROWSIMAGE - 1 - 5;
+    if (start >= track.pointsEdgeRight.size()) // 数组越界保护
+      start =  track.pointsEdgeRight.size();
     if (end <= 5)
       end = 5;
+   
     for (i = start; i >= end; i--) // 会读取前5后5数据，所以前面对输入范围有要求
     {
       if (track.pointsEdgeLeft[i].y <= 2)
@@ -1783,12 +1799,17 @@ public: // int leftpoint;
                        int end) {
     int i = 0, t = 0;
     float inc = 0, dec = 0, n = 0;
-    if (start < end) // 都是从下往上计算的，反了就互换一下
+       if (start < end) // 都是从下往上计算的，反了就互换一下
     {
       t = start;
       start = end;
       end = t;
     }
+    if (start >= track.pointsEdgeRight.size()) // 数组越界保护
+      start =  track.pointsEdgeRight.size();
+    if (end <= 5)
+      end = 5;
+   
     switch (status) {
     case 1:
       for (i = start; i > end; i--) {
@@ -1874,16 +1895,17 @@ public: // int leftpoint;
   double Part_stdevEdgeCal(vector<POINT> &v_edge, int img_height,
                            int start_line, int end_line) {
     int i = 0, t = 0;
-    if (start_line < end_line) // 都是从下往上计算的，反了就互换一下
+       if (start_line < end_line) // 都是从下往上计算的，反了就互换一下
     {
       t = start_line;
       start_line = end_line;
       end_line = t;
     }
-    if (start_line >= ROWSIMAGE - 1 - 5) // 数组越界保护
-      start_line = ROWSIMAGE - 1 - 5;
+    if (start_line >= v_edge.size()) // 数组越界保护
+      start_line =  v_edge.size();
     if (end_line <= 5)
       end_line = 5;
+   
     if (v_edge.size() < img_height / 4) {
       return 1000;
     }
@@ -1914,7 +1936,7 @@ public: // int leftpoint;
    * @return 返回拟合的斜率
    */
   float regression(vector<POINT> &v_edge, int startline, int endline) {
-
+cout<<"startline"<<startline<<endl;
     int i = 0, SumX = 0, SumY = 0, SumLines = 0;
     float SumUp = 0, SumDown = 0, avrX = 0, avrY = 0, B, A;
     int t = 0;
@@ -1924,9 +1946,11 @@ public: // int leftpoint;
       startline = endline;
       endline = t;
     }
+    if(startline<=0)startline=1;
+    if(endline>v_edge.size())endline=v_edge.size();
     SumLines =
         endline - startline; // startline 为开始行， //endline 结束行 //SumLines
-
+    if(SumLines){
     for (i = startline; i < endline; i++) {
       SumX += i;
       SumY += v_edge[i].y; // 这里Middle_black为存放中线的数组
@@ -1944,6 +1968,7 @@ public: // int leftpoint;
     else
       B = (SumUp / SumDown);
     A = (SumY - B * SumX) / SumLines; // 截距
+    }
     return B;                         // 返回斜率
   }
 
@@ -1966,8 +1991,8 @@ public: // int leftpoint;
       startY = 0;
     if (endI >= track.pointsEdgeLeft.size() - 1)
       endI = track.pointsEdgeLeft.size() - 1;
-    else if (endI <= 0)
-      endI = 0;
+    else if (endI <= 5)
+      endI = 5;
     track.pointsEdgeLeft.resize(track.pointsEdgeLeft.size() + 1);
     if (startI < endI) //--操作，start需要大
     {

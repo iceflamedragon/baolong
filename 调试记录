@@ -120,8 +120,8 @@ detection.hpp中 ----score是置信度---提高一下防止误判
 
 
 
-最新：1.2（去掉ai之后的pid）
-"runP1": 1.5,
+    最新：1.2（去掉ai之后的pid）
+    "runP1": 1.5,
     "runP2": 0.02,
     "runP3": 0,
     "turnP": 0,
@@ -133,9 +133,99 @@ detection.hpp中 ----score是置信度---提高一下防止误判
     "turnP": 0,
     "turnD": 1.1,
     "turnI":0,
-    "angle_p":0.3,
+    "angle_p":0.3,     对于这个参数开关ai都可以  1.2速度
 
-1.2m 关ai圆环内的pid
-"ring_p1s": 0.35,
+    1.2m 关ai圆环内的pid
+    "ring_p1s": 0.35,
     "ring_p2s": 0.032,
     "ring_ds": 3.25,
+    "danger_p1": 1,
+    "danger_p2": 0.008,
+    "danger_d": 1.5,
+
+    1.2    7月15日包括圆环
+{
+
+    "speedLowpro": 1.2,//关掉ai
+    "speedHighpro": 1.2,
+    "speedBridge": 1.8,
+    "speedDown": 0.6,
+    "runP1": 0.3,
+    "runP2": 0.04,
+    "runP3": 0,
+    "turnP": 0,
+    "turnD": 2,
+    "turnI": 0,
+    "runP1_fast": 1.5,
+    "runP2_fast": 0.02,
+    "turnD_fast": 1.6,
+    "angle_p": 0.3,
+    "/*ring_b*/": "请调用small",
+    "ring_p1s": 0.35,
+    "ring_p2s": 0.032,
+    "ring_ds": 3.25,
+    "danger_p1": 1,
+    "danger_p2": 0.008,
+    "danger_d": 1.5,
+    }
+
+    2.0粗调
+    "runP1": 0.3,
+    "runP2": 0.05,
+    "runP3": 0,
+    "turnP": 0,
+    "turnD": 4,
+    "turnI": 0,
+
+
+
+
+
+
+    可以跑的开ai 1.0，关ai 1.2：   用ai的时候切换angle
+    "speedLow": 1,改成1.2更好   低速
+    "speedHigh": 1,
+    "/*Pro*/": "关闭ai",
+    "speedLowpro": 1.2,    高速
+    "speedHighpro": 1.2,
+    "speedBridge": 1.8,
+    "speedDown": 0.6,     救援区降速
+    "runP1": 1,          低速pid
+    "runP2": 0.0125,
+    "runP3": 0,
+    "turnP": 0,
+    "turnD": 1.1,
+    "turnI": 0,
+    "runP1_fast": 1.5,     高速pid
+    "runP2_fast": 0.02,
+    "turnD_fast":1.6,
+    "angle_p": 0.3,
+    "/*ring_b*/": "请调用small",
+    "ring_p1s": 0.35,
+    "ring_p2s": 0.032,
+    "ring_ds": 3.25,  //原来3.5
+    "danger_p1": 1,
+    "danger_p2": 0.008,
+    "danger_d": 1.5,
+    "rescue_error_r":210,
+    "rescue_error_l":120,
+    "None_distance":30000,
+    "Danger_distance": 0,
+    "Rescue_distance": 40000,
+    "Bridge_distance": 0,
+
+
+
+1.6m的关ai  angle置0  ---angle---在开ai时打开，在关ai时将系数置零
+    "speedLowpro": 1.6,
+    "speedHighpro": 1.6,
+
+    "runP1_fast": 1.5,
+    "runP2_fast": 0.015,
+    "turnD_fast":2,
+    "ring_p1s": 0.35,
+    "ring_p2s": 0.035,
+    "ring_ds": 3.7,
+
+
+2m:

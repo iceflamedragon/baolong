@@ -89,6 +89,8 @@ public:
   struct Params {
     
     int submit;
+    float rescue_error_l;
+    float rescue_error_r;
     int record_video;
     float runP1_fast;
     float runP2_fast;
@@ -110,6 +112,7 @@ public:
     int Danger_distance;
     int Rescue_distance;
     int Bridge_distance;
+    int None_distance;
     float speedLow = 1.5;        // 智能车最低速
     float speedHigh = 4;         // 智能车最高速
     float speedBridge = 0.6;     // 坡道速度
@@ -142,8 +145,8 @@ public:
                                    ring, cross, score, model, ring_p1b, ring_p2b,
                                    ring_db,ring_p1s, ring_p2s,ring_p2s,record_video, video, danger_p1,
                                    danger_p2,stop_num, danger_d, areaMax,submit,angle_p,
-                                   Danger_distance,Rescue_distance,Bridge_distance,speedLowpro,speedHighpro,
-                                   runP1_fast,runP2_fast,turnD_fast); // 添加构造函数
+                                   Danger_distance,Rescue_distance,Bridge_distance,None_distance,speedLowpro,speedHighpro,
+                                   runP1_fast,runP2_fast,turnD_fast,rescue_error_l,rescue_error_r); // 添加构造函数
   };
 
   Params params; // 读取控制参数
@@ -244,6 +247,8 @@ public:
     errorLast = error;
 
     servoPwm = PWMSERVOMID - pwmDiff;
+    if(servoPwm>950)servoPwm=950;
+    if(servoPwm<550)servoPwm=550;
     // (uint16_t)(750 - pwmDiff); // PWM转换
     // ~~^~~~~~~~~~~~~~~~~~~~~~~PWMSERVOMID - pwmDiff
     // cout << "舵机pwm" << PWMSERVOMID - pwmDiff << endl;

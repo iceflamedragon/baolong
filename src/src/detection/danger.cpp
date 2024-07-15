@@ -47,6 +47,7 @@ public:
    * @return true
    * @return false
    */
+int danger_in=0;
  bool set_AI_detection(void){return is_ai_detection;}
   bool is_ai_detection=true;//是否开启AI标志
   int cone_num;
@@ -58,7 +59,7 @@ public:
   int cone_temp;
   float distance_out;
   float distance_now;
-  int danger_out;
+  int danger_out=0;
   void save_common_pid(Motion &motion) {
     common_p1 = motion.params.runP1;
     common_p2 = motion.params.runP2;
@@ -68,7 +69,11 @@ public:
 
   void setdistance(float distance) { distance_now = distance; }; 
   bool process(Tracking &track, vector<PredictResult> predict, Motion &motion) {
-    if(distance_now-distance_out>500&&danger_out)is_ai_detection=false;
+    if(distance_now-distance_out>500&&danger_out)
+    {
+      motion.set_direction_pid(motion.params.runP1, motion.params.runP2, motion.params.turnD, common_i);
+      is_ai_detection=false;
+      }
     enable = false; // 场景检测使能标志
     if (track.pointsEdgeLeft.size() < ROWSIMAGE / 2 ||
         track.pointsEdgeRight.size() < ROWSIMAGE / 2)
@@ -138,10 +143,11 @@ public:
         disLeft <=
             disRight) //[1] 障碍物靠左&&resultsObs[index].type == LABEL_CONE
     {
+      danger_in=1;//进入危险区
       cout << "两种障碍物在左侧" << endl;
       // cout<<"障碍物的x坐标"<<resultsObs[index].x<<endl;
       // cout<<"障碍物的y坐标"<<resultsObs[index].y<<endl;
-      save_common_pid(motion);
+      
       motion.set_direction_pid(motion.params.danger_p1, motion.params.danger_p2,
                                motion.params.danger_d,0);
 
@@ -161,12 +167,12 @@ public:
                      // {track.pointsEdgeLeft[150].x,track.pointsEdgeLeft[150].y+20}
         points[1] = {
             resultsObs[index].y + resultsObs[index].height, // 原来加了20
-            resultsObs[index].x + resultsObs[index].width + 80}; // 原来为70
+            resultsObs[index].x + resultsObs[index].width + 50}; // 原来为80
         points[2] = {(resultsObs[index].y + resultsObs[index].height +
                       resultsObs[index].y) /
                          2, // 原先为除以2   之后调为乘0.8
                      resultsObs[index].x + resultsObs[index].width +
-                         80}; // 第二个位置仍然为y，
+                         50}; // 第二个位置仍然为y，
         if (resultsObs[index].y >
             track.pointsEdgeLeft[track.pointsEdgeLeft.size() - 1].x) {
           cout << "第三个点为第一种情况" << endl;
@@ -213,10 +219,11 @@ public:
                disLeft > disRight) //[2] 障碍物靠右&&resultsObs[index].type ==
                                    // LABEL_CONE
     {
+      danger_in=1;//进入危险区
       cout << "两种障碍物在右侧" << endl;
       // cout<<"障碍物的x坐标"<<resultsObs[index].x<<endl;
       // cout<<"障碍物的y坐标"<<resultsObs[index].y<<endl;
-      save_common_pid(motion);
+      
       motion.set_direction_pid(motion.params.danger_p1, motion.params.danger_p2,
                                motion.params.danger_d,0);
       if (resultsObs[index].type == LABEL_CONE) {
@@ -227,11 +234,11 @@ public:
         points[0] = track.pointsEdgeRight[row / 2];
         points[1] = {resultsObs[index].y + resultsObs[index].height +
                          10, // 原来减少20
-                     resultsObs[index].x - resultsObs[index].width - 50};
+                     resultsObs[index].x - resultsObs[index].width - 20};
         points[2] = {(resultsObs[index].y + resultsObs[index].height +
                       resultsObs[index].y) /
                          2,
-                     resultsObs[index].x - resultsObs[index].width - 50};
+                     resultsObs[index].x - resultsObs[index].width - 20};//原来减50
         if (resultsObs[index].y >
             track.pointsEdgeRight[track.pointsEdgeRight.size() - 1].x)
           points[3] = track.pointsEdgeRight[track.pointsEdgeRight.size() - 1];
@@ -264,7 +271,8 @@ public:
         }
       }
     }
-
+      resultsObs.clear();
+cout<<"resultsObs.size()"<<resultsObs.size()<<endl;
     return enable;
   } // 没写回正
 
@@ -354,9 +362,9 @@ private:
    * @param left
    */
   void curtailTracking(Tracking &track, bool left, Motion &motion) {
-    if (!left) // 向左侧缩进  改变补线问题  // 此时相当于实际在左侧
+    if (left) // 向左侧缩进  改变补线问题  // 此时相当于实际在左侧  原来是！
     {
-      motion.set_direction_pid(common_p1, common_p2, common_d,common_i);
+      // motion.set_direction_pid(common_p1, common_p2, common_d,common_i);
       cout << "黑色路障相当于在左侧时右侧的补线" << endl;
       if (track.pointsEdgeRight.size() > track.pointsEdgeLeft.size())
         track.pointsEdgeRight.resize(track.pointsEdgeLeft.size());
@@ -368,7 +376,7 @@ private:
       }
     } else // 向右侧缩进  障碍物在右侧
     {
-      motion.set_direction_pid(common_p1, common_p2, common_d,common_i);
+      // motion.set_direction_pid(common_p1, common_p2, common_d,common_i);
       cout << "黑色障碍物在右侧" << endl << endl;
       if (track.pointsEdgeRight.size() < track.pointsEdgeLeft.size())
         track.pointsEdgeLeft.resize(track.pointsEdgeRight.size());

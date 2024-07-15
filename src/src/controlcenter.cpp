@@ -41,6 +41,7 @@ private:
   int ai_middle_quanzhong;
 
 public:
+int flagdanger;
   void set_ai_middle_quanzhong(int num) { ai_middle_quanzhong = num; }
   int flagrescue=0;
   int submiterror;
@@ -279,8 +280,8 @@ public:
     }
     // 加权控制中心计算
     int controlNum = 1;
-    if (flagring != 1 && ai_middle_quanzhong != 1 &&
-        flagrescue) { // 直线pid  不开ai的直线权重
+    if (((flagring != 1 && ai_middle_quanzhong != 1) ||
+        flagrescue)||flagdanger) { // 直线pid  不开ai的直线权重
       for (auto p : centerEdge) {
 
         if (p.x < ROWSIMAGE / 4) { // 远离车辆的地方加权更大
@@ -297,7 +298,7 @@ public:
           controlCenter += p.y * (ROWSIMAGE + 170 + p.x);
         }
       }
-    } else if (flagring = 1) { // 圆环pid
+    } else if (flagring == 1&&ai_middle_quanzhong != 1) { // 圆环pid
       for (auto p : centerEdge) {
         if (p.x < ROWSIMAGE * 4 / 5 + 5 && p.x > ROWSIMAGE * 3 / 4 - 5) {
           controlCenter += p.y * ROWSIMAGE;
@@ -324,7 +325,7 @@ public:
         //   (ROWSIMAGE+170+ p.x );
         // }
       }
-    } else if (ai_middle_quanzhong == 1) {
+    } else if (ai_middle_quanzhong == 1&&flagring==0&&!flagrescue&&!flagdanger) {
 
       //  angle=atan();
       // cout<<"angle"<<angle<<endl;

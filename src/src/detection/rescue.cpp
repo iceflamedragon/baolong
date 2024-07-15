@@ -49,11 +49,11 @@ public:
   int flagin;               //
   int reflag; // 这两个flag用来保证在识别到锥桶相对位置后使得distiance_in为距离
   int flagdis; // 为 0时distiance_in=distance_now
-  int flagtrace;
-  int flagchur;
-  int flagchul;
+  int flagtrace=0;
+  int flagchur=0;
+  int flagchul=0;
   int a;
-  int rescue_out;
+  int rescue_out=0;
   float distance_out;
  
   void setdistancere(float distance) { distance_now = distance; };
@@ -114,7 +114,9 @@ public:
       retime++;
     }
 
-    if(distance_now-distance_out>100&&rescue_out) is_ai_detection=false;
+    if(distance_now-distance_out>200&&rescue_out) {
+      cout<<"救援区结束关闭AI"<<endl;
+      is_ai_detection=false;}
     // step = Step::Exit;
     switch (step) {
     case Step::None: //[01] 标志检测
@@ -189,7 +191,7 @@ public:
              (_pointNearConeR.x > ROWSIMAGE * 0.6)) &&
             !flagin) { // 当车辆开始靠近右边锥桶：准备入库
           reflag = 1;
-
+          flagtrace=1;
           cout << "锥桶到达0.6的位置了" << endl << endl << endl;
         }
         if (reflag) {
@@ -289,7 +291,7 @@ public:
       // // }
       // }
       if (abs(mpu6050_now - mpu6050_in) >
-          20) // 赛道还未丢失  (track.pointsEdgeLeft.size()-45 < ROWSIMAGE / 2
+          40) // 赛道还未丢失  (track.pointsEdgeLeft.size()-45 < ROWSIMAGE / 2
               // &&track.pointsEdgeRight.size() -45< ROWSIMAGE / 2)||
 
       {
@@ -400,7 +402,7 @@ public:
           heighestCone = pointConeRight[i];
       }
       
-      if (!entryLeft) {
+      if (entryLeft) {
         if (heighestCone.x > 0 && heighestCone.y > 0) {
           if (heighestCone.y >= COLSIMAGE / 3) // 顶角锥桶靠近右边→继续右转
           {
@@ -415,6 +417,7 @@ public:
 
             if (points.size() >= 3) // 曲线补偿
             {
+              cout<<"识别到三个锥桶了"<<endl;
               pointsSortForY(points); // 排序
               vector<POINT> input = {points[0], points[points.size() / 2],
                                      points[points.size() - 1]};
@@ -424,6 +427,7 @@ public:
 
               indexDebug = 1;
             } else if (points.size() >= 2) {
+                            cout<<"识别到2个锥桶了"<<endl;
               pointsSortForY(points); // 排序
               POINT middle =
                   POINT((points[0].x + points[points.size() - 1].x) / 2,
@@ -435,6 +439,7 @@ public:
                   predictEdgeRight(points); // 由左边缘补偿右边缘
               indexDebug = 2;
             } else if (points.size() >= 1) {
+                            cout<<"识别到1个锥桶了"<<endl;
               if (points[0].x > ROWSIMAGE / 2)
                 step = Step::Exit; // 出站使能
             }
@@ -485,6 +490,7 @@ public:
 
             if (points.size() >= 3) // 曲线补偿
             {
+                            cout<<"识别到三个锥桶了"<<endl;
               pointsSortForY(points); // 排序
               vector<POINT> input = {points[0], points[points.size() / 2],
                                      points[points.size() - 1]};
@@ -494,6 +500,7 @@ public:
 
               indexDebug = 1;
             } else if (points.size() >= 2) {
+                            cout<<"识别到2个锥桶了"<<endl;
               pointsSortForY(points); // 排序
               POINT middle =
                   POINT((points[0].x + points[points.size() - 1].x) / 2,
@@ -505,6 +512,7 @@ public:
                   predictEdgeLeft(points); // 由左边缘补偿右边缘
               indexDebug = 2;
             } else if (points.size() >= 1) {
+                            cout<<"识别到1个锥桶了"<<endl;
               if (points[0].x > ROWSIMAGE / 2)
                 step = Step::Exit; // 出站使能
             }
@@ -577,13 +585,14 @@ public:
       // cout<<"右边线尺寸"<<pathsEdgeRight.size()<<endl;
       // track.stdevLeft>30&&track.stdevLeft<60&&track.stdevRight>5
 
-      if ((track.stdevLeft > 20 && track.stdevLeft < 60 &&
-           track.stdevRight > 4) ||
-          (track.stdevRight > 20 && track.stdevRight < 60 &&
+      if ((track.stdevLeft <100 &&
+           track.stdevRight > 4&&entryLeft) ||
+          (track.stdevRight <100 &&
            track.stdevLeft >
-               4)) { // 原来为小于1 pathsEdgeLeft.size() < 1 ||
+               4&&!entryLeft)) { // 原来为小于1 pathsEdgeLeft.size() < 1 ||
                      // pathsEdgeRight.size() < 1    也是用延时  chu>80
         cout << "出站完成辣辣" << endl << endl;
+        flagtrace=0;
         flag_control=0;
         step = Step::None; // 出站完成
         distance_out=distance_now;
