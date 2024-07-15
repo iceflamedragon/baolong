@@ -250,9 +250,10 @@ distance_start = uart->get_distance();
       AI_distance_postion=AI_None_End;
       }
     }
-    if(!rescue.set_AI_detection()&&AI_distance_postion==AI_None_End)
+    if(!rescue.set_AI_detection()&&AI_distance_postion==AI_Danger_End)
     {
       // cout<<"救援区后关闭ai"<<endl;
+          detection->results.clear();
       AI_distance_postion=AI_Rescue_Start;
        AI_distance_start=distance_now;
     }
@@ -265,8 +266,9 @@ distance_start = uart->get_distance();
       AI_distance_postion=AI_Rescue_End;
       }
     }
-   if(!danger.set_AI_detection()&&AI_distance_postion==AI_Rescue_End)
+   if(!danger.set_AI_detection()&&AI_distance_postion==AI_None_End)
     {
+          detection->results.clear();
       AI_distance_postion=AI_Danger_Start;
        AI_distance_start=distance_now;
     }
@@ -277,18 +279,18 @@ distance_start = uart->get_distance();
       AI_distance_postion=AI_Danger_End;
       }
     }
-   if(!danger.set_AI_detection()&&AI_distance_postion==AI_Rescue_End)
-    {
-      AI_distance_postion=AI_Bridge_Start;
-       AI_distance_start=distance_now;
-    }
-    if(AI_distance_postion==AI_Bridge_Start){
-      Is_AI_detection=false;
-      if(abs(distance_now-AI_distance_start)>motion.params.Bridge_distance){
-      Is_AI_detection=true;
-      AI_distance_postion=AI_Bridge_End;
-      }
-    }
+  //  if(!danger.set_AI_detection()&&AI_distance_postion==AI_Rescue_End)
+  //   {
+  //     AI_distance_postion=AI_Bridge_Start;
+  //      AI_distance_start=distance_now;
+  //   }
+  //   if(AI_distance_postion==AI_Bridge_Start){
+  //     Is_AI_detection=false;
+  //     if(abs(distance_now-AI_distance_start)>motion.params.Bridge_distance){
+  //     Is_AI_detection=true;
+  //     AI_distance_postion=AI_Bridge_End;
+  //     }
+  //   }
     ctrlCenter.set_ai_middle_quanzhong(Is_AI_detection);
     if (Is_AI_detection&&(ai_check>1 && (detection->ai_flag && sceneLast != Scene::RingScene))) {
 

@@ -183,8 +183,8 @@ detection.hpp中 ----score是置信度---提高一下防止误判
 
 
     可以跑的开ai 1.0，关ai 1.2：   用ai的时候切换angle
-    "speedLow": 1,改成1.2更好   低速
-    "speedHigh": 1,
+    "speedLow": 1.2,改成1.2更好   低速
+    "speedHigh": 1.2,
     "/*Pro*/": "关闭ai",
     "speedLowpro": 1.2,    高速
     "speedHighpro": 1.2,
@@ -216,6 +216,31 @@ detection.hpp中 ----score是置信度---提高一下防止误判
 
 
 
+
+最新：1.2（去掉ai之后的pid）
+    "runP1": 1.5,
+    "runP2": 0.02,
+    "runP3": 0,
+    "turnP": 0,
+    "turnD": 1.6,
+    1.2（开ai的pid,加了angle的情况）
+    "runP1": 1,
+    "runP2": 0.0125,
+    "runP3": 0,
+    "turnP": 0,
+    "turnD": 1.1,
+    "turnI":0,
+    "angle_p":0.3,     对于这个参数开关ai都可以  1.2速度
+
+    1.2m 关ai圆环内的pid
+    "ring_p1s": 0.35,
+    "ring_p2s": 0.032,
+    "ring_ds": 3.25,
+    "danger_p1": 1,
+    "danger_p2": 0.008,
+    "danger_d": 1.5,
+
+    
 1.6m的关ai  angle置0  ---angle---在开ai时打开，在关ai时将系数置零
     "speedLowpro": 1.6,
     "speedHighpro": 1.6,
@@ -228,4 +253,7 @@ detection.hpp中 ----score是置信度---提高一下防止误判
     "ring_ds": 3.7,
 
 
-2m:
+2m:  
+ "runP1_fast": 0.3,
+    "runP2_fast": 0.03,
+    "turnD_fast":2.5,

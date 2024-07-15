@@ -411,7 +411,7 @@ public: // int leftpoint;
           addline_k=regression(track.pointsEdgeLeft,breakpoint_in - 2, breakpoint_in - 20);
           cout<<"斜率值大小"<<addline_k<<endl<<endl<<endl;
         }
-        else if(addline_contine)K_Add_Boundry_Left(addline_k-1.3, track.pointsEdgeLeft[20].y,30,140,track);  //原来为30
+        else if(addline_contine)K_Add_Boundry_Left(addline_k, track.pointsEdgeLeft[10].y,30,140,track);  //原来为30
 
         if (roundaboutArc &&
             !monotonicity_right) { // 当左边不单调点较低，或者左侧的斜率较大

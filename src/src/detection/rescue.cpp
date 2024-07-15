@@ -114,7 +114,7 @@ public:
       retime++;
     }
 
-    if(distance_now-distance_out>200&&rescue_out) {
+    if(distance_now-distance_out>motion.params.rescueout_distance&&rescue_out) {
       cout<<"救援区结束关闭AI"<<endl;
       is_ai_detection=false;}
     // step = Step::Exit;

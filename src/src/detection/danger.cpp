@@ -69,7 +69,7 @@ int danger_in=0;
 
   void setdistance(float distance) { distance_now = distance; }; 
   bool process(Tracking &track, vector<PredictResult> predict, Motion &motion) {
-    if(distance_now-distance_out>500&&danger_out)
+    if(distance_now-distance_out>motion.params.dangerout_distance&&danger_out)
     {
       motion.set_direction_pid(motion.params.runP1, motion.params.runP2, motion.params.turnD, common_i);
       is_ai_detection=false;
@@ -88,7 +88,7 @@ int danger_in=0;
     }
 
     if (resultsObs.size() <= 0)
-      return enable;
+      return false;//原来是enable
 
     // 选取距离最近的锥桶，面积最大的就最近
     int areaMax = 0; // 框面积
