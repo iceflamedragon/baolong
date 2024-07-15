@@ -47,7 +47,7 @@ void sigint_handler(int sig);
 int flag = 1;
 int start = 0;                        // 发车计数器
 int center_sum = 0, center_sum_n = 0; // 中心总值 ,计数
-bool Is_AI_detection=0;       //是否开启AI
+bool Is_AI_detection=1;       //是否开启AI
 int distance_start=0;
 double AI_distance_start=0,AI_distance_end=0;//AI标志与距离积分的开始和结束
 
@@ -408,8 +408,10 @@ ctrlCenter.flagdanger=0;
     ctrlCenter.flagrescue=rescue.flag_control;
     cout<<"标志位赋值"<<rescue.flag_control<<endl;
     ctrlCenter.fitting(tracking);
-      motion.angle=  atan(ring.regression(ctrlCenter.centerEdge,20,ctrlCenter.centerEdge.size()-1))/3.14*180;//此处得到的是弧度  ctrlCenter.centerEdge.size()-1
-      cout<<"角度"<<motion.angle<<endl;
+    if(Is_AI_detection)//打开ai
+      {motion.angle=  atan(ring.regression(ctrlCenter.centerEdge,20,ctrlCenter.centerEdge.size()-1))/3.14*180;}//此处得到的是弧度  ctrlCenter.centerEdge.size()-1
+     else  motion.angle=0;
+      // cout<<"角度"<<motion.angle<<endl;
     // 冲出赛道
     //  if (scene != Scene::RescueScene) {
     //    if (ctrlCenter.derailmentCheck(tracking)) //
@@ -470,12 +472,12 @@ ctrlCenter.flagdanger=0;
         // center_sum_n++;
         // cout<<"偏差点计数"<<center_sum_n<<endl;
         motion.poseCtrl(   //100
-           100,ctrlCenter); // 姿态控制（舵机） 别忘记打角  //后来改为80  下方为240
+           motion.params.ringout_l,ctrlCenter); // 姿态控制（舵机） 别忘记打角  //后来改为80  下方为240
       } else if (ring.center_flag_right == 1) {
         // ctrlCenter.controlCenter = center_sum / center_sum_n;
         //  cout << "固定舵机打角" << ctrlCenter.controlCenter << endl;
         motion.poseCtrl(
-            220,ctrlCenter); // 出环平均的中心姿态控制（舵机）ctrlCenter.controlCenter    
+            motion.params.ringout_r,ctrlCenter); // 出环平均的中心姿态控制（舵机）ctrlCenter.controlCenter    
       } else if (danger.flag_cone_first && danger.flagleft) {
         motion.poseCtrl(ctrlCenter.controlCenter + 5,ctrlCenter); // 姿态控制（舵机）
         //都为15

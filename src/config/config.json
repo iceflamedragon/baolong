@@ -1,34 +1,56 @@
 {
+    "/*低俗*/": "低速",
     "speedLow": 1,
     "speedHigh": 1,
-    "/*Pro*/": "关闭ai",
+    
+     "/*高速*/": "高速",
     "speedLowpro": 1.6,
     "speedHighpro": 1.6,
     "speedBridge": 1.8,
+    
+    "/*lowspeed*/": "救援区减速",
     "speedDown": 0.6,
+    
+    "/*lowpid*/": "开ai的低俗pid",
     "runP1": 1,
     "runP2": 0.0125,
     "runP3": 0,
     "turnP": 0,
     "turnD": 1.1,
     "turnI": 0,
+    
+    "/*fastpid*/": "关掉ai的快速pid",
     "runP1_fast": 1.5,
     "runP2_fast": 0.015,
     "turnD_fast":2,
-    "angle_p": 0,
-    "/*ring_b*/": "请调用small",
+    
+    "/*angle */": "斜率系数",
+    "angle_p": 0.3,
+   
+   "/*ringpid*/": "圆环pid",
     "ring_p1s": 0.35,
     "ring_p2s": 0.035,
     "ring_ds": 3.7,
+    
+    "/*dangerpid*/": "危险区pid",
     "danger_p1": 1,
     "danger_p2": 0.008,
     "danger_d": 1.5,
+
+    "/*rescueout*/": "救援区出库固定打角",
     "rescue_error_r":210,
     "rescue_error_l":120,
+    
+    "/*ringout*/": "出环固定打角",
+    "ringout_l":100,
+    "ringout_r":220,
+
+    "/*策略距离*/": "各阶段距离",
     "None_distance":0,
     "Danger_distance": 0,
     "Rescue_distance": 50000,
     "Bridge_distance": 0,
+
     "stop_num": 155,
     "areaMax": 4000,
     "submit": 0,

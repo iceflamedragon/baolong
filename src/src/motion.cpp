@@ -89,6 +89,8 @@ public:
   struct Params {
     
     int submit;
+    float ringout_l;
+    float ringout_r;
     float rescue_error_l;
     float rescue_error_r;
     int record_video;
@@ -146,7 +148,7 @@ public:
                                    ring_db,ring_p1s, ring_p2s,ring_p2s,record_video, video, danger_p1,
                                    danger_p2,stop_num, danger_d, areaMax,submit,angle_p,
                                    Danger_distance,Rescue_distance,Bridge_distance,None_distance,speedLowpro,speedHighpro,
-                                   runP1_fast,runP2_fast,turnD_fast,rescue_error_l,rescue_error_r); // 添加构造函数
+                                   runP1_fast,runP2_fast,turnD_fast,rescue_error_l,rescue_error_r,ringout_l,ringout_r); // 添加构造函数
   };
 
   Params params; // 读取控制参数
