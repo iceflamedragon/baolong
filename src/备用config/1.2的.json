@@ -27,6 +27,10 @@
     "/*angle */": "斜率系数",
     "angle_p": 0.3,
    
+    "/*ringinbreak*/": "入环角点时机",
+    "ringinbreakl":160,
+    "ringinbreakr":160,
+
    "/*ringpid*/": "圆环pid",
     "ring_p1s": 0.35,
     "ring_p2s": 0.032,
@@ -37,6 +41,9 @@
     "danger_p2": 0.008,
     "danger_d": 1.5,
 
+    "dangerout_distance":500,
+    "rescueout_distance":250,
+    
     "/*rescueout*/": "救援区出库固定打角",
     "rescue_error_r":210,
     "rescue_error_l":120,

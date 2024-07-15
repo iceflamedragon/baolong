@@ -4,8 +4,8 @@
     "speedHigh": 1,
     
      "/*高速*/": "高速",
-    "speedLowpro": 2,
-    "speedHighpro": 2,
+    "speedLowpro": 1.8,
+    "speedHighpro": 1.8,
     "speedBridge": 1.8,
     
     "/*lowspeed*/": "救援区减速",
@@ -22,15 +22,19 @@
     "/*fastpid*/": "关掉ai的快速pid",
     "runP1_fast": 0.3,
     "runP2_fast": 0.03,
-    "turnD_fast":2.5,
+    "turnD_fast":2.3,
     
     "/*angle */": "斜率系数",
     "angle_p": 0.3,
    
+    "/*ringinbreak*/": "入环角点时机",
+    "ringinbreakl":180,
+    "ringinbreakr":180,
+    
    "/*ringpid*/": "圆环pid",
     "ring_p1s": 0.4,
-    "ring_p2s": 0.07,
-    "ring_ds": 4.8,
+    "ring_p2s": 0.05,
+    "ring_ds": 4.2,
     
     "/*dangerpid*/": "危险区pid",
     "danger_p1": 1,
@@ -39,6 +43,7 @@
 
     "dangerout_distance":500,
     "rescueout_distance":250,
+    
     "/*rescueout*/": "救援区出库固定打角",
     "rescue_error_r":210,
     "rescue_error_l":120,
@@ -48,7 +53,7 @@
     "ringout_r":220,
 
     "/*策略距离*/": "各阶段距离",
-    "None_distance":222000,
+    "None_distance":200000,
     "Danger_distance": 0,
     "Rescue_distance": 43400,
     "Bridge_distance": 0,

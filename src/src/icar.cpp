@@ -250,7 +250,7 @@ distance_start = uart->get_distance();
       AI_distance_postion=AI_None_End;
       }
     }
-    if(!rescue.set_AI_detection()&&AI_distance_postion==AI_Danger_End)
+    if(!rescue.set_AI_detection()&&AI_distance_postion==AI_None_End)
     {
       // cout<<"救援区后关闭ai"<<endl;
           detection->results.clear();
@@ -266,7 +266,7 @@ distance_start = uart->get_distance();
       AI_distance_postion=AI_Rescue_End;
       }
     }
-   if(!danger.set_AI_detection()&&AI_distance_postion==AI_None_End)
+   if(!danger.set_AI_detection()&&AI_distance_postion==AI_Rescue_End)
     {
           detection->results.clear();
       AI_distance_postion=AI_Danger_Start;

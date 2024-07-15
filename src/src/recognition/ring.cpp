@@ -502,8 +502,8 @@ public: // int leftpoint;
       right_breakpoint = Find_Right_Breakpoint(track, 20, 180);
       cout << "入环右角点的i值" << right_breakpoint << endl;
       cout << "入环左角点的i值" << left_breakpoint << endl;
-      if ((left_breakpoint > 50 && left_breakpoint < 160) ||
-          (right_breakpoint > 50 && right_breakpoint < 160)) { // 原先为130  95
+      if ((left_breakpoint > 50 && left_breakpoint < motion.params.ringinbreakl) ||
+          (right_breakpoint > 50 && right_breakpoint <  motion.params.ringinbreakr)) { // 原先为130  95
         flagjiao = 1;
       }
       if (!track.spurroad.empty() &&
@@ -1069,6 +1069,7 @@ public: // int leftpoint;
 
         breakpoint_out = Find_Left_Breakpoint(track, 40, 180); // 找到拐点
         if (breakpoint_out < 170 && breakpoint_out > 40) {
+           motion.set_direction_pid(common_p1, common_p2, common_d, common_i);
           K_Add_Boundry_Left(regression(track.pointsEdgeLeft,
                                         breakpoint_out + 20,
                                         breakpoint_out + 2),
@@ -1108,6 +1109,7 @@ public: // int leftpoint;
         if (breakpoint_out < 170 && breakpoint_out > 40)
 
         {
+           motion.set_direction_pid(common_p1, common_p2, common_d, common_i);
           K_Add_Boundry_Right(regression(track.pointsEdgeRight,
                                          breakpoint_out + 20,
                                          breakpoint_out + 3),
@@ -1138,7 +1140,7 @@ public: // int leftpoint;
 
     // 出环，切回正常循迹        //这里应该依靠路程积分彻底出环
     if (ringStep == RingStep::Finish) {
-      motion.set_direction_pid(common_p1, common_p2, common_d, common_i);
+     
       cout << "距离差值   " << distance_now - distance_final << endl;
       // if (track.pointsEdgeLeft.size() > 30 &&
       //     track.pointsEdgeRight.size() > 30 &&

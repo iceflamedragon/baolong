@@ -8,6 +8,10 @@
     "speedHighpro": 2,
     "speedBridge": 1.8,
     
+    "/*ringinbreak*/": "入环角点时机",
+    "ringinbreakl":180,
+    "ringinbreakr":180,
+
     "/*lowspeed*/": "救援区减速",
     "speedDown": 0.6,
     
@@ -39,6 +43,7 @@
 
     "dangerout_distance":500,
     "rescueout_distance":250,
+    
     "/*rescueout*/": "救援区出库固定打角",
     "rescue_error_r":210,
     "rescue_error_l":120,
@@ -48,7 +53,7 @@
     "ringout_r":220,
 
     "/*策略距离*/": "各阶段距离",
-    "None_distance":222000,
+    "None_distance":0,
     "Danger_distance": 0,
     "Rescue_distance": 43400,
     "Bridge_distance": 0,

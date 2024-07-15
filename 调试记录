@@ -257,3 +257,17 @@ detection.hpp中 ----score是置信度---提高一下防止误判
  "runP1_fast": 0.3,
     "runP2_fast": 0.03,
     "turnD_fast":2.5,
+
+    "ring_p1s": 0.4,
+
+    "ring_p2s": 0.07,
+    "ring_ds": 4.8,
+
+
+1.8m：
+ "runP1_fast": 0.3,
+    "runP2_fast": 0.03,
+    "turnD_fast":2.3,
+    "ring_p1s": 0.4,
+    "ring_p2s": 0.05,
+    "ring_ds": 4.2,
