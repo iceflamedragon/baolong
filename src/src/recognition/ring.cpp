@@ -248,8 +248,8 @@ public: // int leftpoint;
           Part_stdevEdgeCal(track.pointsEdgeLeft, ROWSIMAGE, 40, 160);
       // cout<<"左环右侧拐点周围斜率方差"<<part_stdevEdgeCal_left<<endl;
       // cout<<"kaishipanduan9999999999"<<endl;s
-      left_breakpoint = Find_Left_Breakpoint(track, 80, 140);
-      right_breakpoint = Find_Right_Breakpoint(track, 80, 140); // 原来150
+      left_breakpoint = Find_Left_Breakpoint(track, motion.params.isrising_breakl, 140);
+      right_breakpoint = Find_Right_Breakpoint(track, motion.params.isrising_breakr, 140); // 原来150
       if (left_breakpoint) // 有左下拐点
       {
         lostline_left =

@@ -225,7 +225,7 @@ distance_start = uart->get_distance();
 
     
     //速度切换根据AI的情况
-    if(Is_AI_detection==0)
+    if(Is_AI_detection==0)//对于圆环内不切换
     {
         motion.set_direction_pid(motion.params.runP1_fast,motion.params.runP2_fast, motion.params.turnD_fast,0);
 

@@ -89,6 +89,8 @@ public:
   struct Params {
     
     int submit;
+    float isrising_breakl;
+    float isrising_breakr;
     float ringinbreakl;
     float ringinbreakr;
     float rescueout_distance;
@@ -153,7 +155,7 @@ public:
                                    danger_p2,stop_num, danger_d, areaMax,submit,angle_p,
                                    Danger_distance,Rescue_distance,Bridge_distance,None_distance,speedLowpro,speedHighpro,
                                    runP1_fast,runP2_fast,turnD_fast,rescue_error_l,rescue_error_r,ringout_l,ringout_r,
-                                   dangerout_distance,rescueout_distance,ringinbreakl,ringinbreakr); // 添加构造函数
+                                   dangerout_distance,rescueout_distance,ringinbreakl,ringinbreakr,isrising_breakl,isrising_breakr); // 添加构造函数
   };
 
   Params params; // 读取控制参数

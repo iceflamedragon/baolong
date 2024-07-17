@@ -1,16 +1,24 @@
 {
+    "debug": false,
+    "/*debug*/": "debug为1显示窗口,为0无窗口",
+    "record_video": false,
+    "/*record_video*/": "为1开始录制,要debug显示窗口必须先打开record_video",
+
+    "/*策略距离*/": "各阶段距离",
+    "None_distance":230000,
+    "Danger_distance": 0,
+    "Rescue_distance": 43000,
+    "Bridge_distance": 0,
+    
     "/*低俗*/": "低速",
     "speedLow": 1,
     "speedHigh": 1,
     
      "/*高速*/": "高速",
-    "speedLowpro": 2,
-    "speedHighpro": 2,
+    "speedLowpro": 1.6,
+    "speedHighpro": 1.6,
     "speedBridge": 1.8,
-    
-    "/*lowspeed*/": "救援区减速",
-    "speedDown": 0.6,
-    
+
     "/*lowpid*/": "开ai的低俗pid",
     "runP1": 1,
     "runP2": 0.0125,
@@ -20,17 +28,25 @@
     "turnI": 0,
     
     "/*fastpid*/": "关掉ai的快速pid",
-    "runP1_fast": 0.3,
-    "runP2_fast": 0.03,
-    "turnD_fast":2.5,
+    "runP1_fast": 1.5,
+    "runP2_fast": 0.015,
+    "turnD_fast":2,
     
     "/*angle */": "斜率系数",
     "angle_p": 0.3,
    
+    "/*isrising_break*/": "isrising的判断时机",
+    "isrising_breakl":80,
+    "isrising_breakr":80,
+
+    "/*ringinbreak*/": "Entering后入环角点时机",
+    "ringinbreakl":160,
+    "ringinbreakr":160,
+
    "/*ringpid*/": "圆环pid",
-    "ring_p1s": 0.4,
-    "ring_p2s": 0.07,
-    "ring_ds": 4.8,
+    "ring_p1s": 0.35,
+    "ring_p2s": 0.035,
+    "ring_ds": 3.7,
     
     "/*dangerpid*/": "危险区pid",
     "danger_p1": 1,
@@ -39,6 +55,7 @@
 
     "dangerout_distance":500,
     "rescueout_distance":250,
+    
     "/*rescueout*/": "救援区出库固定打角",
     "rescue_error_r":210,
     "rescue_error_l":120,
@@ -47,20 +64,15 @@
     "ringout_l":100,
     "ringout_r":220,
 
-    "/*策略距离*/": "各阶段距离",
-    "None_distance":222000,
-    "Danger_distance": 0,
-    "Rescue_distance": 43400,
-    "Bridge_distance": 0,
-
+    
+    "/*lowspeed*/": "救援区减速",
+    "speedDown": 0.6,
+    
     "stop_num": 155,
     "areaMax": 4000,
     "submit": 0,
     "/*areaMax*/": "救援区最大的锥桶面积",
-    "debug": false ,
-    "/*debug*/": "debug为1显示窗口,为0无窗口",
-    "record_video": false ,
-    "/*record_video*/": "为1开始录制,要debug显示窗口必须先打开record_video",
+
     "saveImg": false,
     "rowCutUp": 50,
     "rowCutBottom": 10,

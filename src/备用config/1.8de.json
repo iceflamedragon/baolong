@@ -1,4 +1,10 @@
 {
+    "debug": false ,
+    "/*debug*/": "debug为1显示窗口,为0无窗口",
+    "record_video": false ,
+    "/*record_video*/": "为1开始录制,要debug显示窗口必须先打开record_video",
+    "saveImg": false,
+    
     "/*低俗*/": "低速",
     "speedLow": 1,
     "speedHigh": 1,
@@ -26,8 +32,12 @@
     
     "/*angle */": "斜率系数",
     "angle_p": 0.3,
-   
-    "/*ringinbreak*/": "入环角点时机",
+
+    "/*isrising_break*/": "isrising的判断时机",
+    "isrising_breakl":80,
+    "isrising_breakr":80,
+    
+    "/*ringinbreak*/": "Entering后入环角点时机",
     "ringinbreakl":180,
     "ringinbreakr":180,
     
@@ -62,11 +72,7 @@
     "areaMax": 4000,
     "submit": 0,
     "/*areaMax*/": "救援区最大的锥桶面积",
-    "debug": false ,
-    "/*debug*/": "debug为1显示窗口,为0无窗口",
-    "record_video": false ,
-    "/*record_video*/": "为1开始录制,要debug显示窗口必须先打开record_video",
-    "saveImg": false,
+    
     "rowCutUp": 50,
     "rowCutBottom": 10,
     "bridge": false,
