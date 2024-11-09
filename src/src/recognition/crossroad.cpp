@@ -50,6 +50,39 @@ public:
    *
    */
 
+// #define RESULT_ROW 240 // 结果图行列
+// #define RESULT_COL 320
+// #define USED_ROW 240 // 用于透视图的行列
+// #define USED_COL 320
+
+//   void ImagePerspective_Init(
+//       uchar PER_IMG[ROWSIMAGE][COLSIMAGE],
+//       uint8_t *PerImg_ip[RESULT_ROW][RESULT_COL]) { // 逆透视变换矩阵
+
+//     static uint8_t BlackColor = 0;
+//     double change_un_Mat[3][3] = {{0.631877, -0.407608, 26.263835},
+//                                   {0.034269, 0.072294, 11.468252},
+//                                   {0.000090, -0.002448, 0.749438}};
+//     for (int i = 0; i < RESULT_COL; i++) {
+//       for (int j = 0; j < RESULT_ROW; j++) {
+//         int local_x = (int)((change_un_Mat[0][0] * i + change_un_Mat[0][1] * j +
+//                              change_un_Mat[0][2]) /
+//                             (change_un_Mat[2][0] * i + change_un_Mat[2][1] * j +
+//                              change_un_Mat[2][2]));
+//         int local_y = (int)((change_un_Mat[1][0] * i + change_un_Mat[1][1] * j +
+//                              change_un_Mat[1][2]) /
+//                             (change_un_Mat[2][0] * i + change_un_Mat[2][1] * j +
+//                              change_un_Mat[2][2]));
+//         if (local_x >= 0 && local_y >= 0 && local_y < USED_ROW &&
+//             local_x < USED_COL) {
+//           PerImg_ip[j][i] = &PER_IMG[local_y][local_x];
+//         } else {
+//           PerImg_ip[j][i] = &BlackColor; //&PER_IMG[0][0];
+//         }
+//       }
+//     }
+//   }
+
   void reset(void) {
     crossroadType = CrossroadType::None; // 十字道路类型
   }
@@ -365,8 +398,10 @@ public:
         // 直入十字判断
         if (track.spurroad.size() > 0 &&
             track.widthBlock[i].y > COLSIMAGE - 5 // 赛道足够宽
-            && LFguai > 5 // ？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？这是什么
-                          // ----拐点坐标（防止圆环误判为十字的）
+            &&
+            LFguai >
+                5 // ？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？这是什么
+                  // ----拐点坐标（防止圆环误判为十字的）
         ) {
           counterStrightA++;
         }

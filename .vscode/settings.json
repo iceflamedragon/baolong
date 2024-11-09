@@ -61,7 +61,9 @@
         "typeindex": "cpp",
         "typeinfo": "cpp",
         "valarray": "cpp",
-        "*.ipp": "cpp"
+        "*.ipp": "cpp",
+        "scan_line.h": "c",
+        "global.h": "c"
     },
     "cmake.sourceDirectory": "/home/edgeboard/car/demo/src"
 }

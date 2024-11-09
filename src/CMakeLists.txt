@@ -13,6 +13,10 @@ set(COMMON_LIB_DIR "${PROJECT_SOURCE_DIR}/lib/")
 
 set(COMMON_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/include"
                         "${PROJECT_SOURCE_DIR}/config"
+                        "${PROJECT_SOURCE_DIR}/src/CAM_cpp/camera_process"
+                        "${PROJECT_SOURCE_DIR}/src/CAM_cpp/control"
+                        "${PROJECT_SOURCE_DIR}/src/CAM_cpp/GUI"
+                        "${PROJECT_SOURCE_DIR}/src/CAM_cpp"
                         "${PROJECT_SOURCE_DIR}/src"
                         "${PROJECT_SOURCE_DIR}/tool")
 set(CMAKE_BUILD_TYPE Debug)
@@ -74,6 +78,10 @@ set(CAM_PROJECT_SOURCES ${PROJECT_SOURCE_DIR}/tool/camera.cpp)
 add_executable(${CAM_PROJECT_NAME} ${CAM_PROJECT_SOURCES})
 target_link_libraries(${CAM_PROJECT_NAME} pthread )
 target_link_libraries(${CAM_PROJECT_NAME} ${OpenCV_LIBS})
+
+
+
+
 #---------------------------------------------------------------------
 #               [ bin ] ==> [ main ]
 #---------------------------------------------------------------------
@@ -86,5 +94,33 @@ target_link_libraries(${ICAR_PROJECT_NAME} ${OpenCV_LIBS})
 target_link_libraries(${ICAR_PROJECT_NAME} pthread )
 target_link_libraries(${ICAR_PROJECT_NAME} ${SERIAL_LIBRARIES})
 
+# set(MYCAM_PROJECT_NAME "mycam")
+# set(MYCAM_PROJECT_SOURCES
+#     ${PROJECT_SOURCE_DIR}/src/CAM/control/mycar.c
+# ${PROJECT_SOURCE_DIR}/src/CAM/control/err_calculation.c
+# ${PROJECT_SOURCE_DIR}/src/CAM/control/filter.c
+# ${PROJECT_SOURCE_DIR}/src/CAM/control/fuzzy_pid.c
+# ${PROJECT_SOURCE_DIR}/src/CAM/control/integral.c
+# ${PROJECT_SOURCE_DIR}/src/CAM/control/pid.c
+# ${PROJECT_SOURCE_DIR}/src/CAM/camera_process/act_persp.c
+# ${PROJECT_SOURCE_DIR}/src/CAM/camera_process/black_obstacle.c
+# ${PROJECT_SOURCE_DIR}/src/CAM/camera_process/broken_circuit.c
+# ${PROJECT_SOURCE_DIR}/src/CAM/camera_process/circle.c
+# ${PROJECT_SOURCE_DIR}/src/CAM/camera_process/cross.c
+# ${PROJECT_SOURCE_DIR}/src/CAM/camera_process/garage.c
+# ${PROJECT_SOURCE_DIR}/src/CAM/camera_process/obstacle.c
 
+# ${PROJECT_SOURCE_DIR}/src/CAM/camera_process/zebra.c
 
+# ${PROJECT_SOURCE_DIR}/src/CAM/camera_process/slope.c
+# ${PROJECT_SOURCE_DIR}/src/CAM/camera_process/scan_line.c
+
+# ${PROJECT_SOURCE_DIR}/src/CAM/camera_process/patch_line.c
+
+# ${PROJECT_SOURCE_DIR}/src/CAM/camera_process/Element_recognition.c
+
+# ${PROJECT_SOURCE_DIR}/src/CAM/GUI/application.c
+# )
+# add_executable(${MYCAM_PROJECT_NAME} ${MYCAM_PROJECT_SOURCES})
+# # 包含头文件目录
+# include_directories(${PROJECT_SOURCE_DIR}/src/CAM)

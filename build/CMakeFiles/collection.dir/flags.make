@@ -4,7 +4,7 @@
 # compile CXX with /usr/bin/c++
 CXX_DEFINES = 
 
-CXX_INCLUDES = -I/home/edgeboard/car/baolong/src/include -I/home/edgeboard/car/baolong/src/config -I/home/edgeboard/car/baolong/src/src -I/home/edgeboard/car/baolong/src/tool -I/usr/include/glib-2.0 -I/usr/lib/aarch64-linux-gnu/glib-2.0/include -I/usr/local/include/libserial -I/usr/local/include/ppnc -I/usr/local/include/onnx -isystem /usr/local/include/opencv
+CXX_INCLUDES = -I/home/edgeboard/car/baolong/src/include -I/home/edgeboard/car/baolong/src/config -I/home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process -I/home/edgeboard/car/baolong/src/src/CAM_cpp/control -I/home/edgeboard/car/baolong/src/src/CAM_cpp/GUI -I/home/edgeboard/car/baolong/src/src/CAM_cpp -I/home/edgeboard/car/baolong/src/src -I/home/edgeboard/car/baolong/src/tool -I/usr/include/glib-2.0 -I/usr/lib/aarch64-linux-gnu/glib-2.0/include -I/usr/local/include/libserial -I/usr/local/include/ppnc -I/usr/local/include/onnx -isystem /usr/local/include/opencv
 
 CXX_FLAGS = -O3 -Wall -mcpu=native -flto -pthread -g -g -std=gnu++1z
 

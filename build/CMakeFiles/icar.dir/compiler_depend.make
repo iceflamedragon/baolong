@@ -523,8 +523,112 @@ CMakeFiles/icar.dir/src/icar.cpp.o: /home/edgeboard/car/baolong/src/src/icar.cpp
   /usr/include/aarch64-linux-gnu/bits/confname.h \
   /usr/include/aarch64-linux-gnu/bits/getopt_posix.h \
   /usr/include/aarch64-linux-gnu/bits/getopt_core.h \
-  /usr/include/aarch64-linux-gnu/bits/unistd.h
+  /usr/include/aarch64-linux-gnu/bits/unistd.h \
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/global.hpp \
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/GUI/application.cpp \
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/GUI/application.hpp \
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/global.hpp \
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/GUI/application.hpp \
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/Element_recognition.cpp \
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/Element_recognition.hpp \
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/global.hpp \
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/Binarization.hpp \
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/scan_line.hpp \
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/patch_line.hpp \
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/act_persp.hpp \
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/garage.hpp \
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/circle.hpp \
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/cross.hpp \
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/slope.hpp \
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/broken_circuit.hpp \
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/black_obstacle.hpp \
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/control/mycar.hpp \
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/global.hpp \
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/control/err_calculation.hpp \
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/control/integral.hpp \
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/control/pid.hpp \
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/control/fuzzy_pid.hpp \
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/control/filter.hpp \
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/Element_recognition.hpp \
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/act_persp.cpp \
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/control/mycar.hpp \
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/act_persp.hpp \
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/black_obstacle.cpp \
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/black_obstacle.hpp \
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/broken_circuit.cpp \
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/broken_circuit.hpp \
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/circle.cpp \
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/circle.hpp \
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/cross.cpp \
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/cross.hpp \
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/garage.cpp \
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/garage.hpp \
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/obstacle.cpp \
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/obstacle.hpp \
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/obstacle.hpp \
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/patch_line.cpp \
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/patch_line.hpp \
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/scan_line.cpp \
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/scan_line.hpp \
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/slope.cpp \
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/slope.hpp \
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/zebra.cpp \
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/zebra.hpp \
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/control/integral.hpp \
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/zebra.hpp \
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/control/err_calculation.cpp \
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/control/mycar.hpp \
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/control/err_calculation.hpp \
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/control/filter.cpp \
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/control/filter.hpp \
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/control/fuzzy_pid.cpp \
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/control/fuzzy_pid.hpp \
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/control/integral.cpp \
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/control/integral.hpp \
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/control/mycar.cpp \
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/control/mycar.hpp \
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/control/pid.cpp \
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/control/pid.hpp \
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/Binarization.hpp
 
+
+/home/edgeboard/car/baolong/src/src/CAM_cpp/control/pid.cpp:
+
+/home/edgeboard/car/baolong/src/src/CAM_cpp/control/integral.cpp:
+
+/home/edgeboard/car/baolong/src/src/CAM_cpp/control/fuzzy_pid.cpp:
+
+/home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/zebra.hpp:
+
+/home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/zebra.cpp:
+
+/home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/obstacle.cpp:
+
+/home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/garage.cpp:
+
+/home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/cross.cpp:
+
+/home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/broken_circuit.cpp:
+
+/home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/black_obstacle.cpp:
+
+/home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/act_persp.cpp:
+
+/home/edgeboard/car/baolong/src/src/CAM_cpp/control/filter.hpp:
+
+/home/edgeboard/car/baolong/src/src/CAM_cpp/control/fuzzy_pid.hpp:
+
+/home/edgeboard/car/baolong/src/src/CAM_cpp/control/mycar.hpp:
+
+/home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/act_persp.hpp:
+
+/home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/Binarization.hpp:
+
+/home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/Element_recognition.hpp:
+
+/home/edgeboard/car/baolong/src/src/CAM_cpp/GUI/application.hpp:
+
+/home/edgeboard/car/baolong/src/src/CAM_cpp/global.hpp:
 
 /usr/include/aarch64-linux-gnu/bits/environments.h:
 
@@ -648,6 +752,8 @@ CMakeFiles/icar.dir/src/icar.cpp.o: /home/edgeboard/car/baolong/src/src/icar.cpp
 
 /usr/local/include/opencv2/flann/timer.h:
 
+/home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/broken_circuit.hpp:
+
 /usr/local/include/opencv2/flann/ground_truth.h:
 
 /usr/include/c++/7/math.h:
@@ -768,6 +874,8 @@ CMakeFiles/icar.dir/src/icar.cpp.o: /home/edgeboard/car/baolong/src/src/icar.cpp
 
 /usr/include/features.h:
 
+/home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/scan_line.hpp:
+
 /usr/local/include/opencv2/core/cvstd.hpp:
 
 /usr/include/aarch64-linux-gnu/bits/getopt_core.h:
@@ -854,6 +962,8 @@ CMakeFiles/icar.dir/src/icar.cpp.o: /home/edgeboard/car/baolong/src/src/icar.cpp
 
 /usr/include/c++/7/sstream:
 
+/home/edgeboard/car/baolong/src/src/CAM_cpp/control/mycar.cpp:
+
 /usr/include/c++/7/bits/postypes.h:
 
 /usr/include/wctype.h:
@@ -874,6 +984,8 @@ CMakeFiles/icar.dir/src/icar.cpp.o: /home/edgeboard/car/baolong/src/src/icar.cpp
 
 /usr/include/c++/7/bits/stl_function.h:
 
+/home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/patch_line.hpp:
+
 /usr/include/c++/7/functional:
 
 /usr/include/c++/7/bits/range_access.h:
@@ -885,6 +997,8 @@ CMakeFiles/icar.dir/src/icar.cpp.o: /home/edgeboard/car/baolong/src/src/icar.cpp
 /usr/include/time.h:
 
 /usr/include/c++/7/bits/memoryfwd.h:
+
+/home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/patch_line.cpp:
 
 /usr/include/c++/7/cerrno:
 
@@ -903,6 +1017,8 @@ CMakeFiles/icar.dir/src/icar.cpp.o: /home/edgeboard/car/baolong/src/src/icar.cpp
 /usr/include/c++/7/ext/alloc_traits.h:
 
 /usr/include/c++/7/typeinfo:
+
+/home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/slope.cpp:
 
 /home/edgeboard/car/baolong/src/src/detection/parking.cpp:
 
@@ -927,6 +1043,8 @@ CMakeFiles/icar.dir/src/icar.cpp.o: /home/edgeboard/car/baolong/src/src/icar.cpp
 /usr/include/c++/7/bits/stl_construct.h:
 
 /usr/include/c++/7/cstdint:
+
+/home/edgeboard/car/baolong/src/src/CAM_cpp/control/err_calculation.hpp:
 
 /usr/include/aarch64-linux-gnu/c++/7/bits/c++io.h:
 
@@ -958,9 +1076,15 @@ CMakeFiles/icar.dir/src/icar.cpp.o: /home/edgeboard/car/baolong/src/src/icar.cpp
 
 /usr/include/c++/7/debug/assertions.h:
 
+/home/edgeboard/car/baolong/src/src/CAM_cpp/control/pid.hpp:
+
 /home/edgeboard/car/baolong/src/include/common.hpp:
 
+/home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/obstacle.hpp:
+
 /usr/include/aarch64-linux-gnu/bits/wctype-wchar.h:
+
+/home/edgeboard/car/baolong/src/src/CAM_cpp/control/integral.hpp:
 
 /usr/include/c++/7/bits/stl_iterator_base_types.h:
 
@@ -999,6 +1123,8 @@ CMakeFiles/icar.dir/src/icar.cpp.o: /home/edgeboard/car/baolong/src/src/icar.cpp
 /usr/include/c++/7/initializer_list:
 
 /usr/include/aarch64-linux-gnu/sys/types.h:
+
+/home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/garage.hpp:
 
 /usr/include/aarch64-linux-gnu/bits/waitstatus.h:
 
@@ -1086,6 +1212,8 @@ CMakeFiles/icar.dir/src/icar.cpp.o: /home/edgeboard/car/baolong/src/src/icar.cpp
 
 /usr/include/aarch64-linux-gnu/bits/sysmacros.h:
 
+/home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/scan_line.cpp:
+
 /usr/include/c++/7/bits/move.h:
 
 /usr/include/aarch64-linux-gnu/bits/long-double.h:
@@ -1102,11 +1230,15 @@ CMakeFiles/icar.dir/src/icar.cpp.o: /home/edgeboard/car/baolong/src/src/icar.cpp
 
 /usr/include/c++/7/bits/stl_tempbuf.h:
 
+/home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/circle.hpp:
+
 /usr/include/aarch64-linux-gnu/bits/stdio2.h:
 
 /usr/include/c++/7/bits/slice_array.h:
 
 /usr/include/aarch64-linux-gnu/bits/wordsize.h:
+
+/home/edgeboard/car/baolong/src/src/CAM_cpp/control/err_calculation.cpp:
 
 /usr/local/include/opencv2/videoio.hpp:
 
@@ -1121,6 +1253,8 @@ CMakeFiles/icar.dir/src/icar.cpp.o: /home/edgeboard/car/baolong/src/src/icar.cpp
 /usr/local/include/opencv2/flann/nn_index.h:
 
 /usr/include/aarch64-linux-gnu/bits/types/struct_itimerspec.h:
+
+/home/edgeboard/car/baolong/src/src/CAM_cpp/control/filter.cpp:
 
 /usr/include/stdlib.h:
 
@@ -1143,6 +1277,8 @@ CMakeFiles/icar.dir/src/icar.cpp.o: /home/edgeboard/car/baolong/src/src/icar.cpp
 /usr/include/aarch64-linux-gnu/bits/types/__locale_t.h:
 
 /usr/include/aarch64-linux-gnu/bits/types.h:
+
+/home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/black_obstacle.hpp:
 
 /usr/include/aarch64-linux-gnu/bits/typesizes.h:
 
@@ -1250,6 +1386,8 @@ CMakeFiles/icar.dir/src/icar.cpp.o: /home/edgeboard/car/baolong/src/src/icar.cpp
 
 /usr/include/c++/7/bits/gslice.h:
 
+/home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/Element_recognition.cpp:
+
 /usr/include/c++/7/unordered_map:
 
 /usr/include/c++/7/type_traits:
@@ -1275,6 +1413,8 @@ CMakeFiles/icar.dir/src/icar.cpp.o: /home/edgeboard/car/baolong/src/src/icar.cpp
 /usr/local/include/opencv2/shape.hpp:
 
 /usr/include/c++/7/bits/vector.tcc:
+
+/home/edgeboard/car/baolong/src/src/CAM_cpp/GUI/application.cpp:
 
 /usr/include/aarch64-linux-gnu/sys/ucontext.h:
 
@@ -1335,6 +1475,8 @@ CMakeFiles/icar.dir/src/icar.cpp.o: /home/edgeboard/car/baolong/src/src/icar.cpp
 /usr/include/c++/7/istream:
 
 /usr/include/c++/7/bits/istream.tcc:
+
+/home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/circle.cpp:
 
 /usr/include/c++/7/ext/concurrence.h:
 
@@ -1442,6 +1584,8 @@ CMakeFiles/icar.dir/src/icar.cpp.o: /home/edgeboard/car/baolong/src/src/icar.cpp
 
 /usr/include/c++/7/tr1/legendre_function.tcc:
 
+/home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/slope.hpp:
+
 /usr/include/c++/7/locale:
 
 /usr/include/c++/7/tr1/poly_hermite.tcc:
@@ -1535,6 +1679,8 @@ CMakeFiles/icar.dir/src/icar.cpp.o: /home/edgeboard/car/baolong/src/src/icar.cpp
 /usr/include/aarch64-linux-gnu/c++/7/bits/os_defines.h:
 
 /usr/local/include/opencv2/flann/defines.h:
+
+/home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/cross.hpp:
 
 /usr/include/c++/7/bits/stl_algobase.h:
 

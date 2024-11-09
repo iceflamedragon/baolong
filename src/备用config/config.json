@@ -1,0 +1,129 @@
+{
+    "debug": true ,
+    "/*debug*/": "debug为1显示窗口,为0无窗口",
+    "record_video": false ,
+    "/*record_video*/": "为1开始录制,要debug显示窗口必须先打开record_video",
+    "saveImg": false,
+    
+    "/*低俗*/": "低速",
+    "speedLow": 1,
+    "speedHigh": 1,
+    
+     "/*高速*/": "高速",
+    "speedLowpro": 1.8,
+    "speedHighpro": 1.8,
+    "speedBridge": 1.8,
+    
+    "/*lowspeed*/": "救援区减速",
+    "speedDown": 0.6,
+    
+    "/*lowpid*/": "开ai的低俗pid",
+    "runP1": 1,
+    "runP2": 0.0125,
+    "runP3": 0,
+    "turnP": 0,
+    "turnD": 1.1,
+    "turnI": 0,
+    
+    "/*fastpid*/": "关掉ai的快速pid",
+    "runP1_fast": 0.3,
+    "runP2_fast": 0.03,
+    "turnD_fast":2.3,
+    
+    "/*angle */": "斜率系数",
+    "angle_p": 0.3,
+
+    "/*isrising_break*/": "isrising的判断时机",
+    "isrising_breakl":40,
+    "isrising_breakr":40,
+    
+    "/*ringinbreak*/": "Entering后入环角点时机",
+    "ringinbreakl":180,
+    "ringinbreakr":180,
+    
+   "/*ringpid*/": "圆环pid",
+    "ring_p1s": 0.4,
+    "ring_p2s": 0.05,
+    "ring_ds": 4.2,
+    
+    "/*dangerpid*/": "危险区pid",
+    "danger_p1": 1,
+    "danger_p2": 0.008,
+    "danger_d": 1.5,
+
+    "/*dangerconeerror*/": "危险区曲线拟合偏差值---如果左锥桶拐得过于靠右,left减小;;如果右锥桶拐得过于靠左,right减小",
+    "cone_error_left":50,
+    "cone_error_right":20,
+    "/*dangerblockerror*/":"黑色路障---如果左侧砖块拐得靠右，增加这个值；；如果右侧砖块拐得靠左，减小这个值",
+    "block_error":7,
+
+    "dangerout_distance":500,
+    "rescueout_distance":250,
+    
+    "/*rescueout*/": "救援区出库固定打角",
+    "rescue_error_r":210,
+    "rescue_error_l":120,
+    
+    "/*ringout*/": "出环固定打角",
+    "ringout_l":100,
+    "ringout_r":220,
+
+    "/*rescue_stop_height*/":"停的不够进去，加大数值",
+    "rescue_stop_height":0.5,
+
+    "/*策略距离*/": "各阶段距离",
+    "None_distance":3094,
+    "Danger_distance": 25130,
+    "Rescue_distance": 5978,
+    "Bridge_distance": 0,
+
+    "stop_num": 155,
+    "areaMax": 4000,
+    "submit": 0,
+    "/*areaMax*/": "救援区最大的锥桶面积",
+    
+    "rowCutUp": 50,
+    "rowCutBottom": 10,
+    "bridge": false,
+    "danger":true ,
+    "rescue": true,
+    "racing": false,
+    "parking":true,
+    "ring": true,
+    "cross": false,
+    "score": 0.6,
+    "motion_start": true,
+    "ring_p1b": 0.35,
+    "ring_p2b": 0.16,
+    "ring_db": 2,
+    "/*motion_start*/": "motion_start为1开始运动,为0停止运动",
+    "model": "../res/model/yolov3_mobilenet_v1",
+    "video": "../res/samples/sample.mp4",
+    "record": [
+        {
+            "#speedLow": "智能车最低速: m/s",
+            "#speedHigh": "智能车最高速: m/s",
+            "#speedBridge": "坡道速度: m/s",
+            "#speedDown": "特殊元素<慢行区>速度: m/s",
+            "#runP1": "一阶比例系数：直线控制量",
+            "#runP2": "二阶比例系数：弯道控制量",
+            "#runP3": "三阶比例系数：弯道控制量",
+            "#turnP": "一阶比例系数：转弯控制量",
+            "#turnD": "一阶微分系数：转弯控制量",
+            "#debug": "调试模式使能（存图|看图）",
+            "#saveImg": "存储原始图像使能（非调试模式下）",
+            "#rowCutUp": "图像顶部切行（前瞻距离）",
+            "#rowCutBottom": "图像底部切行（盲区距离）",
+            "#bridge": "坡道区使能",
+            "#danger": "危险区使能",
+            "#rescue": "救援区使能",
+            "#racing": "追逐区使能",
+            "#parking": "停车区使能",
+            "#ring": "环岛使能",
+            "#cross": "十字道路使能",
+            "#score": "AI检测置信度[0,1]",
+            "#model": "模型路径(../res/model/yolov3_mobilenet_v1)",
+            "#video": "视频路径(../res/samples/sample.mp4)"
+        }
+    ]
+}
