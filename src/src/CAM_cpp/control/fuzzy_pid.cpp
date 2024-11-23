@@ -163,7 +163,7 @@ void updata_fuzzy_pid(float err,float d_err)
     CAM_FUZZY_PID.kp=setpara.com_turn_PID.kp+d_kp;
     CAM_FUZZY_PID.kd=setpara.com_turn_PID.kd+d_kd;
 
-    //提前入弯时机
+    //////////////提前入弯时机，应该需要修改的地方
     if(watch.track_count<90&&watch.track_count>70)far_line_count++;
     else far_line_count--;
     if(far_line_count>=3)far_line_count=3;
@@ -192,7 +192,7 @@ void updata_fuzzy_speed(float err,float k)
 
 float speed2[15]={0.2,0.2,0.2,0.21,0.21,0.22,0.24,0.27,0.30,0.33,0.38,0.4,0.45,0.5,1};
 
-float fuzzy_speed2(float d_k)
+float fuzzy_speed2(float d_k)//没有用到
 {
     uint8_t step;//当前舵机所对应的级别
     int16_t pos;
@@ -254,7 +254,7 @@ int car_track[120]={65,66,66,66,66,66,66,67,67,67,67,68,68,68,69,69,69,69,70,70,
         84,84,85,85,85,85,86,86,86,86,86,86,87,87,87,87,88,88,88,88,
         88,88,88,89,89,89,89,89,89,90,90,90,90,91,91,91,92,92,92,92};
 
-void speed_ctrl_cal()
+void speed_ctrl_cal()//速度决策
 {
     int left_track_count=0;
     int right_track_count=0;

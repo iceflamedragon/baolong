@@ -16,12 +16,17 @@
 // // #include "ADRC.h"
 // #include "filter.hpp"
 
-
+#define PI 3.14151926
 #define TREAD 15;
 #define WHEEL_DISTANCE 24;
 
 //小车状态标志位
 typedef struct mycar_STRUCT{
+////板卡特用参数
+                float uart_speed;//发送的速度值，
+                uint16_t uart_servo;//发送的PWM值，经过上位机各种控制计算后需要发出的值
+
+////
  //       u8 status;   //小车运行状态
         uint32_t RUNTIME; //小车运行时间(单位为10ms)
 /*

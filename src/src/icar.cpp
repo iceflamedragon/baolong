@@ -46,7 +46,7 @@ using namespace std;
 using namespace cv;
 bool app_stopped = false;
 void sigint_handler(int sig);
-
+extern uint8_t Grayscale[ROWSIMAGE][COLSIMAGE];
 int flag = 1;
 int start = 0;                        // 发车计数器
 int center_sum = 0, center_sum_n = 0; // 中心总值 ,计数
@@ -92,7 +92,7 @@ int main(int argc, char const *argv[]) {
   // 目标检测类(AI模型文件)
   shared_ptr<Detection> detection = make_shared<Detection>(motion.params.model);
   detection->score = motion.params.score; // AI检测置信度
-cout<<"222"<<endl;
+
   // USB转串口初始化： /dev/ttyUSB0
   // if(ring.flagpid){
   // motion.flag=1;
@@ -108,20 +108,16 @@ cout<<"222"<<endl;
 
   // USB摄像头初始化
   // if (motion.params.debug)
-
   // capture = VideoCapture(motion.params.video); // 打开本地视频
-
-  cv::Size S = cv::Size((int)capture.get(CAP_PROP_FRAME_WIDTH),
-                        (int)capture.get(CAP_PROP_FRAME_HEIGHT));
 
   if (!capture.isOpened()) {
     printf("can not open video device!!!\n");
     return 0;
   }
   VideoWriter video("ouput.avi", cv::VideoWriter::fourcc('M', 'J', 'P', 'G'),
-                    30, Size(1280, 240), true);
-  capture.set(CAP_PROP_FRAME_WIDTH, COLSIMAGE);  // 设置图像分辨率
-  capture.set(CAP_PROP_FRAME_HEIGHT, ROWSIMAGE); // 设置图像分辨率
+                    30, Size(4 * COLSIMAGE, ROWSIMAGE), true);
+  capture.set(CAP_PROP_FRAME_WIDTH, 320);  // 设置图像分辨率
+  capture.set(CAP_PROP_FRAME_HEIGHT, 240); // 设置图像分辨率
   /// 标志位初始化
   AI_distance_postion = AI_Distance_None;
   // 等待按键发车
@@ -158,6 +154,10 @@ cout<<"222"<<endl;
   int ai_middle_quanzhong;
   distance_start = uart->get_distance();
   int picture_num = 0;
+
+  /////////////////祖传算法需要初始化的地方
+
+  car_begin(); // 初始化车启动的标志位
 
   while (1) {
     //  ring.RoundaboutGetArc(tracking, 1, 20, 30, 160);
@@ -196,6 +196,9 @@ cout<<"222"<<endl;
     cout << "现在的距离积分" << distance_now - distance_start << endl;
     cout << mpu6050_now << endl; // 输出mpu
 
+    angal_integeral(mpu6050_now);    // 把现在角度积分不断传入
+    distant_integeral(distance_now); //
+
     ring.setmpu6050(mpu6050_now);
     ring.setdistance(distance_now);
     rescue.setdistancere(distance_now);
@@ -215,37 +218,43 @@ cout<<"222"<<endl;
                     .count();
     if (!capture.read(img))
       continue;
-    // if (motion.params.saveImg && !motion.params.debug) // 存储原始图像
-    //   savePicture(img);
-    // if (waitKey(1) == 27) { // 如果用户按下 ESC 键，退出循环
+
+    Size dsize_first = Size(188, 120);
+    cv::resize(img, img, dsize_first, 0, 0, INTER_AREA);
+
+    // blog.csdn.net/hysterisis/article/details/112381220
+    //  if (motion.params.saveImg && !motion.params.debug) // 存储原始图像
+    //    savePicture(img);
+    //  if (waitKey(1) == 27) { // 如果用户按下 ESC 键，退出循环
 
     //   // s1++;
     //   // imwrite("../res/calibration/temp/" + to_string(s1) + s2, img);
-    //   // cout << "../res/calibration/temp/" + to_string(s1) + s2 << endl;
-    //   uart->carpid(300, 750, 0, 0); //
+    //   // cout << "../res/calibration/temp/" + to_string(s1) + s2 <<
+    //   endl; uart->carpid(300, 750, 0, 0); //
     //   调pid，参数分别为p，i，d，是否存入flash
     //   // cout << "fache" << endl << endl << endl << endl << endl;
 
     //   // 按键发车
     // }
     //[02] 图像预处理
-// imshow("img",img);
-cout<<1<<endl;
+    // imshow("img",img);
+
     Mat imgCorrect = img; // 图像矫正（已停止
-    Mat imgBinary =
-        preprocess.binaryzation(imgCorrect); // 图像二值化
-                                             // 调用函数将图像转换为二维数组
-    // MatTo2DArray(imgBinary, Grayscale);
+    Mat imgBinary = preprocess.binaryzation(imgCorrect); // 图像二值化
+
+    // MatTo2DArray(imgBinary, Grayscale);// 调用函数将图像转换为二维数组
     // CAM_CPU_while();
 
     char buffer[50];
     sprintf(buffer, "%d.jpg", picture_num);
     // picture_num++;//截图
-    // std::cout << "图像" << buffer << std::endl; // 输出: The answer is: 42
-    // imwrite(buffer, imgBinary);
+    // std::cout << "图像" << buffer << std::endl; // 输出: The answer is:
+    //  imwrite(buffer, imgBinary);
     Mat element = getStructuringElement(
         MORPH_RECT, Size(4, 4)); // 小于8*8方块的白色噪点都会被腐蚀
     erode(imgBinary, imgBinary, element);
+    cout << "row" << imgBinary.rows << "col" << imgBinary.cols << endl;
+    MatTo2DArray(imgBinary, Grayscale); // 调用函数将图像转换为二维数组
     cout << "scene" << scene << endl;
     // crossroad.ImagePerspective_Init(my_Grayscale, PerImg_pic);
     // convertToStaticArray();
@@ -384,7 +393,8 @@ cout<<1<<endl;
         scene = Scene::NormalScene;
     }
     if (rescue.car_changepid == 1) {
-      uart->carpid(300, 750, 0, 0); // 调pid，参数分别为p，i，d，是否存入flash
+      uart->carpid(300, 750, 0,
+                   0); // 调pid，参数分别为p，i，d，是否存入flash
       rescue.car_changepid = 0;
     }
     //[07] 追逐区检测
@@ -486,8 +496,8 @@ cout<<1<<endl;
         motion.speed = -motion.params.speedDown;
         cout << "速度值为" << motion.speed << endl;
 
-      } else if (scene ==
-                 Scene::RescueScene) // Rescue减速scene == Scene::RescueScene
+      } else if (scene == Scene::RescueScene) // Rescue减速scene ==
+                                              // Scene::RescueScene
 
       {
         motion.speedCtrl(true, true, ctrlCenter, false);
@@ -542,6 +552,9 @@ cout<<1<<endl;
         center_sum = 0;
         center_sum_n = 0;
       }
+
+      motion.speed = mycar.uart_speed; // 将祖传的计算速度值传入
+      motion.servoPwm = mycar.uart_servo;
       uart->carControl(motion.speed, motion.servoPwm); // 串口通信控制车辆
     }
     Mat imgRes =

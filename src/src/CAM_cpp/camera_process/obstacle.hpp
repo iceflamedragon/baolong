@@ -10,7 +10,6 @@
 #include "../global.hpp"
 
 void obstacle_identification();
+void obstacle_stop();
 
 #endif
-
-

@@ -33,12 +33,12 @@
 using namespace std;
 using namespace cv;
 
-#define COLSIMAGE 320    // 图像的列数188
-#define ROWSIMAGE 240    // 图像的行数120
+#define COLSIMAGE 188    // 图像的列数320
+#define ROWSIMAGE 120    // 图像的行数240
 #define COLSIMAGEIPM 320 // IPM图像的列数
 #define ROWSIMAGEIPM 400 // IPM图像的行数
-#define PWMSERVOMAX 1250  // 舵机PWM最大值（左）
-#define PWMSERVOMID 754  // 舵机PWM中值 
+#define PWMSERVOMAX 1250 // 舵机PWM最大值（左）
+#define PWMSERVOMID 754  // 舵机PWM中值
 #define PWMSERVOMIN 250  // 舵机PWM最小值（右）
 
 #define LABEL_BOMB 0      // AI标签：爆炸物
@@ -111,8 +111,8 @@ struct POINT {
   int y = 0;
   float slope = 0.0f;
 
-  POINT(){};
-  POINT(int x, int y) : x(x), y(y){};
+  POINT() {};
+  POINT(int x, int y) : x(x), y(y) {};
 };
 
 /**

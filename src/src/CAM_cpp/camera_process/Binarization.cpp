@@ -7,7 +7,7 @@
 #include "Binarization.hpp"
 #include "../control/mycar.hpp"
 using namespace std;
-// uint8_t Grayscale[120][188];
+// uint8_t Grayscale[120][188];////////////板卡上注释掉的
 uint8_t img_threshold[12];
 //struct caminfo_s caminfo;
 //struct dir_control_struct cardir;

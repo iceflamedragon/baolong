@@ -20,18 +20,28 @@ void clear_angle_integeral(void)
     angle_integral.integeral_data=0;
     angle_integral.integeral_flag=0;
 }
-//角度积分函数，放在陀螺仪读取数据的定时器中断中
-void angal_integeral(float gyro_z)
+//角度积分函数，放在读取主函数角度积分
+void angal_integeral(float mpu_now)
 {
+    static float mpu_first;//一开始的值
+    static int count=0;
     if(angle_integral.integeral_flag==1)
-    {
-        angle_integral.integeral_data+=gyro_z;
+    {   
+        
+        if(count==0)
+       { 
+        mpu_first=mpu_now;//找到初值
+        count=1;
+       }
+        angle_integral.integeral_data=mpu_now-mpu_first;
         if(angle_integral.integeral_Thres>0)
         {
             if(angle_integral.integeral_data>angle_integral.integeral_Thres)
             {
                 angle_integral.integeral_flag=2;
                 //angle_integral.integeral_data=0;
+                mpu_first=0;
+                count=0;
             }
         }
         else
@@ -40,6 +50,8 @@ void angal_integeral(float gyro_z)
             {
                 angle_integral.integeral_flag=2;
                 //indata.YawAngle=0;
+                mpu_first=0;
+                count=0;
             }
         }
     }
@@ -57,18 +69,27 @@ void clear_distant_integeral(void)
     distance_integral.integeral_flag=0;
     distance_integral.integeral_data=0;
 }
-//路程积分函数，放在读取编码器的中断函数里
-void distant_integeral(float present_speed)  //路程积分
+//路程积分函数，放在读取主函数路程积分
+void distant_integeral(float distance_now)  //路程积分
 {
-    if(distance_integral.integeral_flag==1)
+    static float distance_first;
+    static int count=0;
+    if(distance_integral.integeral_flag==1)//进行积分
     {
-        distance_integral.integeral_data+=present_speed;
-        if(distance_integral.integeral_data>distance_integral.integeral_Thres)
-        {
-            //distance_integral.integeral_data=0;
-            distance_integral.integeral_flag=2;
+        if (count==0)
+        { 
+        distance_first=distance_now;//找到初值
+        count=1;
         }
-    }
+        distance_integral.integeral_data=distance_now-distance_first; //把现在的路程积分传入
+        if(distance_integral.integeral_data>distance_integral.integeral_Thres)//达到设定路程，停止积分
+        {
+        //distance_integral.integeral_data=0;
+         distance_integral.integeral_flag=2;
+        distance_first=0;//找到初值
+        count=0;
+        }
+    }distance_first=distance_now;
 }
 //获取积分状况
 uint8_t get_integeral_state(integeral_STRUCT* integeral)

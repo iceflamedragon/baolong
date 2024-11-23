@@ -549,6 +549,8 @@ CMakeFiles/icar.dir/src/icar.cpp.o: /home/edgeboard/car/baolong/src/src/icar.cpp
   /home/edgeboard/car/baolong/src/src/CAM_cpp/control/pid.hpp \
   /home/edgeboard/car/baolong/src/src/CAM_cpp/control/fuzzy_pid.hpp \
   /home/edgeboard/car/baolong/src/src/CAM_cpp/control/filter.hpp \
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/obstacle.hpp \
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/zebra.hpp \
   /home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/Element_recognition.hpp \
   /home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/act_persp.cpp \
   /home/edgeboard/car/baolong/src/src/CAM_cpp/control/mycar.hpp \
@@ -565,7 +567,6 @@ CMakeFiles/icar.dir/src/icar.cpp.o: /home/edgeboard/car/baolong/src/src/icar.cpp
   /home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/garage.hpp \
   /home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/obstacle.cpp \
   /home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/obstacle.hpp \
-  /home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/obstacle.hpp \
   /home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/patch_line.cpp \
   /home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/patch_line.hpp \
   /home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/scan_line.cpp \
@@ -573,7 +574,6 @@ CMakeFiles/icar.dir/src/icar.cpp.o: /home/edgeboard/car/baolong/src/src/icar.cpp
   /home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/slope.cpp \
   /home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/slope.hpp \
   /home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/zebra.cpp \
-  /home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/zebra.hpp \
   /home/edgeboard/car/baolong/src/src/CAM_cpp/control/integral.hpp \
   /home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/zebra.hpp \
   /home/edgeboard/car/baolong/src/src/CAM_cpp/control/err_calculation.cpp \
@@ -598,8 +598,6 @@ CMakeFiles/icar.dir/src/icar.cpp.o: /home/edgeboard/car/baolong/src/src/icar.cpp
 
 /home/edgeboard/car/baolong/src/src/CAM_cpp/control/fuzzy_pid.cpp:
 
-/home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/zebra.hpp:
-
 /home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/zebra.cpp:
 
 /home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/obstacle.cpp:
@@ -613,6 +611,8 @@ CMakeFiles/icar.dir/src/icar.cpp.o: /home/edgeboard/car/baolong/src/src/icar.cpp
 /home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/black_obstacle.cpp:
 
 /home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/act_persp.cpp:
+
+/home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/zebra.hpp:
 
 /home/edgeboard/car/baolong/src/src/CAM_cpp/control/filter.hpp:
 

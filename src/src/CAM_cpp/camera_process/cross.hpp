@@ -11,6 +11,8 @@
 using namespace std;
 void cross_enter();
 void cross_out();
+
 void cross_running2();
+void cross_running();
 
 #endif /* CODE_CAMERA_PROCESS_CROSS_H_ */
