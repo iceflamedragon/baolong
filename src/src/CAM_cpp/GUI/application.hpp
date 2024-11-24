@@ -39,8 +39,8 @@ typedef struct setpara_STRUCT
         int slope_speed;//坡道中的目标速度
         int zebra_speed;//斑马线停车速度
         int gyro_kp;             //角速度环kp值
-        int speed_max;           //最大速度
-        int speed_min;           //最小速度
+        float speed_max;           //最大速度
+        float speed_min;           //最小速度
         int speed_adjust_kp;     //速度调节比例
         //摄像头循迹相关
         int camwf;          //在逆透视平面中，摄像头到视野下沿的距离（单位为像素）（一般为负值）
@@ -83,7 +83,7 @@ typedef struct setpara_STRUCT
            int diffK;
            int SpeedUP;
            int SpeedDOWN;
-           int speed_add;
+           float speed_add;
        /////////舵机相关
            int SteerMid;
            int MaxTurn;

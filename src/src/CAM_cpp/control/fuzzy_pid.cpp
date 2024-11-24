@@ -160,9 +160,10 @@ void updata_fuzzy_pid(float err,float d_err)
     float d_kp,d_kd;
     d_kp=0.1*setpara.fuzzy_kp*get_fuzzy_kp_data(err,d_err);
     d_kd=0.1*setpara.fuzzy_kd*get_fuzzy_kd_data_1(err,d_err);
-    CAM_FUZZY_PID.kp=setpara.com_turn_PID.kp+d_kp;
-    CAM_FUZZY_PID.kd=setpara.com_turn_PID.kd+d_kd;
-
+    // CAM_FUZZY_PID.kp=setpara.com_turn_PID.kp+d_kp;///这个是模糊实际上没有用到
+    // CAM_FUZZY_PID.kd=setpara.com_turn_PID.kd+d_kd;///
+    CAM_FUZZY_PID.kp=setpara.com_turn_PID.kp;////////相当于直接用的这个pid
+    CAM_FUZZY_PID.kd=setpara.com_turn_PID.kd;
     //////////////提前入弯时机，应该需要修改的地方
     if(watch.track_count<90&&watch.track_count>70)far_line_count++;
     else far_line_count--;

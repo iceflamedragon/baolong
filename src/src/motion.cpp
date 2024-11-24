@@ -73,7 +73,7 @@ public:
       std::cerr << "Json Params Parse failed :" << e.what() << '\n';
       exit(-1);
     }
-    
+
     speed = params.speedLow;
     cout << "--- runP1:" << params.runP1 << " | runP2:" << params.runP2
          << " | runP3:" << params.runP3 << endl;
@@ -87,7 +87,7 @@ public:
    *
    */
   struct Params {
-    
+
     int submit;
     float isrising_breakl;
     float isrising_breakr;
@@ -120,6 +120,18 @@ public:
     int Danger_distance;
     int Rescue_distance;
     int Bridge_distance;
+    float turn_PIDkp;
+    float turn_PIDkd;
+    float gyroturn_PIDkp;
+    float gyroturn_PIDki;
+    float gyroturn_PIDkd;
+    float loop_turn_PIDkp;
+    float loop_turn_PIDkd;
+    float big_loop_PIDkp;
+    float big_loop_PIDkd;
+    float camwf;
+    float camwl;
+    float camwr;
     int None_distance;
     float speedLow = 1.5;        // 智能车最低速
     float speedHigh = 4;         // 智能车最高速
@@ -144,18 +156,19 @@ public:
     bool cross = true;           // 十字道路使能
     float score = 0.5;           // AI检测置信度
     int stop_num;
+   float speed_max ;/////////////速度决策
+ float speed_add;///////////
+ float speed_min;
     string model = "../res/model/yolov3_mobilenet_v1"; // 模型路径
     string video = "../res/samples/demo.mp4";          // 视频路径
-    NLOHMANN_DEFINE_TYPE_INTRUSIVE(Params, speedLow, speedHigh, speedBridge,
-                                   speedDown, runP1, runP2, runP3, turnP, turnD,turnI,
-                                   debug, saveImg, rowCutUp, rowCutBottom,
-                                   bridge, danger, rescue, racing, parking,
-                                   ring, cross, score, model, ring_p1b, ring_p2b,
-                                   ring_db,ring_p1s, ring_p2s,ring_p2s,record_video, video, danger_p1,
-                                   danger_p2,stop_num, danger_d, areaMax,submit,angle_p,
-                                   Danger_distance,Rescue_distance,Bridge_distance,None_distance,speedLowpro,speedHighpro,
-                                   runP1_fast,runP2_fast,turnD_fast,rescue_error_l,rescue_error_r,ringout_l,ringout_r,
-                                   dangerout_distance,rescueout_distance,ringinbreakl,ringinbreakr,isrising_breakl,isrising_breakr); // 添加构造函数
+    NLOHMANN_DEFINE_TYPE_INTRUSIVE(
+        Params, speedLow, speedHigh, turn_PIDkp, turn_PIDkd,speed_max,speed_add,speed_min ,gyroturn_PIDkp,
+        gyroturn_PIDki, gyroturn_PIDkd, loop_turn_PIDkp, loop_turn_PIDkd,big_loop_PIDkp,big_loop_PIDkd,
+        camwf,camwl,camwr,
+        speedBridge, speedDown, runP1, runP2, runP3, turnP, turnD, turnI, debug,
+        saveImg, rowCutUp, rowCutBottom, bridge, danger, rescue, racing,
+        parking, ring, cross, score, model, ring_p1b, ring_p2b, ring_db,
+        record_video, video, areaMax, submit, angle_p); // 添加构造函数
   };
 
   Params params; // 读取控制参数
@@ -190,29 +203,28 @@ public:
    */
 
   float errorsum;
-  void poseCtrl(int controlCenter,ControlCenter &control) {
+  void poseCtrl(int controlCenter, ControlCenter &control) {
     // if(ring.flagpid )flag=1;
     // cout<<"点集加权偏差值"<<controlCenter - COLSIMAGE / 2<<endl;
-    if(angle<0)
-    {
+    if (angle < 0) {
       // cout<<"角度为负值"<<endl;
-    controlCenter+=(abs(angle)-90)*params.angle_p;//车偏右，controlCenter小，angle为负的，直接加即可
-    // cout<<"角度系数"<<params.angle_p<<endl;
-    // cout<<"角度偏差"<<(abs(angle)-90)*params.angle_p<<endl;
-    }
-    else if(angle>0){
-    controlCenter+=(90-angle)*params.angle_p;
-    // cout<<"角度为正值"<<endl;
-    }else{
-      controlCenter+=angle*params.angle_p;//angle_p乘的系数记得加params.
+      controlCenter +=
+          (abs(angle) - 90) *
+          params.angle_p; // 车偏右，controlCenter小，angle为负的，直接加即可
+      // cout<<"角度系数"<<params.angle_p<<endl;
+      // cout<<"角度偏差"<<(abs(angle)-90)*params.angle_p<<endl;
+    } else if (angle > 0) {
+      controlCenter += (90 - angle) * params.angle_p;
+      // cout<<"角度为正值"<<endl;
+    } else {
+      controlCenter += angle * params.angle_p; // angle_p乘的系数记得加params.
       // cout<<"角度为零"<<endl;
     }
-    float error = controlCenter - COLSIMAGE / 2;//error为负向左转
+    float error = controlCenter - COLSIMAGE / 2; // error为负向左转
     // cout<<"角度偏差值"<<error<<endl;
-    
+
     // control.submiterror=params.submit;
-      
-    
+
     //  if(flagbigringl)
     //  {
     //   error=error;//加30
@@ -242,22 +254,24 @@ public:
     // cout<<error<<endl;
     // 图像控制中心转换偏差
 
-    
     static int errorLast = 0; // 记录前一次的偏差
     if (abs(error - errorLast) > COLSIMAGE / 10) {
       error = error > errorLast ? errorLast + COLSIMAGE / 10
                                 : errorLast - COLSIMAGE / 10;
     }
-     errorsum+=error;//加个限幅加和
-   
+    errorsum += error; // 加个限幅加和
+
     // cout << "此时的P2值" << params.runP2 << endl << endl;
     params.turnP = abs(error) * params.runP2 + params.runP1;
-    int pwmDiff = (error * params.turnP) + (error - errorLast) * params.turnD +errorsum*params.turnI;
+    int pwmDiff = (error * params.turnP) + (error - errorLast) * params.turnD +
+                  errorsum * params.turnI;
     errorLast = error;
 
     servoPwm = PWMSERVOMID - pwmDiff;
-    if(servoPwm>950)servoPwm=950;
-    if(servoPwm<550)servoPwm=550;
+    if (servoPwm > 950)
+      servoPwm = 950;
+    if (servoPwm < 550)
+      servoPwm = 550;
     // (uint16_t)(750 - pwmDiff); // PWM转换
     // ~~^~~~~~~~~~~~~~~~~~~~~~~PWMSERVOMID - pwmDiff
     // cout << "舵机pwm" << PWMSERVOMID - pwmDiff << endl;
@@ -269,7 +283,8 @@ public:
    * @param enable 加速使能
    * @param control
    */
-  void speedCtrl(bool enable, bool slowDown, ControlCenter control,bool speedup) {
+  void speedCtrl(bool enable, bool slowDown, ControlCenter control,
+                 bool speedup) {
     // 控制率
     uint8_t controlLow = 0;   // 速度控制下限
     uint8_t controlMid = 5;   // 控制率
@@ -280,61 +295,60 @@ public:
       speed = params.speedDown;
     } else if (enable) // 加速使能
     {
-      if(!speedup)
-      {
-      if (control.centerEdge.size() < 10) {
-        speed = params.speedLow;
-        countShift = controlLow;
-        return;
-      }
-      if (control.centerEdge[control.centerEdge.size() - 1].x > ROWSIMAGE / 2) {
-        speed = params.speedLow;
-        countShift = controlLow;
-        return;
-      }
-      if (abs(control.sigmaCenter) < 100.0) {
-        countShift++;
-        if (countShift > controlHigh)
-          countShift = controlHigh;
-      } else {
-        countShift--;
-        if (countShift < controlLow)
+      if (!speedup) {
+        if (control.centerEdge.size() < 10) {
+          speed = params.speedLow;
           countShift = controlLow;
-      }
-
-      if (countShift > controlMid)
-        speed = params.speedHigh;
-      else
-        speed = params.speedLow;
-    } 
-    else{
-      if (control.centerEdge.size() < 10) {
-        speed = params.speedLowpro;
-        countShift = controlLow;
-        return;
-      }
-      if (control.centerEdge[control.centerEdge.size() - 1].x > ROWSIMAGE / 2) {
-        speed = params.speedLowpro;
-        countShift = controlLow;
-        return;
-      }
-      if (abs(control.sigmaCenter) < 100.0) {
-        countShift++;
-        if (countShift > controlHigh)
-          countShift = controlHigh;
-      } else {
-        countShift--;
-        if (countShift < controlLow)
+          return;
+        }
+        if (control.centerEdge[control.centerEdge.size() - 1].x >
+            ROWSIMAGE / 2) {
+          speed = params.speedLow;
           countShift = controlLow;
-      }
+          return;
+        }
+        if (abs(control.sigmaCenter) < 100.0) {
+          countShift++;
+          if (countShift > controlHigh)
+            countShift = controlHigh;
+        } else {
+          countShift--;
+          if (countShift < controlLow)
+            countShift = controlLow;
+        }
 
-      if (countShift > controlMid)
-        speed = params.speedHighpro;
-      else
-        speed = params.speedLowpro;
-    }
-    }
-    else {
+        if (countShift > controlMid)
+          speed = params.speedHigh;
+        else
+          speed = params.speedLow;
+      } else {
+        if (control.centerEdge.size() < 10) {
+          speed = params.speedLowpro;
+          countShift = controlLow;
+          return;
+        }
+        if (control.centerEdge[control.centerEdge.size() - 1].x >
+            ROWSIMAGE / 2) {
+          speed = params.speedLowpro;
+          countShift = controlLow;
+          return;
+        }
+        if (abs(control.sigmaCenter) < 100.0) {
+          countShift++;
+          if (countShift > controlHigh)
+            countShift = controlHigh;
+        } else {
+          countShift--;
+          if (countShift < controlLow)
+            countShift = controlLow;
+        }
+
+        if (countShift > controlMid)
+          speed = params.speedHighpro;
+        else
+          speed = params.speedLowpro;
+      }
+    } else {
       countShift = controlLow;
       speed = params.speedLow;
     }

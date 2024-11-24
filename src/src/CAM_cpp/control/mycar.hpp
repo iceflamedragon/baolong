@@ -19,7 +19,7 @@
 #define PI 3.14151926
 #define TREAD 15;
 #define WHEEL_DISTANCE 24;
-
+#define STEER_MID 747//换了频率之后一定要调整
 //小车状态标志位
 typedef struct mycar_STRUCT{
 ////板卡特用参数
@@ -28,7 +28,7 @@ typedef struct mycar_STRUCT{
 
 ////
  //       u8 status;   //小车运行状态
-        uint32_t RUNTIME; //小车运行时间(单位为10ms)
+        uint32_t RUNTIME; //小车运行时间(单位为10ms)//////可能改为1ms
 /*
         u32 save_times;
         u32 savenum;

@@ -8,6 +8,7 @@
 
 #include "math.h"
 mycar_STRUCT mycar;
+float Gyro_Z;
 // 左右轮差速表（百分比）
 float speed_dif_list[30] = {-0.226, -0.199, -0.18,  -0.169, -0.151, -0.133,
                             -0.119, -0.101, -0.087, -0.075, -0.057, -0.042,
@@ -59,9 +60,10 @@ void dir_control() {
 
   // set_steer(STEER_MID+mycar.steer_pwm);
   //        mycar.steer_pwm=PID_Positional(&CAM_Turn,mycar.original_err,0);
+  cout<<"err"<<mycar.original_err<<endl;
   mycar.steer_pwm =
       Steer_PWM_Cal(-mycar.original_err); /////////////////根据情况调整符号
-  mycar.uart_servo = mycar.steer_pwm;     // 传入
+  mycar.uart_servo = STEER_MID+mycar.steer_pwm+setpara.steer_adjust+mycar.steer_buchang;     // 传入
   if (Element == None || Element == crossing)
     steer_buchang_cal();
   else

@@ -389,7 +389,7 @@ public:
   void carControl(float speed, uint16_t servo) {
     if (!isOpen)
       return;
-
+  // cout<<""
     uint8_t buff[11];  // 多发送一个字节
     uint8_t check = 0; // 校验位
     Bit32Union bit32U;
