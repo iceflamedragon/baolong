@@ -76,14 +76,14 @@ void dir_control() {
 void motor_control() {
 
   // mycar.present_speed2=speed_Kalman_Filter2(mycar.present_speed);
-  distant_integeral(
-      mycar.present_speed); // 路程积分函数///////////////需要把路程积分写入
+  // distant_integeral(
+  //     mycar.present_speed); // 路程积分函数///////////////需要把路程积分写入
   // 速度决策.
   speed_ctrl_cal();
 
   // if(mycar.speed_ctrl==1)
   // {
-  //      updata_fuzzy_speed(mycar.original_err,imu.gyroz/(mycar.present_speed+0.01));//先注释要借助z轴加速度
+  //      updata_fuzzy_speed(mycar.original_err,imu.gyroz/(mycar.present_speed+0.01));////////////////先注释要借助z轴加速度
   // }
   //
   //    if(t==0)

@@ -44,6 +44,10 @@
 
 using namespace std;
 using namespace cv;
+
+ uint8_t imo3[ROWSIMAGE][COLSIMAGE];
+ uint8_t imo4[ROWSIMAGE][COLSIMAGE];
+
 bool app_stopped = false;
 void sigint_handler(int sig);
 extern uint8_t Grayscale[ROWSIMAGE][COLSIMAGE];
@@ -61,7 +65,7 @@ uint8_t my_Grayscale[ROWSIMAGE][COLSIMAGE];
 // 将图像矩阵转换为二维数组的函数
 void CAM_CPU_while(void);
 void MatTo2DArray(const Mat &img, uchar array[ROWSIMAGE][COLSIMAGE]);
-
+void draw_imo_color(uint8_t myimo[ROWSIMAGE][COLSIMAGE], Mat mat);
 enum AI_Distance_Postion {
   AI_Distance_None = 0,
   AI_None_Start,
@@ -156,12 +160,21 @@ int main(int argc, char const *argv[]) {
   int picture_num = 0;
 
   /////////////////祖传算法需要初始化的地方
-
+init_setpara();
   car_begin(); // 初始化车启动的标志位
+  act_perst_init();
 
   while (1) {
-    //  ring.RoundaboutGetArc(tracking, 1, 20, 30, 160);
 
+   for (int i = 0; i < ROWSIMAGE; ++i) {
+        std::fill(imo3[i], imo3[i] + COLSIMAGE, 0);
+    }
+    for (int i = 0; i < ROWSIMAGE; ++i) {
+        std::fill(imo4[i], imo4[i] + COLSIMAGE, 0);
+    }
+    //  ring.RoundaboutGetArc(tracking, 1, 20, 30, 160);
+cv::Mat imo3_img(ROWSIMAGE, COLSIMAGE, CV_8UC3);
+cv::Mat imo4_img(ROWSIMAGE, COLSIMAGE, CV_8UC3);
     if (ring.flagpid)
       ctrlCenter.flagring = 1;
     else
@@ -222,7 +235,6 @@ int main(int argc, char const *argv[]) {
     Size dsize_first = Size(188, 120);
     cv::resize(img, img, dsize_first, 0, 0, INTER_AREA);
 
-    // blog.csdn.net/hysterisis/article/details/112381220
     //  if (motion.params.saveImg && !motion.params.debug) // 存储原始图像
     //    savePicture(img);
     //  if (waitKey(1) == 27) { // 如果用户按下 ESC 键，退出循环
@@ -243,18 +255,57 @@ int main(int argc, char const *argv[]) {
     Mat imgBinary = preprocess.binaryzation(imgCorrect); // 图像二值化
 
     // MatTo2DArray(imgBinary, Grayscale);// 调用函数将图像转换为二维数组
-    // CAM_CPU_while();
 
     char buffer[50];
     sprintf(buffer, "%d.jpg", picture_num);
     // picture_num++;//截图
     // std::cout << "图像" << buffer << std::endl; // 输出: The answer is:
     //  imwrite(buffer, imgBinary);
-    Mat element = getStructuringElement(
-        MORPH_RECT, Size(4, 4)); // 小于8*8方块的白色噪点都会被腐蚀
-    erode(imgBinary, imgBinary, element);
-    cout << "row" << imgBinary.rows << "col" << imgBinary.cols << endl;
-    MatTo2DArray(imgBinary, Grayscale); // 调用函数将图像转换为二维数组
+    // Mat element = getStructuringElement(
+    //     MORPH_RECT, Size(4, 4)); // 小于8*8方块的白色噪点都会被腐蚀
+    // erode(imgBinary, imgBinary, element);
+
+    // MatTo2DArray(imgBinary, Grayscale); // 调用函数将图像转换为二维数组
+
+    // 将矩阵转换为二维数组
+    for (int i = 0; i < ROWSIMAGE; ++i) {
+      for (int j = 0; j < COLSIMAGE; ++j) {
+        Grayscale[i][j] = imgBinary.at<uchar>(i, j);
+      }
+    }
+
+    // cv::Mat mymat(ROWSIMAGE, COLSIMAGE, CV_8UC3, Grayscale);
+
+    // imshow("Image5", mymat);
+    CAM_CPU_while();
+
+    draw_imo_color(imo3, imo3_img); // 扫弦图绿色是右边，蓝色是左边
+
+    draw_imo_color(imo4, imo4_img); // 逆透视
+    cv::Mat colorImage = cv::Mat::zeros(120, 188, CV_8UC3);
+    cv::cvtColor(imgBinary, colorImage, cv::COLOR_GRAY2BGR);
+    for (int i = 0; i < colorImage.rows; ++i) {
+      for (int j = 0; j < colorImage.cols; ++j) {
+        cv::Vec3b overlayPixel = imo3_img.at<cv::Vec3b>(i, j);
+        if (overlayPixel != cv::Vec3b(0, 0, 0)) {
+          colorImage.at<cv::Vec3b>(i, j) = overlayPixel;
+        }
+      }
+    }
+
+    imshow("扫线", colorImage);
+    // 打印二维数组
+    // std::cout << "二维数组内容：" << std::endl;
+    // for (int i = 0; i < ROWSIMAGE; ++i) {
+    //   for (int j = 0; j < COLSIMAGE; ++j) {
+    //     std::cout << static_cast<int>(imo4[i][j]) << " ";
+    //   }
+    //   std::cout << std::endl; // 换行
+    // }
+
+
+    imshow("逆透视", imo4_img);
+    imshow("扫线456", imo3_img);
     cout << "scene" << scene << endl;
     // crossroad.ImagePerspective_Init(my_Grayscale, PerImg_pic);
     // convertToStaticArray();
@@ -725,10 +776,11 @@ void sigint_handler(int sig) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 void CAM_CPU_while(void) {
   scan_line();
-  Element_recognition();
+  // Element_recognition();
   linefix();
   original_err_calculation();
-  dir_control(); // 舵机控制
+  dir_control();   // 舵机控制
+  motor_control(); // 电机控制
 }
 
 // 将图像矩阵转换为二维数组的函数
@@ -758,6 +810,52 @@ void MatTo2DArray(const Mat &img, uchar array[ROWSIMAGE][COLSIMAGE]) {
   for (int i = 0; i < ROWSIMAGE; ++i) {
     for (int j = 0; j < COLSIMAGE; ++j) {
       array[i][j] = img.at<uchar>(i, j);
+    }
+  }
+}
+void draw_imo_color(uint8_t myimo[ROWSIMAGE][COLSIMAGE], Mat mat) {
+  for (int i = 0; i < ROWSIMAGE; ++i) {
+    for (int j = 0; j < COLSIMAGE; ++j) {
+      uint8_t value = myimo[i][j];
+
+      // 根据值设置颜色
+      cv::Vec3b color;
+      switch (value ) {
+      case 1:
+        
+        color = cv::Vec3b(0, 0, 255); // 红色
+        break;
+      case 2:
+        color = cv::Vec3b(0, 255, 0); // 绿色
+        break;
+      case 3:
+        color = cv::Vec3b(0, 255, 255); // 黄色
+        break;
+      case 4:
+        color = cv::Vec3b(255, 0, 0); // 蓝色
+        break;
+      case 5:
+        color = cv::Vec3b(255, 0, 255); // 洋红色
+        break;
+      case 6:
+        color = cv::Vec3b(0, 255, 255); // 青色
+        break;
+      case 7:
+        color = cv::Vec3b(128, 128, 128); // 灰色
+        break;
+      case 8:
+        color = cv::Vec3b(128, 0, 0); // 深红色
+        break;
+      case 9:
+        color = cv::Vec3b(0, 128, 0); // 深绿色
+        break;
+      default:
+        color = cv::Vec3b(0, 0, 0); // 黑色
+        break;
+      }
+
+      // 设置像素颜色
+      mat.at<cv::Vec3b>(119-i, j) = color;
     }
   }
 }

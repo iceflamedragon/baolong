@@ -4,19 +4,20 @@
  *  Created on: 2023年6月21日
  *      Author: Admin
  */
- uint8_t Grayscale[120][188];
-// #include "scan_line.hpp"
-#include "Binarization.hpp"
 #include "scan_line.hpp"
-struct lineinfo_s lineinfo[120];
+#include "cstring"
+#include "mycar.hpp"
 
+struct lineinfo_s lineinfo[120];
 #define LINE_WIDTH 188
+uint8_t Grayscale[120][188];
 
 void scan_line()
 {
     //watch.base_line = 0;
+    watch.threshold=55;//也有可能要改
     int y=0;
-   //////////////////// memset(lineinfo, 0, 120 * sizeof(struct lineinfo_s));
+    memset(lineinfo, 0, 120 * sizeof(struct lineinfo_s));
     line_single(&lineinfo[base_line], Grayscale[119-base_line]);   // 寻找基准行
 
     for (y = base_line-1; y >= forward_near; y--) // 向下搜线到near行

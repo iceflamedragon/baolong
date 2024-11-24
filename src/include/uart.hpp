@@ -38,7 +38,7 @@ using namespace std;
 // USB通信帧
 #define USB_FRAME_HEAD 0x42 // USB通信帧头
 #define USB_FRAME_LENMIN 4  // USB通信帧最短字节长度
-#define USB_FRAME_LENMAX 12 // USB通信帧最长字节长度
+#define USB_FRAME_LENMAX 16 // USB通信帧最长字节长度16保持和下位机一致
 
 // USB通信地址
 #define USB_ADDR_CARCTRL 1 // 智能车速度+方向控制
@@ -241,6 +241,7 @@ public:
    */
   Bit32Union Distance;
   Bit32Union mpu6050;
+  Bit32Union Gyro_z;
   void receiveCheck(void) {
     if (!isOpen) // 串口是否正常打开
       return;
@@ -294,6 +295,10 @@ public:
           Distance.buff[1] = serialStr.buffRead[8];
           Distance.buff[2] = serialStr.buffRead[9];
           Distance.buff[3] = serialStr.buffRead[10];
+          Gyro_z.buff[0] = serialStr.buffRead[11];
+          Gyro_z.buff[1] = serialStr.buffRead[12];
+          Gyro_z.buff[2] = serialStr.buffRead[13];
+          Gyro_z.buff[3] = serialStr.buffRead[14];
           // memcpy(&mpu6050, &serialStr.buffRead[3], 4); // 储存接收的数据
           // dataTransform();
         }
@@ -455,13 +460,19 @@ public:
     for (size_t i = 0; i < 11; i++)
       transmitByte(buff[i]);
   }
-  float get_mpu6050(void) { return mpu6050.float32; }
+
+/////////////把获取的下位机数据传出
+
+  float get_mpu6050(void) { return mpu6050.float32; } 
+  float get_distance(void) { return Distance.float32; }
+  float get_gyro_z(void){return Gyro_z.float32;}
+
   /**
    * @brief 蜂鸣器音效控制
    *
    * @param sound
    */
-  float get_distance(void) { return Distance.float32; }
+ 
   void buzzerSound(Buzzer sound) {
     if (!isOpen)
       return;

@@ -33,13 +33,15 @@
 using namespace std;
 using namespace cv;
 
-#define COLSIMAGE 188    // 图像的列数320
-#define ROWSIMAGE 120    // 图像的行数240
-#define COLSIMAGEIPM 320 // IPM图像的列数
-#define ROWSIMAGEIPM 400 // IPM图像的行数
-#define PWMSERVOMAX 1250 // 舵机PWM最大值（左）
-#define PWMSERVOMID 754  // 舵机PWM中值
-#define PWMSERVOMIN 250  // 舵机PWM最小值（右）
+#define COLSIMAGE 188      // 图像的列数320
+#define ROWSIMAGE 120      // 图像的行数240
+#define show_COLSIMAGE 320 // 显示图像的列数320
+#define show_ROWSIMAGE 240 // 显示图像的行数240
+#define COLSIMAGEIPM 320   // IPM图像的列数
+#define ROWSIMAGEIPM 400   // IPM图像的行数
+#define PWMSERVOMAX 1250   // 舵机PWM最大值（左）
+#define PWMSERVOMID 754    // 舵机PWM中值
+#define PWMSERVOMIN 250    // 舵机PWM最小值（右）
 
 #define LABEL_BOMB 0      // AI标签：爆炸物
 #define LABEL_BRIDGE 1    // AI标签：坡道
