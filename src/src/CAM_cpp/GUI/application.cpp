@@ -137,7 +137,7 @@ void set_setpara(float turn_PIDkp, float turn_PIDkd, float gyroturn_PIDkp,
                  float gyroturn_PIDki, float gyroturn_PIDkd,
                  float loop_turn_PIDkp, float loop_turn_PIDkd,
                  float big_loop_PIDkp, float big_loop_PIDkd, float camwf,
-                 float camwl, float camwr,float speed_max,float speed_add,float speed_min) {
+                 float camwl, float camwr,float speed_max,float speed_add,float speed_min,float loop_target_speed) {
   setpara.com_turn_PID.kp = turn_PIDkp;
   setpara.com_turn_PID.kd = turn_PIDkd;
   setpara.gyro_PID.kp = gyroturn_PIDkp;
@@ -154,7 +154,7 @@ void set_setpara(float turn_PIDkp, float turn_PIDkd, float gyroturn_PIDkp,
   setpara.speed_max = speed_max;/////////////速度决策
   setpara.speed_add = speed_add;///////////
   setpara.speed_min=speed_min;
-
+  setpara.loop_target_speed=loop_target_speed;
 }
 void init_setpara() // 各个参数的初始化，不在参数表上的参数仍然可以正常初始化与使用，只是不可调
 {
@@ -166,8 +166,8 @@ void init_setpara() // 各个参数的初始化，不在参数表上的参数仍
   setpara.obstacle_speed = 50;
   setpara.broken_target_speed = 50;
   setpara.differ_ratio = 55;
-  setpara.loop_target_speed = 48;
-  setpara.big_loop_speed = 50;
+  setpara.loop_target_speed = 2;///原先为48
+  setpara.big_loop_speed = 50;//大环内的目标速度没用上
   setpara.slope_speed = 50;
   setpara.cross_speed = 50;
   setpara.fuzzy_kp = 90;
@@ -187,7 +187,7 @@ void init_setpara() // 各个参数的初始化，不在参数表上的参数仍
   setpara.adc_turn_PID.kd = 20;
   setpara.loop_turn_PID.kp = 65;  //////////
   setpara.loop_turn_PID.kd = 100; /////////
-  setpara.big_loop_PID.kp = 13;   ///////////
+  setpara.big_loop_PID.kp = 13;   ///////////大环内pid没用上
   setpara.big_loop_PID.kd = 11;   /////////////
   setpara.stop_PID.kp = 360;
   setpara.stop_PID.ki = 265;
@@ -199,7 +199,7 @@ void init_setpara() // 各个参数的初始化，不在参数表上的参数仍
   setpara.black_obstacle_turn_PID.kd = 3;
   setpara.camwf = -31;   ////////
   setpara.camwl = 92;    /////////
-  setpara.camwr = 97;    ////////
+  setpara.camwr = 82;    ////////97
   setpara.far_line = 70; ////////
                          //{&setpara.TextRow,  "TextRow", 1},
   setpara.threshold_max = 120;

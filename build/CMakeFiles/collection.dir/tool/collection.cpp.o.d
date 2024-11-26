@@ -1,8 +1,8 @@
 CMakeFiles/collection.dir/tool/collection.cpp.o: \
- /home/edgeboard/car/baolong_copy/baolong/src/tool/collection.cpp \
+ /home/edgeboard/car/baolong/src/tool/collection.cpp \
  /usr/include/stdc-predef.h \
- /home/edgeboard/car/baolong_copy/baolong/src/tool/../include/common.hpp \
- /home/edgeboard/car/baolong_copy/baolong/src/tool/../include/json.hpp \
+ /home/edgeboard/car/baolong/src/tool/../include/common.hpp \
+ /home/edgeboard/car/baolong/src/tool/../include/json.hpp \
  /usr/include/c++/7/algorithm /usr/include/c++/7/utility \
  /usr/include/aarch64-linux-gnu/c++/7/bits/c++config.h \
  /usr/include/aarch64-linux-gnu/c++/7/bits/os_defines.h \
@@ -376,7 +376,7 @@ CMakeFiles/collection.dir/tool/collection.cpp.o: \
  /usr/local/include/opencv2/videostab/deblurring.hpp \
  /usr/local/include/opencv2/videostab/wobble_suppression.hpp \
  /usr/local/include/opencv2/videostab/ring_buffer.hpp \
- /home/edgeboard/car/baolong_copy/baolong/src/tool/../include/uart.hpp \
+ /home/edgeboard/car/baolong/src/tool/../include/uart.hpp \
  /usr/local/include/libserial/SerialPort.h \
  /usr/local/include/libserial/SerialPortConstants.h \
  /usr/include/termios.h /usr/include/aarch64-linux-gnu/bits/termios.h \

@@ -177,6 +177,7 @@ void updata_fuzzy_pid(float err,float d_err)
 void updata_fuzzy_speed(float err,float k)
 {
     //speed_add
+    
     if(watch.track_count<setpara.speed_max)watch_count2++;else watch_count2--;
     if(watch_count2<=0){watch_count2=0;speed_add=setpara.speed_add;}
     if(watch_count2>=3){watch_count2=3;speed_add=0;}
@@ -188,6 +189,7 @@ void updata_fuzzy_speed(float err,float k)
     else d_k=setpara.fuzzy_k*0.1;
 
        mycar.target_speed=setpara.speed_min+speed_add;//+d_k;
+       cout<<"加和求得速度"<<mycar.target_speed<<endl;
 
 }
 

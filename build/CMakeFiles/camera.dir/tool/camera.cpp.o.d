@@ -1,5 +1,5 @@
 CMakeFiles/camera.dir/tool/camera.cpp.o: \
- /home/edgeboard/car/baolong_copy/baolong/src/tool/camera.cpp \
+ /home/edgeboard/car/baolong/src/tool/camera.cpp \
  /usr/include/stdc-predef.h /usr/include/c++/7/fstream \
  /usr/include/c++/7/istream /usr/include/c++/7/ios \
  /usr/include/c++/7/iosfwd \
@@ -351,8 +351,8 @@ CMakeFiles/camera.dir/tool/camera.cpp.o: \
  /usr/local/include/opencv2/videostab/deblurring.hpp \
  /usr/local/include/opencv2/videostab/wobble_suppression.hpp \
  /usr/local/include/opencv2/videostab/ring_buffer.hpp \
- /home/edgeboard/car/baolong_copy/baolong/src/tool/../include/common.hpp \
- /home/edgeboard/car/baolong_copy/baolong/src/tool/../include/json.hpp \
+ /home/edgeboard/car/baolong/src/tool/../include/common.hpp \
+ /home/edgeboard/car/baolong/src/tool/../include/json.hpp \
  /usr/include/c++/7/iterator /usr/include/c++/7/bits/stream_iterator.h \
  /usr/include/c++/7/memory /usr/include/c++/7/bits/stl_raw_storage_iter.h \
  /usr/include/c++/7/ext/concurrence.h \

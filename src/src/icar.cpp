@@ -59,8 +59,8 @@ bool Is_AI_detection = 1;             // 是否开启AI
 int distance_start = 0;
 double AI_distance_start = 0,
        AI_distance_end = 0; // AI标志与距离积分的开始和结束
-int STEER_MIN=400;//舵机限幅
-int STEER_MAX=900;
+int STEER_MIN = 400;        // 舵机限幅
+int STEER_MAX = 900;
 // 定义二维数组
 uint8_t my_Grayscale[ROWSIMAGE][COLSIMAGE];
 // struct lineinfo_s lineinfo[120];
@@ -97,7 +97,7 @@ int main(int argc, char const *argv[]) {
 
   // 目标检测类(AI模型文件)
   shared_ptr<Detection> detection = make_shared<Detection>(motion.params.model);
-  detection->score = motion.params.score; // AI检测置信度
+  // detection->score = motion.params.score; // AI检测置信度
 
   // USB转串口初始化： /dev/ttyUSB0
   // if(ring.flagpid){
@@ -124,7 +124,7 @@ int main(int argc, char const *argv[]) {
                     30, Size(4 * COLSIMAGE, ROWSIMAGE), true);
   capture.set(CAP_PROP_FRAME_WIDTH, 320);  // 设置图像分辨率
   capture.set(CAP_PROP_FRAME_HEIGHT, 240); // 设置图像分辨率
-  /// 标志位初始化
+                                           /// 标志位初始化
   AI_distance_postion = AI_Distance_None;
   // 等待按键发车
   // if (!motion.params.debug) {
@@ -163,7 +163,7 @@ int main(int argc, char const *argv[]) {
 
   /////////////////祖传算法需要初始化的地方
   init_setpara();
-  
+
   act_perst_init();
   PID_init();
   set_setpara(motion.params.turn_PIDkp, motion.params.turn_PIDkd,
@@ -171,15 +171,16 @@ int main(int argc, char const *argv[]) {
               motion.params.gyroturn_PIDkd, motion.params.loop_turn_PIDkp,
               motion.params.loop_turn_PIDkd, motion.params.big_loop_PIDkp,
               motion.params.big_loop_PIDkd, motion.params.camwf,
-              motion.params.camwl,
-              motion.params.camwr,motion.params.speed_max ,/////////////速度决策,
+              motion.params.camwl, motion.params.camwr,
+              motion.params.speed_max, /////////////速度决策,
 
-motion.params.speed_add,///////////
- motion.params.speed_min); // 写在init_setpara（）后面
- //改config文件，改set_setpara函数
-car_begin(); // 初始化车启动的标志位
+              motion.params.speed_add, ///////////
+              motion.params.speed_min,
+              motion.params.loop_target_speed); // 写在init_setpara（）后面
+  // 改config文件，改set_setpara函数
+  car_begin(); // 初始化车启动的标志位
   while (1) {
-cout<<"camwf"<<motion.params.camwf<<endl;
+    // cout<<"camwf"<<motion.params.camwf<<endl;
     for (int i = 0; i < ROWSIMAGE; ++i) {
       std::fill(imo3[i], imo3[i] + COLSIMAGE, 0);
     }
@@ -189,20 +190,20 @@ cout<<"camwf"<<motion.params.camwf<<endl;
     //  ring.RoundaboutGetArc(tracking, 1, 20, 30, 160);
     cv::Mat imo3_img(ROWSIMAGE, COLSIMAGE, CV_8UC3);
     cv::Mat imo4_img(ROWSIMAGE, COLSIMAGE, CV_8UC3);
-    if (ring.flagpid)
-      ctrlCenter.flagring = 1;
-    else
-      ctrlCenter.flagring = 0;
+    // if (ring.flagpid)
+    //   ctrlCenter.flagring = 1;
+    // else
+    //   ctrlCenter.flagring = 0;
 
-    if (ring.flagbigringl) {
-      motion.flagbigringl = 1;
+    // if (ring.flagbigringl) {
+    //   motion.flagbigringl = 1;
 
-    } else if (ring.flagbigringr) {
-      motion.flagbigringr = 1;
-    } else {
-      motion.flagbigringl = 0;
-      motion.flagbigringr = 0;
-    }
+    // } else if (ring.flagbigringr) {
+    //   motion.flagbigringr = 1;
+    // } else {
+    //   motion.flagbigringl = 0;
+    //   motion.flagbigringr = 0;
+    // }
     //   cout<<"救援区出站时的flag值"<<rescue.flagchu<<endl;
     // //   if(ring.flagpid){
     // motion.flag=1;
@@ -222,12 +223,13 @@ cout<<"camwf"<<motion.params.camwf<<endl;
     distance_now = uart->get_distance(); // 编码器获取
     Gyro_Z = uart->get_gyro_z();         // 角速度
 
-    cout << "现在的距离积分" << distance_now - distance_start << endl;
-    cout << mpu6050_now << endl; // 输出mpu
-    cout << "角速度" << Gyro_Z << endl;
+    // cout << "现在的距离积分" << distance_now - distance_start << endl;
+    // cout << mpu6050_now << endl; // 输出mpu
+    // cout << "角速度" << Gyro_Z << endl;
     angal_integeral(mpu6050_now);    // 把现在角度积分不断传入
     distant_integeral(distance_now); //
 
+    // 之前的代码可以去除掉了？----积分现在没用到？
     ring.setmpu6050(mpu6050_now);
     ring.setdistance(distance_now);
     rescue.setdistancere(distance_now);
@@ -292,8 +294,10 @@ cout<<"camwf"<<motion.params.camwf<<endl;
     // cv::Mat mymat(ROWSIMAGE, COLSIMAGE, CV_8UC3, Grayscale);
 
     // imshow("Image5", mymat);
-    CAM_CPU_while();
 
+    /*///核心控制部分////*/
+    CAM_CPU_while();
+    cout << "目标速度djiaji" << mycar.target_speed << endl;
     // draw_imo_color(imo3, imo3_img); // 扫弦图绿色是右边，蓝色是左边
 
     // draw_imo_color(imo4, imo4_img); // 逆透视
@@ -410,12 +414,15 @@ cout<<"camwf"<<motion.params.camwf<<endl;
     if (motion.params.motion_start) // 是否运动
     {
 
-      if(mycar.uart_servo<STEER_MIN)mycar.uart_servo=STEER_MIN;
-      if(mycar.uart_servo>STEER_MAX)mycar.uart_servo=STEER_MAX;    
-        cout << "目标速度" << mycar.uart_speed << "舵机PWM" << mycar.uart_servo
+      if (mycar.uart_servo < STEER_MIN)
+        mycar.uart_servo = STEER_MIN;
+      if (mycar.uart_servo > STEER_MAX)
+        mycar.uart_servo = STEER_MAX;
+      cout << "目标速度" << mycar.uart_speed << "舵机PWM" << mycar.uart_servo
            << endl;
-      uart->carControl(mycar.uart_speed,
-                       mycar.uart_servo); // 串口通信控制车辆
+      uart->carControl(
+          mycar.uart_speed,
+          mycar.uart_servo); // 串口通信控制车辆---传给下位机进行控制
     }
     Mat imgRes =
         Mat::zeros(Size(COLSIMAGE, ROWSIMAGE), CV_8UC3); // 创建全黑图像
@@ -436,7 +443,7 @@ cout<<"camwf"<<motion.params.camwf<<endl;
       ctrlCenter.drawImage(tracking,
                            imgCorrect); // 图像绘制路径计算结果（控制中心）
       waitKey(10);                      // 等待显示
-    }
+    } // 不能去
 
     // cout<<width<<"height"<<height<<endl<<endl<<endl<<endl;
     // video.write(imgBinary);//图像1录像
@@ -481,7 +488,7 @@ void sigint_handler(int sig) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 void CAM_CPU_while(void) {
   scan_line();
-  // Element_recognition();
+  Element_recognition(); // 元素识别
   linefix();
   original_err_calculation();
   dir_control();   // 舵机控制

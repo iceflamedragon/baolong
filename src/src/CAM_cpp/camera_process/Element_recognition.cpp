@@ -35,15 +35,17 @@ void Element_recognition() {
     left_ring_complete_out(); // 检测完全出环
     break;
   case Right_ring:
-    right_ring_first_angle();   // 检测右环第一个角点
-    right_ring_circular_arc();  // 检测右环入环第一个角点后的圆弧
-    right_ring_begin_turn();    // 右环开始转向函数
-    right_ring_second_angle();  // 检测右环第二个角点
-    right_ring_in_loop();       // 检验小车是否完全入右环
-    right_ring_prepare_out();   // 小车角度积分完成，准备出环
-    right_ring_out_loop_turn(); // 出右环左转
-    right_ring_out_angle();     // 检测出环时左角点位置
-    right_ring_out_loop();      // 左侧为直线时直行
+    cout << "识别到圆环了" << endl;
+    right_ring_first_angle();  // 检测右环第一个角点
+    right_ring_circular_arc(); // 检测右环入环第一个角点后的圆弧
+                               // ----即为实际的第一个角点
+    right_ring_begin_turn(); // 右环开始转向函数     ---开始角度积分
+    right_ring_second_angle(); // 检测右环第二个角点     结合补线函数看
+    right_ring_in_loop();            // 检验小车是否完全入右环
+    right_ring_prepare_out();        // 小车角度积分完成，准备出环
+    right_ring_out_loop_turn();      // 出右环左转
+    right_ring_out_angle();          // 检测出环时左角点位置
+    right_ring_out_loop();           // 左侧为直线时直行
     right_ring_straight_out_angle(); // 检测出右环进入直线后左侧角点
     right_ring_complete_out();       // 检测完全出环
     break;
@@ -275,4 +277,6 @@ void clear_all_flags() {
   watch.angle_far_line = setpara.far_line;
   watch.garage_flag = 0;
   mycar.target_speed = setpara.speed_min;
+  cout << "setpara.speed_min" << setpara.speed_min;
+  cout << "在清除元素标志位时赋值" << mycar.target_speed << endl;
 }

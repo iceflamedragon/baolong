@@ -10,7 +10,7 @@ set(CMAKE_MAKEFILE_DEPENDS
   "CMakeFiles/3.24.1/CMakeCCompiler.cmake"
   "CMakeFiles/3.24.1/CMakeCXXCompiler.cmake"
   "CMakeFiles/3.24.1/CMakeSystem.cmake"
-  "/home/edgeboard/car/baolong_copy/baolong/src/CMakeLists.txt"
+  "/home/edgeboard/car/baolong/src/CMakeLists.txt"
   "/usr/cmake-3.24.1-linux-aarch64/share/cmake-3.24/Modules/CMakeCCompiler.cmake.in"
   "/usr/cmake-3.24.1-linux-aarch64/share/cmake-3.24/Modules/CMakeCCompilerABI.c"
   "/usr/cmake-3.24.1-linux-aarch64/share/cmake-3.24/Modules/CMakeCInformation.cmake"

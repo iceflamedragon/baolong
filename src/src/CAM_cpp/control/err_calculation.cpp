@@ -166,7 +166,7 @@ float cam_err_calculation() {
   {
     // 两轮位置
     imo4[0][setpara.camwl] = 3; // 76
-    imo4[0][setpara.camwr] = 4; // 97
+    imo4[0][setpara.camwr] = 4; // 97     原来为4
     // 变化点位置
     for (uint8_t y = forward_near; y < 100; y++) {
       uint16_t imo_l =

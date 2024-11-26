@@ -159,6 +159,7 @@ public:
    float speed_max ;/////////////速度决策
  float speed_add;///////////
  float speed_min;
+ float loop_target_speed;
     string model = "../res/model/yolov3_mobilenet_v1"; // 模型路径
     string video = "../res/samples/demo.mp4";          // 视频路径
     NLOHMANN_DEFINE_TYPE_INTRUSIVE(
@@ -168,7 +169,7 @@ public:
         speedBridge, speedDown, runP1, runP2, runP3, turnP, turnD, turnI, debug,
         saveImg, rowCutUp, rowCutBottom, bridge, danger, rescue, racing,
         parking, ring, cross, score, model, ring_p1b, ring_p2b, ring_db,
-        record_video, video, areaMax, submit, angle_p); // 添加构造函数
+        record_video, video, areaMax, submit, angle_p,loop_target_speed); // 添加构造函数
   };
 
   Params params; // 读取控制参数

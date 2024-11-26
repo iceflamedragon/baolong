@@ -8,7 +8,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
-  "/home/edgeboard/car/baolong_copy/baolong/src/tool/camera.cpp" "CMakeFiles/camera.dir/tool/camera.cpp.o" "gcc" "CMakeFiles/camera.dir/tool/camera.cpp.o.d"
+  "/home/edgeboard/car/baolong/src/tool/camera.cpp" "CMakeFiles/camera.dir/tool/camera.cpp.o" "gcc" "CMakeFiles/camera.dir/tool/camera.cpp.o.d"
   )
 
 # Targets to which this target links.

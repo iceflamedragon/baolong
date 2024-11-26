@@ -54,10 +54,10 @@ RM = /usr/cmake-3.24.1-linux-aarch64/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/edgeboard/car/baolong_copy/baolong/src
+CMAKE_SOURCE_DIR = /home/edgeboard/car/baolong/src
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/edgeboard/car/baolong_copy/baolong/build
+CMAKE_BINARY_DIR = /home/edgeboard/car/baolong/build
 
 #=============================================================================
 # Directory level rules for the build root directory
@@ -89,14 +89,14 @@ clean: CMakeFiles/icar.dir/clean
 CMakeFiles/collection.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/collection.dir/build.make CMakeFiles/collection.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/collection.dir/build.make CMakeFiles/collection.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/edgeboard/car/baolong_copy/baolong/build/CMakeFiles --progress-num=5,6 "Built target collection"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/edgeboard/car/baolong/build/CMakeFiles --progress-num=5,6 "Built target collection"
 .PHONY : CMakeFiles/collection.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/collection.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/edgeboard/car/baolong_copy/baolong/build/CMakeFiles 2
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/edgeboard/car/baolong/build/CMakeFiles 2
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/collection.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/edgeboard/car/baolong_copy/baolong/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/edgeboard/car/baolong/build/CMakeFiles 0
 .PHONY : CMakeFiles/collection.dir/rule
 
 # Convenience name for target.
@@ -115,14 +115,14 @@ CMakeFiles/collection.dir/clean:
 CMakeFiles/img2video.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/img2video.dir/build.make CMakeFiles/img2video.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/img2video.dir/build.make CMakeFiles/img2video.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/edgeboard/car/baolong_copy/baolong/build/CMakeFiles --progress-num=9,10 "Built target img2video"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/edgeboard/car/baolong/build/CMakeFiles --progress-num=9,10 "Built target img2video"
 .PHONY : CMakeFiles/img2video.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/img2video.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/edgeboard/car/baolong_copy/baolong/build/CMakeFiles 2
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/edgeboard/car/baolong/build/CMakeFiles 2
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/img2video.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/edgeboard/car/baolong_copy/baolong/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/edgeboard/car/baolong/build/CMakeFiles 0
 .PHONY : CMakeFiles/img2video.dir/rule
 
 # Convenience name for target.
@@ -141,14 +141,14 @@ CMakeFiles/img2video.dir/clean:
 CMakeFiles/calibration.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/calibration.dir/build.make CMakeFiles/calibration.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/calibration.dir/build.make CMakeFiles/calibration.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/edgeboard/car/baolong_copy/baolong/build/CMakeFiles --progress-num=1,2 "Built target calibration"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/edgeboard/car/baolong/build/CMakeFiles --progress-num=1,2 "Built target calibration"
 .PHONY : CMakeFiles/calibration.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/calibration.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/edgeboard/car/baolong_copy/baolong/build/CMakeFiles 2
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/edgeboard/car/baolong/build/CMakeFiles 2
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/calibration.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/edgeboard/car/baolong_copy/baolong/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/edgeboard/car/baolong/build/CMakeFiles 0
 .PHONY : CMakeFiles/calibration.dir/rule
 
 # Convenience name for target.
@@ -167,14 +167,14 @@ CMakeFiles/calibration.dir/clean:
 CMakeFiles/camera.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/camera.dir/build.make CMakeFiles/camera.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/camera.dir/build.make CMakeFiles/camera.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/edgeboard/car/baolong_copy/baolong/build/CMakeFiles --progress-num=3,4 "Built target camera"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/edgeboard/car/baolong/build/CMakeFiles --progress-num=3,4 "Built target camera"
 .PHONY : CMakeFiles/camera.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/camera.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/edgeboard/car/baolong_copy/baolong/build/CMakeFiles 2
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/edgeboard/car/baolong/build/CMakeFiles 2
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/camera.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/edgeboard/car/baolong_copy/baolong/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/edgeboard/car/baolong/build/CMakeFiles 0
 .PHONY : CMakeFiles/camera.dir/rule
 
 # Convenience name for target.
@@ -193,14 +193,14 @@ CMakeFiles/camera.dir/clean:
 CMakeFiles/icar.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/icar.dir/build.make CMakeFiles/icar.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/icar.dir/build.make CMakeFiles/icar.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/edgeboard/car/baolong_copy/baolong/build/CMakeFiles --progress-num=7,8 "Built target icar"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/edgeboard/car/baolong/build/CMakeFiles --progress-num=7,8 "Built target icar"
 .PHONY : CMakeFiles/icar.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/icar.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/edgeboard/car/baolong_copy/baolong/build/CMakeFiles 2
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/edgeboard/car/baolong/build/CMakeFiles 2
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/icar.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/edgeboard/car/baolong_copy/baolong/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/edgeboard/car/baolong/build/CMakeFiles 0
 .PHONY : CMakeFiles/icar.dir/rule
 
 # Convenience name for target.
