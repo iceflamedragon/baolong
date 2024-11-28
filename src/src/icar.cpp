@@ -176,7 +176,8 @@ int main(int argc, char const *argv[]) {
 
               motion.params.speed_add, ///////////
               motion.params.speed_min,
-              motion.params.loop_target_speed); // 写在init_setpara（）后面
+              motion.params.loop_target_speed,
+              motion.params.loop_out_distance); // 写在init_setpara（）后面
   // 改config文件，改set_setpara函数
   car_begin(); // 初始化车启动的标志位
   while (1) {

@@ -19,7 +19,7 @@ void Element_recognition() {
   // Element=broken_circuit;
   switch (Element) {
   case None:
-    enter_task(); // 元素入口函数，在此识别并进入函数
+    enter_task(); // 元素入口函数，在此识别并进入函数   从此处开始看
     break;
   case Left_ring:
     left_ring_first_angle(); // 寻找左环第一个角点
@@ -43,9 +43,9 @@ void Element_recognition() {
     right_ring_second_angle(); // 检测右环第二个角点     结合补线函数看
     right_ring_in_loop();            // 检验小车是否完全入右环
     right_ring_prepare_out();        // 小车角度积分完成，准备出环
-    right_ring_out_loop_turn();      // 出右环左转
+    right_ring_out_loop_turn();      // 出右环右转   有距离积分+loop_out   
     right_ring_out_angle();          // 检测出环时左角点位置
-    right_ring_out_loop();           // 左侧为直线时直行
+    right_ring_out_loop();           // 左侧为直线时直行    有loop_out 
     right_ring_straight_out_angle(); // 检测出右环进入直线后左侧角点
     right_ring_complete_out();       // 检测完全出环
     break;
@@ -129,7 +129,7 @@ void enter_task() {
   case 8:
     cross_enter();
     break;
-  case 0: // 元素标记为0时自动扫描元素
+  case 0: // 元素标记为0时自动扫描元素    当时只用了0这一种情况
     if (mycar.RUNTIME >= setpara.begin_time || mycar.car_running == 0) {
       left_ring_first_angle();  // 检测左环第一个角点
       right_ring_first_angle(); // 检测右环第一个角点

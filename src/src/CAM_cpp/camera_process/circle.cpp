@@ -208,7 +208,7 @@ void left_ring_in_loop()
             //watch.InLoopCirc = 0;
             watch.InLoop = 3;
             //change_pid_para(&CAM_Turn,&setpara.loop_turn_PID);//将转向PID参数调为环内转向PID
-            set_speed(setpara.loop_target_speed+3);
+            set_speed(setpara.loop_target_speed);//原先+3
             // beep2(3,20);
         }
 }
@@ -400,7 +400,7 @@ void right_ring_first_angle()
                    //Element=Rifht_ring_confirm;
                  if(Element==None)     //在当前无元素时进行以下操作，其他时候只找角点
                  {
-                    cout<<"开始二次确认右圆环了"<<endl;//基本用不到？
+                    // cout<<"开始二次确认右圆环了"<<endl<<endl<<endl;//基本用不到？
                     right_ring_confirm();       //进入右环二次确认
                  }
             }
@@ -444,7 +444,7 @@ void right_ring_confirm()
                     enter_element(Right_ring);
                     if(Element_rem.loop_data[Element_rem.loop_count]==0)//如果是小环
                     {
-                        cout<<"开始设置入环速度了"<<endl;
+                        // cout<<"开始设置入环速度了"<<endl<<endl<<endl;
                         set_speed(setpara.loop_target_speed);
                         mycar.pid_ctrl=0;
                         change_pid_para(&CAM_Turn,&setpara.loop_turn_PID);//将转向PID参数调为环内转向PID
@@ -454,7 +454,7 @@ void right_ring_confirm()
 //                        set_speed(setpara.big_loop_speed);
 //                        //change_pid_para(&CAM_Turn,&setpara.big_loop_PID);
 //                    }
-                    begin_distant_integeral(6000);
+                    begin_distant_integeral(1200);//距离积分，防止误判  原来6000太大  影响了什么？  改变这个值---调整入环时机
                     watch.InLoop = 6;
                     // beep2(1,20);//蜂鸣器
                     return;
@@ -472,6 +472,9 @@ void right_ring_confirm()
 void right_ring_begin_turn()
 {
     if(watch.InLoop != 6)return;
+    cout<<"进入右环开始转向函数"<<endl;
+    cout<<"第二个角点所在行"<<watch.InLoopAngle2<<endl;
+    cout<<"路程积分状况"<<get_integeral_state(&distance_integral)<<endl;
     if(get_integeral_state(&distance_integral)==2//路程积分完成
         &&watch.InLoop==6
         &&(watch.InLoopAngle2<=80)
@@ -482,8 +485,8 @@ void right_ring_begin_turn()
                 watch.InLoop=7;
                 //set_speed(setpara.loop_target_speed);
                 //watch.fix_slope=(float)(188-lineinfo[watch.InLoopAngle2].right)/(115-watch.InLoopAngle2);
-                cout<<"开始入环角度积分"<<endl;
-                begin_angle_integeral(-260);
+                cout<<"开始入环角度积分"<<endl<<endl<<endl;
+                begin_angle_integeral(-260);//原来是260
                 // beep2(2,20);
         }
 
@@ -532,7 +535,7 @@ void right_ring_circular_arc()
            )
            { //入环点所在行
                 watch.InLoopCirc = y;
-                cout<<"找到入环点所在行数"<<watch.InLoopCirc<<endl<<endl<<endl<<endl;
+                //  cout<<"找到入环点所在行数"<<watch.InLoopCirc<<endl<<endl<<endl<<endl;
                 break;
            }
         }
@@ -552,12 +555,13 @@ if(watch.InLoopCirc<120
 void right_ring_second_angle()
 {
     if(watch.InLoop != 6&&watch.InLoop != 7)return;//在循环之前跳出，节省时间
+    // cout<<"watch.InLoopAngle2是"<<watch.InLoopAngle2<<endl;
     for(int y=loop_forward_near;y<loop_forward_far;y++)//最靠下的点，近距离时较为靠谱（第一判据）
     {
         if(watch.InLoopCirc<66
                &&y<watch.InLoopAngle2
                &&watch.InLoopAngle2==120
-               &&get_integeral_state(&distance_integral)==2
+               &&get_integeral_state(&distance_integral)==2   //这个条件过不了
                &&y > 60
                &&y < (loop_forward_far-2)
                &&y>watch.InLoopCirc
@@ -566,7 +570,8 @@ void right_ring_second_angle()
                         &&(lineinfo[y-4].right-lineinfo[y].right)>(187-lineinfo[y].right)/2
                         )
                         {
-                            watch.InLoopAngle2 = y;
+                            // cout<<"watch.InLoopAngle2是"<<watch.InLoopAngle2<<endl<<endl<<endl;
+                            watch.InLoopAngle2 = y;//第一个是angler
                             watch.InLoopAngle2_x=lineinfo[watch.InLoopAngle2].right;
                             //if()
                             //watch.InLoopCirc=0;
@@ -632,7 +637,7 @@ void right_ring_in_loop()
             watch.InLoop = 8;
             //change_pid_para(&CAM_Turn,&setpara.loop_turn_PID);//将转向PID参数调为环内转向PID
             cout<<"检验是否完全入右环了，切换速度"<<endl;
-            set_speed(setpara.loop_target_speed+3);  
+            set_speed(setpara.loop_target_speed);  //+3
             // beep2(3,20);
         }
 }
@@ -647,6 +652,7 @@ void right_ring_prepare_out()
         &&lineinfo[69].left>35
         &&lineinfo[69].left<105)///////////////////////
    {
+    // cout<<"准备出环了"<<endl<<endl<<endl;
        watch.InLoop = 9;
        watch.OutLoop_turn_point_x=lineinfo[69].left;
     //    beep2(4,20);
@@ -658,23 +664,28 @@ void right_ring_prepare_out()
 void right_ring_out_angle()
 {
     if(watch.InLoop != 9)return;
+    
     for(int y=loop_forward_near;y<loop_forward_far;y++)//逐行扫描
         {
-        if ((watch.InLoop == 9) &&y<80
+             
+        if ((watch.InLoop == 9) &&y<80   //此时进入状态9了
                  //lineinfo[y].left_lost
                  &&lineinfo[y + 1].left <= lineinfo[y].left
                  &&lineinfo[y+2].left <= lineinfo[y+1].left
                  &&lineinfo[y-1].left <= lineinfo[y].left//
                  &&lineinfo[y-2].left <= lineinfo[y].left
                  &&lineinfo[y].left < 158
-                 &&Grayscale[119-y-2][lineinfo[y].left]==255
+                //  &&Grayscale[119-y-2][lineinfo[y].left]==255
                  &&y>30
                  )
              {
+                // cout<<"进行右出环左角点判断"<<watch.OutLoopAngle1<<endl<<endl;
                  if(watch.OutLoopAngle1>y)
                  {
+                 
                  //watch.OutLoopLeft = lineinfo[y].left;
                      watch.OutLoopAngle1 = y; //出环判断列
+                     cout<<"右出环左角点"<<watch.OutLoopAngle1<<endl<<endl;
                  }
              }
         }
@@ -689,16 +700,17 @@ void right_ring_out_loop_turn()
        &&lineinfo[watch.OutLoopAngle1].left_lost==1
        &&watch.OutLoop==0)
     {
-        if(Element_rem.loop_data[Element_rem.loop_count]==0)//如果是小环
-        {
+        // if(Element_rem.loop_data[Element_rem.loop_count]==0)//如果是小环
+        // {
+        cout<<"开始右转距离积分了"<<endl<<endl<<endl;
             begin_distant_integeral(setpara.loop_out_distance);
-        }
-        else//如果是大环
-        {
-            begin_distant_integeral(setpara.big_loop_out_distance);
-        }
+        // }
+        // else//如果是大环
+        // {
+        //     begin_distant_integeral(setpara.big_loop_out_distance);
+        // }
         clear_angle_integeral();
-        begin_distant_integeral(3000);//开启路程积分，此时要保持左转
+        // begin_distant_integeral(3000);//开启路程积分，此时要保持右转  原先为3000    积分一个即可？
         watch.OutLoop=1;
         // beep2(5,20);
     }
@@ -719,7 +731,7 @@ void right_ring_out_loop()
             &&lineinfo[y+10].left>10/////////////////
             &&((lineinfo[y+10].left-lineinfo[y].left)*(115-y)/10)<148
             &&lineinfo[y+10].left-lineinfo[y].left>0////////////////
-            &&get_integeral_state(&distance_integral)==2)
+            &&get_integeral_state(&distance_integral)==2)/////////有两个积分----角度积分+路程积分
                 //||get_integeral_state(&angle_integral)==2
                 )
             {

@@ -169,12 +169,15 @@ void right_ring_linefix()
            // 开始出右环
            else if (watch.InLoop == 9 )
            {// 一元一次方程
+                // cout<<"出环左角点行数"<<  lineinfo[watch.OutLoopAngle1].left <<endl<<endl;     
                if(lineinfo[watch.OutLoopAngle1].left < 128 && y > watch.OutLoopAngle1)
                {
                //watch.OutLoop=1;
                //slopeOR = (float)(188-lineinfo[watch.OutLoopAngle1].left) / (watch.watch_lost - watch.OutLoopAngle1);
                //xl = 188-slopeOR * (watch.watch_lost - y);
+              
                xl=watch.OutLoop_turn_point_x+(y-69);
+            //    cout<<"出右环进行补线"<<xl<<endl<<endl;
                }
                if(y>50)xr=187;
                //begin_angal_integeral(50);

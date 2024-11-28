@@ -545,9 +545,9 @@ CMakeFiles/icar.dir/src/icar.cpp.o: /home/edgeboard/car/baolong/src/src/icar.cpp
   /home/edgeboard/car/baolong/src/src/CAM_cpp/control/mycar.hpp \
   /home/edgeboard/car/baolong/src/src/CAM_cpp/global.hpp \
   /home/edgeboard/car/baolong/src/src/CAM_cpp/control/err_calculation.hpp \
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/control/fuzzy_pid.hpp \
   /home/edgeboard/car/baolong/src/src/CAM_cpp/control/integral.hpp \
   /home/edgeboard/car/baolong/src/src/CAM_cpp/control/pid.hpp \
-  /home/edgeboard/car/baolong/src/src/CAM_cpp/control/fuzzy_pid.hpp \
   /home/edgeboard/car/baolong/src/src/CAM_cpp/control/filter.hpp \
   /home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/obstacle.hpp \
   /home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/zebra.hpp \
