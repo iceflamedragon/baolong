@@ -84,10 +84,10 @@ void motor_control() {
   // 速度决策.
   speed_ctrl_cal();
 
-  // if(mycar.speed_ctrl==1)
-  // {
-  //      updata_fuzzy_speed(mycar.original_err,imu.gyroz/(mycar.present_speed+0.01));////////////////先注释要借助z轴加速度
-  // }
+  if(mycar.speed_ctrl==1)
+  {
+        updata_fuzzy_speed(mycar.original_err,0);////////////////先注释要借助z轴加速度imu.gyroz/(mycar.present_speed+0.01)
+  }
   //
   //    if(t==0)
   //    {

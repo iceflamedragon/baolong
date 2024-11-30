@@ -181,7 +181,8 @@ void updata_fuzzy_speed(float err,float k)
     if(watch.track_count<setpara.speed_max)watch_count2++;else watch_count2--;
     if(watch_count2<=0){watch_count2=0;speed_add=setpara.speed_add;}
     if(watch_count2>=3){watch_count2=3;speed_add=0;}
-    if(mycar.RUNTIME<setpara.begin_time)speed_add=setpara.speed_add;//起步斑马线黑块误识别
+    cout<<watch_count2<<endl;
+    //if(mycar.RUNTIME<setpara.begin_time)speed_add=setpara.speed_add;//起步斑马线黑块误识别
     //d_k
     float d_k;
     if(watch.track_count<=70)
@@ -264,11 +265,11 @@ void speed_ctrl_cal()//速度决策
     int left_track_flag=0;
     int right_track_flag=0;
     for(int y=0;y<110;y++){
-        if(Grayscale[119-y][car_track[y]+4]==255&&left_track_flag<4){
+        if(Grayscale[119-y][car_track[y]+4]>50&&left_track_flag<4){
             left_track_count++;
             left_track_flag=0;}
         else if(Grayscale[119-y][car_track[y]+4]==0)left_track_flag++;
-        if(Grayscale[119-y][183-car_track[y]]==255&&right_track_flag<4){
+        if(Grayscale[119-y][183-car_track[y]]>50&&right_track_flag<4){
             right_track_count++;
             right_track_flag=0;}
         else if(Grayscale[119-y][183-car_track[y]]==0)right_track_flag++;

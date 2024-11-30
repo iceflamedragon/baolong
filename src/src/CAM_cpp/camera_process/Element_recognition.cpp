@@ -96,7 +96,7 @@ void Element_recognition() {
   case black_obstacle:
     // black_obstacle_enter();
     cout<<"元素路障"<<endl;
-    black_obstacle_out();
+    // black_obstacle_out();
   // case zebra:
   //   cout<<"元素斑马线"<<endl;
   //   zebra_stop();
@@ -119,16 +119,16 @@ void enter_task() {
     // slope_enter();
     break;
   case 4:
-    broken_circuit_prepare();
+    // broken_circuit_prepare();
     break;
   case 5:
 
     break;
   case 6:
-    garage_prepare();
+    // garage_prepare();
     break;
   case 7:
-    out_garage();
+    // out_garage();
     break;
   case 8:
     cross_enter();
@@ -146,7 +146,7 @@ void enter_task() {
       }
 
       if (setpara.bla_obs_open_flag >= 1) {
-        black_obstacle_enter();
+        // black_obstacle_enter();
       }
 
       // zebra_enter();

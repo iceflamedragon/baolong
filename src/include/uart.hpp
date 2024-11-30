@@ -127,7 +127,7 @@ private:
     } catch (const std::runtime_error &) // catch捕获并处理 try 检测到的异常。
     {
       std::cerr << "串口可能掉了" << std::endl;
-      return -2;
+      // return -2;
     } catch (const NotOpen &) // catch捕获并处理 try 检测到的异常。
     {
       std::cerr << "未识别到串口" << std::endl;

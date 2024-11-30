@@ -31,7 +31,7 @@ void cross_enter()
 //        watch.angle_far_line=110;
         set_speed(setpara.cross_speed);
         watch.cross_flag=3;
-        begin_distant_integeral(9000);
+        begin_distant_integeral(1000);
     }
     if(setpara.cross_open_flag==1){
     for(int y=20;y<60;y++)
@@ -73,7 +73,7 @@ void cross_enter()
             set_speed(setpara.cross_speed);
             watch.cross_flag=2;
             watch.cross_RD_angle=y;
-            begin_distant_integeral(8000);
+            begin_distant_integeral(1000);
         }
         else if(lineinfo[y].right_lost&&
            lineinfo[y+1].right_lost&&
@@ -111,7 +111,7 @@ void cross_enter()
             watch.cross_LD_angle=y;
             set_speed(setpara.cross_speed);
             watch.cross_flag=1;
-            begin_distant_integeral(8000);
+            begin_distant_integeral(1000);
         }
     }
     }

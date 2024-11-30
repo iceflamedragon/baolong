@@ -71,7 +71,7 @@ public:
 
     cvtColor(frame, imageGray, COLOR_BGR2GRAY); // RGB转灰度图
 
-    threshold(imageGray, imageBinary, 0, 128, THRESH_OTSU); //
+    threshold(imageGray, imageBinary, 0, 255, THRESH_OTSU); //
     // OTSU二值化方法
 
     return imageBinary;

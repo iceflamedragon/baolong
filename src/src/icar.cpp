@@ -309,8 +309,10 @@ int main(int argc, char const *argv[]) {
     // 将矩阵转换为二维数组
     for (int i = 0; i < ROWSIMAGE; ++i) {
       for (int j = 0; j < COLSIMAGE; ++j) {
-        Grayscale[i][j] = imgBinary.at<uchar>(i, j);
+        Grayscale[i][j] = imgBinary.at<uchar>(i, j);//是白色，
+// cout<< static_cast<int>(Grayscale[i][j]);
       }
+// cout<<endl;
     }
 
     // cv::Mat mymat(ROWSIMAGE, COLSIMAGE, CV_8UC3, Grayscale);
@@ -458,7 +460,7 @@ int main(int argc, char const *argv[]) {
         mycar.uart_servo = STEER_MIN;
       if (mycar.uart_servo > STEER_MAX)
         mycar.uart_servo = STEER_MAX;
-      mycar.uart_speed = 1;
+      // mycar.uart_speed = 1;
       cout << "目标速度" << mycar.uart_speed << "舵机PWM" << mycar.uart_servo
            << endl;
 

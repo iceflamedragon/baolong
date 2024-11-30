@@ -65,5 +65,5 @@
         "scan_line.h": "c",
         "global.h": "c"
     },
-    "cmake.sourceDirectory": "/home/edgeboard/car/demo/src"
+    "cmake.sourceDirectory": "/home/edgeboard/car/baolong/src"
 }
