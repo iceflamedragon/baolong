@@ -1,8 +1,9 @@
 {
     "STEER_MID": 747,
     "speed_max": 105,
-    "speed_add": 0.4,
-    "speed_min": 1.8,
+    "/*speed_max*/": "是轮胎前视距，不是最高速度",
+    "speed_add": 1.5,
+    "speed_min": 2,
     "turn_PIDkp": 18,
     "turn_PIDkd": 1.8,
     "/*角速度环暂时不用*/": "原始值是p118和i110",

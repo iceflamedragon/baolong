@@ -234,7 +234,7 @@ typedef struct setpara_STRUCT
            int obstacle_dis3; //避障第一段转向后路程积分
            int obstacle_dis4; //转向前积分
            int obstacle_detect_distance;//探测距离
-           int obstacle_speed;
+           float obstacle_speed;
            //发车相关
            int begin_pwm;
            int begin_time;
@@ -258,8 +258,8 @@ typedef struct setpara_STRUCT
 
            int track_diff_cutoff;//跟踪差值截止频率
            int SteerKpchange;//舵机变化系数
-           int speed_kf;//速度前馈系数
-           int cross_speed;
+           float speed_kf;//速度前馈系数
+           float cross_speed;
            int cross_open_flag;//十字检测启停标志位
            int bla_obs_open_flag;//黑色路障启停标志位
 

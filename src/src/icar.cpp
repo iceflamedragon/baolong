@@ -762,23 +762,23 @@ void show_params(Mat img, float *data) {
   std::string text8 = "Number 8: " + std::to_string(data[7]);
   std::string text9 = "Number 9: " + std::to_string(data[8]);
   cv::putText(img, text1, cv::Point(10, 20), cv::FONT_HERSHEY_SIMPLEX, 0.4,
-              cv::Scalar(255, 255, 255), 1);
+              cv::Scalar(255, 0, 255), 1);
   cv::putText(img, text2, cv::Point(10, 40), cv::FONT_HERSHEY_SIMPLEX, 0.4,
-              cv::Scalar(255, 255, 255), 1);
+              cv::Scalar(255, 0, 255), 1);
   cv::putText(img, text3, cv::Point(10, 60), cv::FONT_HERSHEY_SIMPLEX, 0.4,
-              cv::Scalar(255, 255, 255), 1);
+              cv::Scalar(255, 0, 255), 1);
   cv::putText(img, text4, cv::Point(10, 80), cv::FONT_HERSHEY_SIMPLEX, 0.4,
-              cv::Scalar(255, 255, 255), 1);
+              cv::Scalar(255, 0, 255), 1);
   cv::putText(img, text5, cv::Point(10, 100), cv::FONT_HERSHEY_SIMPLEX, 0.4,
-              cv::Scalar(255, 255, 255), 1);
+              cv::Scalar(255, 0, 255), 1);
   cv::putText(img, text6, cv::Point(10, 120), cv::FONT_HERSHEY_SIMPLEX, 0.4,
-              cv::Scalar(255, 255, 255), 1);
+              cv::Scalar(255, 0, 255), 1);
   cv::putText(img, text7, cv::Point(10, 140), cv::FONT_HERSHEY_SIMPLEX, 0.4,
-              cv::Scalar(255, 255, 255), 1);
+              cv::Scalar(255, 0, 255), 1);
   cv::putText(img, text8, cv::Point(10, 160), cv::FONT_HERSHEY_SIMPLEX, 0.4,
-              cv::Scalar(255, 255, 255), 1);
+              cv::Scalar(255, 0, 255), 1);
   cv::putText(img, text9, cv::Point(10, 180), cv::FONT_HERSHEY_SIMPLEX, 0.4,
-              cv::Scalar(255, 255, 255), 1);
+              cv::Scalar(255, 0, 255), 1);
 }
 float *set_show_params_mode(int num) {
   switch (num) {

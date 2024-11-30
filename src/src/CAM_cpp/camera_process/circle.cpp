@@ -185,7 +185,7 @@ void left_ring_begin_turn()
     if(watch.InLoop!=1)return;//在循环之前跳出，节省时间
     if(get_integeral_state(&distance_integral)==2//路程积分完成
         &&watch.InLoop==1
-        &&watch.InLoopAngle2<=60  //原来是80
+        &&watch.InLoopAngle2<=80  //原来是80
     )
     {
         cout<<"左环开始转向"<<endl<<endl;
@@ -273,7 +273,7 @@ void left_ring_out_loop_turn()
     )
     {
         clear_angle_integeral();
-        begin_distant_integeral(1200);//loop_out_distance
+        begin_distant_integeral(setpara.loop_out_distance);//loop_out_distance
 //        if(Element_rem.loop_data[Element_rem.loop_count]==0)//如果是小环
 //        {
             // begin_angle_integeral(setpara.loop_angle_out);
@@ -323,7 +323,7 @@ void left_ring_out_loop()
 //检测出左环进入直线后左侧角点
 void left_ring_straight_out_angle()
 {
-    if(watch.InLoop != 5&&watch.OutLoop!=1)return;
+    if(watch.InLoop != 5&&watch.OutLoop!=1)return;//
     for(int y=loop_forward_near;y<loop_forward_far;y++)//逐行扫描
         {
         if((watch.InLoop==5)
@@ -334,9 +334,9 @@ void left_ring_straight_out_angle()
           &&lineinfo[y].left<120
           &&lineinfo[y].right>60
           && watch.zebra_flag == 0
-          &&(lineinfo[y + 2].right-lineinfo[y + 2].left)<(lineinfo[y -1].right-lineinfo[y -1].left)-30
-          &&(lineinfo[y + 1].right-lineinfo[y + 1].left)<(lineinfo[y -2].right-lineinfo[y -2].left)-30
-          &&(lineinfo[y].right-lineinfo[y].left)<(lineinfo[y -3].right-lineinfo[y -3].left)-30
+          &&(lineinfo[y + 2].right-lineinfo[y + 2].left)<(lineinfo[y -1].right-lineinfo[y -1].left)-20//原来是30
+          &&(lineinfo[y + 1].right-lineinfo[y + 1].left)<(lineinfo[y -2].right-lineinfo[y -2].left)-20
+          &&(lineinfo[y].right-lineinfo[y].left)<(lineinfo[y -3].right-lineinfo[y -3].left)-20
           &&lineinfo[y+1].right-lineinfo[y+2].right<5
           &&!lineinfo[y].left_lost
           &&!lineinfo[y+1].left_lost
