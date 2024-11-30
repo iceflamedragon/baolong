@@ -72,6 +72,7 @@ typedef struct ADRC_para_STRUCT {
   int kd; // 跟踪微分信号增益
 } ADRC_para_STRUCT;
 // extern uint8_t Grayscale[120][188];
+extern struct vofa_struct vofa;//vofa 传参
 extern float tim;
 extern float cam_original_err; // 摄像头原始偏差
 #include "GUI/application.cpp"

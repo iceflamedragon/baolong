@@ -132,6 +132,7 @@ public:
     float camwf;
     float camwl;
     float camwr;
+    int show_params_mode;
     int None_distance;
     float speedLow = 1.5;        // 智能车最低速
     float speedHigh = 4;         // 智能车最高速
@@ -172,7 +173,7 @@ public:
         runP2, runP3, turnP, turnD, turnI, debug, saveImg, rowCutUp,
         rowCutBottom, bridge, danger, rescue, racing, parking, ring, cross,
         score, model, ring_p1b, ring_p2b, ring_db, record_video, video, areaMax,
-        submit, angle_p, loop_target_speed,
+        show_params_mode, submit, angle_p, loop_target_speed,
         loop_out_distance); // 添加构造函数
   };
 

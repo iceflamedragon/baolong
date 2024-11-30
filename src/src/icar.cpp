@@ -19,6 +19,7 @@
  * @copyright Copyright (c) 2024
  *
  */
+
 #include "../include/common.hpp"     //公共类方法文件
 #include "../include/detection.hpp"  //百度Paddle框架移动端部署
 #include "../include/uart.hpp"       //串口通信驱动
@@ -41,6 +42,8 @@
 #include <unistd.h>
 
 #include "CAM_cpp/global.hpp"
+
+#define toStr(name) (#name)
 
 using namespace std;
 using namespace cv;
@@ -70,6 +73,7 @@ void CAM_CPU_while(void);
 void MatTo2DArray(const Mat &img, uchar array[ROWSIMAGE][COLSIMAGE]);
 void draw_imo_color(uint8_t myimo[ROWSIMAGE][COLSIMAGE], Mat mat);
 void show_params(Mat img, float *data);
+float *set_show_params_mode(int num);
 enum AI_Distance_Postion {
   AI_Distance_None = 0,
   AI_None_Start,
@@ -81,7 +85,7 @@ enum AI_Distance_Postion {
   AI_Bridge_Start,
   AI_Bridge_End
 } AI_distance_postion;
-shared_ptr<Uart> uart = make_shared<Uart>("/dev/ttyBT0"); // 初始化串口驱动
+shared_ptr<Uart> uart = make_shared<Uart>("/dev/ttyUSB0"); // 初始化串口驱动
 
 int main(int argc, char const *argv[]) {
   Preprocess preprocess;    // 图像预处理类
@@ -194,7 +198,9 @@ int main(int argc, char const *argv[]) {
               << std::endl;
     return -1;
   }
-
+  int temp = 456;
+  string str = toStr(temp);
+  cout << str.c_str() << endl; // temp
   while (1) {
     // cout<<"camwf"<<motion.params.camwf<<endl;
     for (int i = 0; i < ROWSIMAGE; ++i) {
@@ -358,7 +364,9 @@ int main(int argc, char const *argv[]) {
 
       cv::Mat combinedFrame;
       cv::hconcat(resizedImage2, resizedImage3, combinedFrame);
-      show_params(combinedFrame, vofa.loop);
+      cout << "mode" << motion.params.show_params_mode << endl;
+      float *params_mode = set_show_params_mode(motion.params.show_params_mode);
+      show_params(combinedFrame, params_mode);
 
       imshow("789", combinedFrame);
       if (motion.params.record_video) {
@@ -607,6 +615,16 @@ void draw_imo_color(uint8_t myimo[ROWSIMAGE][COLSIMAGE], Mat mat) {
   }
 }
 void show_params(Mat img, float *data) {
+  vofa.turn[0] = mycar.steer_pwm;
+  vofa.turn[1] = mycar.original_err;
+  vofa.turn[2] = Element;
+  vofa.turn[3] = watch.OutLoopAngle2;
+  vofa.turn[4] = CAM_Turn.PID_output;
+  vofa.turn[5] = mycar.RUNTIME;
+  // vofa.turn[6]=abs(mycar.original_err);
+  vofa.turn[6] = watch.InLoop;
+  vofa.turn[7] = mycar.present_speed;
+
   vofa.loop[0] = watch.InLoop;
   vofa.loop[1] = watch.InLoopAngleL;
   vofa.loop[2] = distance_integral.integeral_data;
@@ -615,6 +633,123 @@ void show_params(Mat img, float *data) {
   vofa.loop[5] = Element;
   vofa.loop[6] = watch.OutLoopAngle2;
   vofa.loop[7] = mycar.RUNTIME;
+
+  vofa.speed[0] = mycar.left_speed;
+  vofa.speed[1] = mycar.right_speed;
+  vofa.speed[2] = mycar.steer_pwm;
+  vofa.speed[3] = mycar.left_pwm_set;
+  vofa.speed[4] = mycar.right_pwm_set;
+  vofa.speed[5] = (float)(mycar.right_speed - mycar.present_speed) /
+                  (float)mycar.present_speed;
+  vofa.speed[6] = mycar.RUNTIME;
+  vofa.speed[7] = mycar.target_speed;
+  vofa.speed[8] = Element;
+
+  vofa.element_rem[0] = Element_rem.Element_count;
+  vofa.element_rem[1] = Element_rem.Element_data[Element_rem.Element_count];
+  vofa.element_rem[2] = watch.InLoop;
+  vofa.element_rem[3] = watch.cross_flag;
+  vofa.element_rem[4] = Element;
+  vofa.element_rem[5] = watch.slope_flag;
+  // vofa.element_rem[6] = imu.pitch;
+  vofa.element_rem[7] = watch.out_garage_flag;
+
+  vofa.obstacle[0] = watch.black_obstacle_flag;
+  vofa.obstacle[1] = watch.black_obstacle_line;
+  vofa.obstacle[2] = watch.left_obstacle_x;
+  vofa.obstacle[3] = watch.ZebraInLine;
+  vofa.obstacle[4] = Element;
+  vofa.obstacle[5] = angle_integral.integeral_data;
+  vofa.obstacle[6] = mycar.RUNTIME;
+
+  vofa.broken[0] = watch.broken_circuit_flag;
+  vofa.broken[1] = Element_rem.Element_count;
+  // vofa.broken[2] = imu.pitch;//惯导
+  // vofa.broken[3] = imu.gyroy;
+  vofa.broken[4] = Element;
+  vofa.broken[5] = mycar.RUNTIME;
+
+  vofa.cross[0] = Element;
+  vofa.cross[1] = watch.track_count_far;
+  vofa.cross[2] = watch.cross_flag;
+  vofa.cross[3] = watch.cross_LD_angle;
+  vofa.cross[4] = watch.cross_RD_angle;
+  vofa.cross[5] = watch.cross_AngleL;
+  vofa.cross[6] = watch.cross_AngleR;
+  vofa.cross[7] = watch.cross_AngleR_x;
+
+  vofa.speed_differ[0] = mycar.steer_pwm;
+  vofa.speed_differ[1] = mycar.RUNTIME;
+  vofa.speed_differ[2] = mycar.right_pwm_set;
+  vofa.speed_differ[3] = mycar.target_left_speed;
+  vofa.speed_differ[4] = mycar.target_right_speed;
+  vofa.speed_differ[5] = mycar.left_speed;
+  vofa.speed_differ[6] = mycar.right_speed;
+  //    vofa.speed_differ[7]=mycar.speed_differ;
+  vofa.speed_differ[7] =
+      mycar.target_speed *
+      (1 - 2 * mycar.speed_left_differ / (1 + mycar.speed_left_differ));
+  vofa.speed_differ[8] =
+      mycar.target_speed *
+      (1 + 2 * mycar.speed_right_differ / (1 - mycar.speed_right_differ));
+
+  vofa.fuzzy_pid[0] = mycar.nonlinear_trackpos;
+  vofa.fuzzy_pid[1] = mycar.track_diff;
+  vofa.fuzzy_pid[2] = (float)CAM_FUZZY_PID.kp;
+  vofa.fuzzy_pid[3] = (float)CAM_FUZZY_PID.kd;
+  //    vofa.fuzzy_pid[3]=watch.track_count_far;
+  //    vofa.fuzzy_pid[0]=mycar.target_left_speed;
+  //    vofa.fuzzy_pid[1]=mycar.target_right_speed;
+  //    vofa.fuzzy_pid[2]=mycar.left_speed;
+  //    vofa.fuzzy_pid[3]=mycar.right_speed;
+  //    vofa.fuzzy_pid[4]=mycar.left_pwm_set;
+  //    vofa.fuzzy_pid[5]=mycar.right_pwm_set;
+  vofa.fuzzy_pid[4] = watch.track_count;
+  vofa.fuzzy_pid[5] = mycar.present_speed;
+  //    vofa.fuzzy_pid[5]=mycar.fan_buchang;
+  vofa.fuzzy_pid[6] = mycar.steer_pwm;
+  //    vofa.fuzzy_pid[6]=mycar.corner_flag;
+  //    vofa.fuzzy_pid[6]=mycar.distance_count;
+  //    vofa.fuzzy_pid[7]=(imu.gyroz/(mycar.present_speed+0.1));
+  //    vofa.fuzzy_pid[7]=Speed_left.PID_out_I;
+  vofa.fuzzy_pid[7] = Element;
+  vofa.fuzzy_pid[8] = mycar.RUNTIME;
+
+  vofa.fuzzy_speed[0] = mycar.target_left_speed;
+  vofa.fuzzy_speed[1] = mycar.target_right_speed;
+  vofa.fuzzy_speed[2] = mycar.left_speed;
+  vofa.fuzzy_speed[3] = mycar.right_speed;
+  vofa.fuzzy_speed[4] = mycar.steer_pwm;
+  vofa.fuzzy_speed[5] = watch.track_count;
+  vofa.fuzzy_speed[6] = mycar.left_pwm_set;
+  vofa.fuzzy_speed[7] = Element;
+  vofa.fuzzy_speed[8] = mycar.RUNTIME;
+
+  vofa.steer_cal[0] = mycar.nonlinear_trackpos;
+  vofa.steer_cal[1] = mycar.Steer_PWM_Kp;
+  vofa.steer_cal[2] = mycar.raw_track_diff;
+  vofa.steer_cal[3] = mycar.track_diff;
+  vofa.steer_cal[4] = mycar.original_err;
+  vofa.steer_cal[5] = mycar.steer_pwm;
+  vofa.steer_cal[6] = mycar.d_original_err;
+  vofa.steer_cal[7] = Element;
+
+  vofa.zebra[0] = mycar.target_speed;
+  vofa.zebra[1] = watch.zebra_flag;
+  vofa.zebra[2] = Element;
+  vofa.zebra[3] = watch.stop_count;
+  vofa.zebra[4] = mycar.RUNTIME;
+  vofa.zebra[5] = mycar.present_speed;
+
+  // vofa.current[0] = adc.current_l;
+  vofa.current[1] = mycar.target_current_l;
+  vofa.current[2] = mycar.left_speed;
+  vofa.current[3] = mycar.right_speed;
+  vofa.current[4] = mycar.left_pwm_set;
+  vofa.current[5] = Element;
+  vofa.current[6] = mycar.target_left_speed;
+  vofa.current[7] = mycar.target_right_speed;
+  vofa.current[8] = mycar.RUNTIME;
   std::string text1 = "Number 1: " + std::to_string(data[0]);
   std::string text2 = "Number 2: " + std::to_string(data[1]);
   std::string text3 = "Number 3: " + std::to_string(data[2]);
@@ -642,4 +777,44 @@ void show_params(Mat img, float *data) {
               cv::Scalar(255, 255, 255), 1);
   cv::putText(img, text9, cv::Point(10, 180), cv::FONT_HERSHEY_SIMPLEX, 0.4,
               cv::Scalar(255, 255, 255), 1);
+}
+float *set_show_params_mode(int num) {
+  switch (num) {
+  case 1:
+    return vofa.turn;
+    break;
+  case 2:
+    return vofa.loop;
+    break;
+  case 3:
+    return vofa.speed;
+    break;
+  case 4:
+    return vofa.element_rem;
+    break;
+  case 5:
+    return vofa.obstacle;
+    break;
+  case 6:
+    return vofa.broken;
+    break;
+  case 7:
+    return vofa.cross;
+    break;
+  case 8:
+    return vofa.speed_differ;
+    break;
+  case 9:
+    return vofa.fuzzy_pid;
+    break;
+  case 10:
+    return vofa.steer_cal;
+    break;
+  case 11:
+    return vofa.zebra;
+    break;
+  case 12:
+    return vofa.current;
+    break;
+  }
 }

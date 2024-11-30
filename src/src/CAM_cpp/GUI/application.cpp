@@ -282,7 +282,7 @@ void init_setpara() // 各个参数的初始化，不在参数表上的参数仍
   setpara.track_open_flag = 1;
   setpara.bla_obs_begin_time = 300;
   setpara.slope_begin_time = 300;
-  setpara.zebra_begin_time = 2000;
+  setpara.zebra_begin_time = 5000;      //ms
   setpara.stop_over_count = 55;
   setpara.zebra_speed = -10;
   setpara.zebra_line_count = 4;

@@ -17,7 +17,7 @@ void zebra_enter()
         if(lineinfo[y].zebra_flag==1)
         {
             zebra_count++;
-            //vofa.zebra[0]=zebra_count;
+            vofa.zebra[0]=zebra_count;
 
         }
     }
