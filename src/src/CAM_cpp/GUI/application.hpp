@@ -30,14 +30,14 @@ typedef struct setpara_STRUCT
 
         struct ADRC_para_STRUCT com_turn_ADRC;
         //不同情况下的目标速度
-        int com_target_speed;  //常规情况下的目标速度
-        int loop_target_speed;  //圆环中的目标速度
-        int big_loop_speed;     //大环速度
-        int broken_target_speed;  //断路中的目标速度
-        int garage_target_speed; //车库中的目标速度
-        int bla_obs_speed;//路障中的目标速度
-        int slope_speed;//坡道中的目标速度
-        int zebra_speed;//斑马线停车速度
+        float com_target_speed;  //常规情况下的目标速度
+        float loop_target_speed;  //圆环中的目标速度
+        float big_loop_speed;     //大环速度
+        float broken_target_speed;  //断路中的目标速度
+        float garage_target_speed; //车库中的目标速度
+        float bla_obs_speed;//路障中的目标速度
+        float slope_speed;//坡道中的目标速度
+        float zebra_speed;//斑马线停车速度
         int gyro_kp;             //角速度环kp值
         float speed_max;           //最大速度
         float speed_min;           //最小速度

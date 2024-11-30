@@ -23,7 +23,29 @@ typedef struct PID_para_STRUCT {
   int ki;
   int kd;
 } PID_para_STRUCT;
-
+struct vofa_struct {
+  float speed[9];
+  float scan_line[9];
+  float dir[9];
+  float turn[9];
+  float cam_err[9];
+  float Element[9];
+  float loop[9];
+  float adc_err[9];
+  float element_rem[9];
+  float obstacle[9];
+  float broken[9];
+  float garage[9];
+  float gyro_pid[9];
+  float cross[9];
+  float speed_differ[9];
+  float fuzzy_pid[9];
+  float fuzzy_speed[9];
+  float adrc[9];
+  float steer_cal[9];
+  float zebra[9];
+  float current[9];
+};
 typedef struct ADRC_para_STRUCT {
   // TD para
   int r;
@@ -54,6 +76,7 @@ extern float tim;
 extern float cam_original_err; // 摄像头原始偏差
 #include "GUI/application.cpp"
 #include "GUI/application.hpp"
+#include "camera_process/Binarization.hpp"
 #include "camera_process/Element_recognition.cpp"
 #include "camera_process/Element_recognition.hpp"
 #include "camera_process/act_persp.cpp"
@@ -90,5 +113,4 @@ extern float cam_original_err; // 摄像头原始偏差
 #include "control/mycar.hpp"
 #include "control/pid.cpp"
 #include "control/pid.hpp"
-#include "camera_process/Binarization.hpp"
 #endif /* CODE_GLOBAL_H_ */

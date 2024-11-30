@@ -79,11 +79,13 @@ void Element_recognition() {
     obstacle_stop();
     break;
   case crossing:
+  cout<<"元素路口"<<endl;
     cross_running();
     cross_running2();
     cross_out();
     break;
   case Slope:
+    cout<<"元素坡道"<<endl;
     slope_down();
     slope_out();
     break;
@@ -93,10 +95,12 @@ void Element_recognition() {
     break;
   case black_obstacle:
     // black_obstacle_enter();
+    cout<<"元素路障"<<endl;
     black_obstacle_out();
-  case zebra:
-    zebra_stop();
-    zebra_out();
+  // case zebra:
+  //   cout<<"元素斑马线"<<endl;
+  //   zebra_stop();
+  //   zebra_out();
 
   default:
     break;

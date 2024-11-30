@@ -529,9 +529,10 @@ CMakeFiles/icar.dir/src/icar.cpp.o: /home/edgeboard/car/baolong/src/src/icar.cpp
   /home/edgeboard/car/baolong/src/src/CAM_cpp/GUI/application.hpp \
   /home/edgeboard/car/baolong/src/src/CAM_cpp/global.hpp \
   /home/edgeboard/car/baolong/src/src/CAM_cpp/GUI/application.hpp \
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/Binarization.hpp \
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/global.hpp \
   /home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/Element_recognition.cpp \
   /home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/Element_recognition.hpp \
-  /home/edgeboard/car/baolong/src/src/CAM_cpp/global.hpp \
   /home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/Binarization.hpp \
   /home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/scan_line.hpp \
   /home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/patch_line.hpp \
@@ -588,8 +589,7 @@ CMakeFiles/icar.dir/src/icar.cpp.o: /home/edgeboard/car/baolong/src/src/icar.cpp
   /home/edgeboard/car/baolong/src/src/CAM_cpp/control/mycar.cpp \
   /home/edgeboard/car/baolong/src/src/CAM_cpp/control/mycar.hpp \
   /home/edgeboard/car/baolong/src/src/CAM_cpp/control/pid.cpp \
-  /home/edgeboard/car/baolong/src/src/CAM_cpp/control/pid.hpp \
-  /home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/Binarization.hpp
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/control/pid.hpp
 
 
 /home/edgeboard/car/baolong/src/src/CAM_cpp/control/pid.cpp:
@@ -622,9 +622,9 @@ CMakeFiles/icar.dir/src/icar.cpp.o: /home/edgeboard/car/baolong/src/src/icar.cpp
 
 /home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/act_persp.hpp:
 
-/home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/Binarization.hpp:
-
 /home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/Element_recognition.hpp:
+
+/home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/Binarization.hpp:
 
 /home/edgeboard/car/baolong/src/src/CAM_cpp/GUI/application.hpp:
 

@@ -86,8 +86,9 @@ void left_ring_confirm()
 
            if(/*(white_count1>=10&&white_count2>=10&&white_count3>=10)&&*/(black_count<10))
            {
+            cout<<"进入左环元素了"<<endl<<endl;
                enter_element(Left_ring);    //正式进入左圆环元素
-               begin_distant_integeral(6000);
+               begin_distant_integeral(1200);        ////距离积分
               // if(Element_rem.loop_data[Element_rem.loop_count]==0)//如果是小环
                {
                    set_speed(setpara.loop_target_speed);
@@ -137,6 +138,7 @@ void left_ring_circular_arc()
            //&&(watch.right_lost+watch.cross_lost)<5
             )
        { //入环点所在行
+        cout<<"检测到第一个角点后的圆弧"<<endl<<endl;
             watch.InLoopCirc = y;
             //beep(20);
             break;
@@ -161,8 +163,10 @@ void left_ring_second_angle()
            &&(lineinfo[y].left-lineinfo[y-4].left)>lineinfo[y].left/2
            )
            {
+            cout<<"检测到左环的第二个角点"<<endl<<endl;
                watch.InLoopAngle2 = y;
                watch.InLoopAngle2_x=lineinfo[watch.InLoopAngle2].left;
+               //imo3[watch.InLoopAngle2][lineinfo[watch.InLoopAngle2].left]=4;
                //if()
                //watch.InLoopCirc=0;
                break;
@@ -181,15 +185,16 @@ void left_ring_begin_turn()
     if(watch.InLoop!=1)return;//在循环之前跳出，节省时间
     if(get_integeral_state(&distance_integral)==2//路程积分完成
         &&watch.InLoop==1
-        &&watch.InLoopAngle2<=80
+        &&watch.InLoopAngle2<=60  //原来是80
     )
     {
+        cout<<"左环开始转向"<<endl<<endl;
         clear_distant_integeral();//清除路程积分变量
         watch.InLoop=2;
         //set_speed(setpara.loop_target_speed);
         //change_pid_para(&CAM_Turn,&setpara.loop_turn_PID);//将转向PID参数调为环内转向PID
         //watch.fix_slope=(float)(lineinfo[watch.InLoopAngle2].left)/(115-watch.InLoopAngle2);
-        begin_angle_integeral(260);
+        begin_angle_integeral(260); //积分
         // beep2(2,20);
     }
 }
@@ -233,7 +238,7 @@ void left_ring_out_angle()
     if(watch.InLoop != 4)return;//在循环之前跳出，节省时间
     for(int y=loop_forward_near;y<loop_forward_far;y++)//逐行扫描
         {
-        if ((watch.InLoop == 4)&&y<80
+        if ((watch.InLoop == 4)&&y<80       //增大延迟？
                  //lineinfo[y].left_lost
                  &&lineinfo[y+1].right >= lineinfo[y].right
                  &&lineinfo[y+2].right >= lineinfo[y+1].right
@@ -243,7 +248,7 @@ void left_ring_out_angle()
                  &&lineinfo[y + 4].right > lineinfo[y + 2].right
                  &&lineinfo[y - 5].right > lineinfo[y - 3].right*/
                  &&lineinfo[y].right > 30
-                 &&Grayscale[119-y-2][lineinfo[y].right]==255
+                //  &&Grayscale[119-y-2][lineinfo[y].right]==255
 )
              {
                  if(watch.OutLoopAngle1>y)
@@ -268,15 +273,16 @@ void left_ring_out_loop_turn()
     )
     {
         clear_angle_integeral();
+        begin_distant_integeral(1200);//loop_out_distance
 //        if(Element_rem.loop_data[Element_rem.loop_count]==0)//如果是小环
 //        {
-//            begin_angle_integeral(setpara.loop_angle_out);
+            // begin_angle_integeral(setpara.loop_angle_out);
 //        }
 //        else//如果是大环
 //        {
 //            begin_angle_integeral(setpara.big_loop_out);
 //        }
-        begin_distant_integeral(3000);//开启路程积分，此时要保持左转
+        // begin_distant_integeral(3000);//开启路程积分，此时要保持左转
         watch.OutLoop=1;
         // beep2(5,20);
     }
@@ -302,13 +308,13 @@ void left_ring_out_loop()
             clear_distant_integeral();
 //            if(Element_rem.loop_data[Element_rem.loop_count]==0)//如果是小环
 //            {
-                begin_distant_integeral(setpara.loop_out_distance);
+                begin_distant_integeral(setpara.loop_out_distance);//开始出环距离积分可能要调整
 //            }
 //            else//如果是大环
 //            {
 //                begin_distant_integeral(setpara.big_loop_out_distance);
 //            }
-            clear_angle_integeral();
+            clear_angle_integeral();//清除角度积分
             // beep2(6,20);
             watch.InLoop =5;////不用陀螺仪，用摄像头自身提取赛道元素；
             }
@@ -792,6 +798,56 @@ void right_ring_complete_out()
         //  beep2(7,100);
      }
 }
+void yuanhuan_secondfind_angle_left_down(int*angle_x,int*angle_y)
+{
+    int x=*angle_x, y=*angle_y;
+    while(Grayscale[119-y][x]!=0&&y<110)
+    {
+        y++;
+    }
+    while(Grayscale[119-y][x+1]!=255&&x<187)
+    {
+        x++;
+    }
+    while(y>40)
+    {
+        if(x>10&&x<178)
+       { if(Grayscale[119-y][x]==0)
+        {
+
+        }
+        else if(Grayscale[119-y][x-1]==0)
+        {
+            x--;
+        }
+        else if(Grayscale[119-y][x+1]==0)
+        {
+            x++;
+        }
+        else if(Grayscale[119-y][x-2]==0)
+        {
+            x=x-2;
+        }
+        else if(Grayscale[119-y][x+2]==0)
+        {
+            x=x+2;
+        }
+        else if(Grayscale[119-y][x-3]==0)
+        {
+            x=x-3;
+        }
+        else if(Grayscale[119-y][x+3]==0)
+        {
+            x=x+3;
+        }
+        else break;
+        y--;
+        }
+        break;
+    }
+    *angle_x=x;
+    *angle_y=y;
+}
 //向左下找角点
 void find_angle_left_down(int*angle_x,int*angle_y)
 {
@@ -806,6 +862,7 @@ void find_angle_left_down(int*angle_x,int*angle_y)
     }
     while(y>40)
     {
+        
         if(Grayscale[119-y][x]==0)
         {
 

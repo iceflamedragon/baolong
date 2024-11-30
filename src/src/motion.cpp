@@ -156,21 +156,24 @@ public:
     bool cross = true;           // 十字道路使能
     float score = 0.5;           // AI检测置信度
     int stop_num;
-   float speed_max ;/////////////速度决策
- float speed_add;///////////
- float speed_min;
- float loop_target_speed;
- float loop_out_distance;
+    float speed_max; /////////////速度决策
+    float speed_add; ///////////
+    float speed_min;
+    float loop_target_speed;
+    float loop_out_distance;
+    float STEER_MID;
     string model = "../res/model/yolov3_mobilenet_v1"; // 模型路径
     string video = "../res/samples/demo.mp4";          // 视频路径
     NLOHMANN_DEFINE_TYPE_INTRUSIVE(
-        Params, speedLow, speedHigh, turn_PIDkp, turn_PIDkd,speed_max,speed_add,speed_min ,gyroturn_PIDkp,
-        gyroturn_PIDki, gyroturn_PIDkd, loop_turn_PIDkp, loop_turn_PIDkd,big_loop_PIDkp,big_loop_PIDkd,
-        camwf,camwl,camwr,
-        speedBridge, speedDown, runP1, runP2, runP3, turnP, turnD, turnI, debug,
-        saveImg, rowCutUp, rowCutBottom, bridge, danger, rescue, racing,
-        parking, ring, cross, score, model, ring_p1b, ring_p2b, ring_db,
-        record_video, video, areaMax, submit, angle_p,loop_target_speed,loop_out_distance); // 添加构造函数
+        Params, speedLow, speedHigh, turn_PIDkp, STEER_MID, turn_PIDkd,
+        speed_max, speed_add, speed_min, gyroturn_PIDkp, gyroturn_PIDki,
+        gyroturn_PIDkd, loop_turn_PIDkp, loop_turn_PIDkd, big_loop_PIDkp,
+        big_loop_PIDkd, camwf, camwl, camwr, speedBridge, speedDown, runP1,
+        runP2, runP3, turnP, turnD, turnI, debug, saveImg, rowCutUp,
+        rowCutBottom, bridge, danger, rescue, racing, parking, ring, cross,
+        score, model, ring_p1b, ring_p2b, ring_db, record_video, video, areaMax,
+        submit, angle_p, loop_target_speed,
+        loop_out_distance); // 添加构造函数
   };
 
   Params params; // 读取控制参数

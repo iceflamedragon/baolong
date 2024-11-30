@@ -25,7 +25,7 @@ void left_ring_out_angle();
 void left_ring_out_loop();
 void left_ring_straight_out_angle();
 void left_ring_complete_out();
-
+void yuanhuan_secondfind_angle_left_down(int*angle_x,int*angle_y);
 void right_ring_first_angle();
 void right_ring_confirm();
 void right_ring_begin_turn();

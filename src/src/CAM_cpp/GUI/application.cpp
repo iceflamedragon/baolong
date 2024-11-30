@@ -5,6 +5,7 @@
  *      Author: Admin
  */
 #include "application.hpp"
+extern float STEER_MID;
 struct setpara_STRUCT setpara; // 可调量(即祖传代码的所有参量)
 void GUI_Init()                // GUI初始化函数,放在while循环之前
 {
@@ -137,7 +138,9 @@ void set_setpara(float turn_PIDkp, float turn_PIDkd, float gyroturn_PIDkp,
                  float gyroturn_PIDki, float gyroturn_PIDkd,
                  float loop_turn_PIDkp, float loop_turn_PIDkd,
                  float big_loop_PIDkp, float big_loop_PIDkd, float camwf,
-                 float camwl, float camwr,float speed_max,float speed_add,float speed_min,float loop_target_speed,float loop_out_distance) {
+                 float camwl, float camwr, float speed_max, float speed_add,
+                 float speed_min, float loop_target_speed,
+                 float loop_out_distance, float steer_mid) {
   setpara.com_turn_PID.kp = turn_PIDkp;
   setpara.com_turn_PID.kd = turn_PIDkd;
   setpara.gyro_PID.kp = gyroturn_PIDkp;
@@ -151,25 +154,25 @@ void set_setpara(float turn_PIDkp, float turn_PIDkd, float gyroturn_PIDkp,
   setpara.camwf = camwf;
   setpara.camwl = camwl;
   setpara.camwr = camwr;
-  setpara.speed_max = speed_max;/////////////速度决策
-  setpara.speed_add = speed_add;///////////
-  setpara.speed_min=speed_min;
-  setpara.loop_target_speed=loop_target_speed;
-  setpara.loop_out_distance=loop_out_distance;
-  
+  setpara.speed_max = speed_max; /////////////速度决策
+  setpara.speed_add = speed_add; ///////////
+  setpara.speed_min = speed_min;
+  setpara.loop_target_speed = loop_target_speed;
+  setpara.loop_out_distance = loop_out_distance;
+  STEER_MID = steer_mid;
 }
 void init_setpara() // 各个参数的初始化，不在参数表上的参数仍然可以正常初始化与使用，只是不可调
 {
   //************************************第一页********************************
-  setpara.speed_max = 4;/////////////速度决策
-  setpara.speed_add = 0.5;///////////
-  setpara.speed_min = 1.6;/////////////////
+  setpara.speed_max = 4;   /////////////速度决策
+  setpara.speed_add = 0.5; ///////////
+  setpara.speed_min = 1.6; /////////////////
   setpara.speed_adjust_kp = 55;
   setpara.obstacle_speed = 50;
   setpara.broken_target_speed = 50;
   setpara.differ_ratio = 55;
-  setpara.loop_target_speed = 2;///原先为48
-  setpara.big_loop_speed = 50;//大环内的目标速度没用上
+  setpara.loop_target_speed = 2; /// 原先为48
+  setpara.big_loop_speed = 50;   // 大环内的目标速度没用上
   setpara.slope_speed = 50;
   setpara.cross_speed = 50;
   setpara.fuzzy_kp = 90;
@@ -262,17 +265,17 @@ void init_setpara() // 各个参数的初始化，不在参数表上的参数仍
   setpara.obstacle_dis4 = 0;
   setpara.obstacle_angle1 = 42;
   setpara.obstacle_angle2 = 30;
-  setpara.loop_out_distance = 6000;
-  setpara.big_loop_out_distance = 8200;
-  setpara.garage_begin_distance = 180000;
+  setpara.loop_out_distance = 6000;       // 出环距离积分
+  setpara.big_loop_out_distance = 8200;   // 大环出环距离积分
+  setpara.garage_begin_distance = 180000; //
   setpara.obstacle_detect_distance = 300;
   setpara.garage_turn_PID.kp = 15;
   setpara.garage_turn_PID.kd = 10;
   setpara.broken_circuit_slow_distane = 200;
 
-  setpara.track_diff_cutoff = 100;
+  setpara.track_diff_cutoff = 100; // 跟踪差值截止频率
   setpara.steer_buchang = 0;
-  setpara.steer_adjust = -30;
+  setpara.steer_adjust = 0;
   setpara.zebra_distance = 0;
   setpara.cross_open_flag = 1;
   setpara.bla_obs_open_flag = 1;

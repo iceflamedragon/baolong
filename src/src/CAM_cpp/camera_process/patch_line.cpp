@@ -73,7 +73,8 @@ void left_ring_linefix()
               && watch.zebra_flag == 0
               && y < 81 && watch.InLoopAngle2 == 120)
            {// 先拉一道实现封住出口,由于左边丢线右边不丢线,故以右边为参考补左边线
-              slopeL=(float)(lineinfo[0].right-lineinfo[80].right)/80;//x=k*y
+             cout<<"左环第一个角点开始补直线"<<endl<<endl;
+              slopeL=(float)(lineinfo[0].right-lineinfo[40].right)/40;//x=k*y
               watch.top_x=lineinfo[0].right-118*slopeL;
               slopeL=(float)(watch.top_x-lineinfo[0].left)/118;
                xl = watch.top_x-slopeL*(118-y);
@@ -84,8 +85,9 @@ void left_ring_linefix()
           else if(watch.InLoop == 2)
           {
               //slopeR=(float)(lineinfo[40].right-watch.InLoopAngle2_x)/(watch.InLoopAngle2-40);
-              slopeR=(float)watch.InLoopAngle2_x/(115-watch.InLoopAngle2);//115是左顶点纵坐标
+              slopeR=(float)watch.InLoopAngle2_x/(115-watch.InLoopAngle2)+1;//115是左顶点纵坐标
               xr=slopeR*(watch.InLoopAngle2-y)+watch.InLoopAngle2_x;
+                cout<<"开始入环补线"<<slopeR<<endl<<endl;
               if(y>watch.InLoopAngle2||watch.InLoopAngle2<70)xl=0;
           }
           else if(watch.InLoop == 3)
@@ -100,6 +102,7 @@ void left_ring_linefix()
                {
                // 一元一次方程,参考图片/出左环.png
                xr=watch.OutLoop_turn_point_x+(69-y);
+               cout<<"出左环弯道补线"<<endl<<endl;
                }
                //begin_angal_integeral(50);
            }
@@ -113,6 +116,7 @@ void left_ring_linefix()
                watch.top_x=lineinfo[45].right-73*slopeL;
                slopeL=(float)(watch.top_x-20)/118;
                 xl = watch.top_x-slopeL*(118-y);
+                cout<<"出左环直道补线"<<endl<<endl;
     //            slopeL=(lineinfo[watch.watch_lost].left-lineinfo[100].left)/(watch.watch_lost-100);
     //            xl = lineinfo[100].left+(y-100)*slopeL;
            }
@@ -145,7 +149,7 @@ void right_ring_linefix()
               && watch.zebra_flag == 0
               && y < 81 && watch.InLoopAngle2 == 120)
            {// 先拉一道实现封住出口,由于左边丢线右边不丢线,故以右边为参考补左边线
-              slopeR=(float)(lineinfo[60].left-lineinfo[0].left)/60;
+              slopeR=(float)(lineinfo[40].left-lineinfo[0].left)/40;
               watch.top_x=lineinfo[0].left+118*slopeR;
               slopeR=(float)(lineinfo[0].right-watch.top_x)/118;
                xr = watch.top_x+slopeR*(118-y);

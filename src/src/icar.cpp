@@ -47,7 +47,8 @@ using namespace cv;
 
 uint8_t imo3[ROWSIMAGE][COLSIMAGE];
 uint8_t imo4[ROWSIMAGE][COLSIMAGE];
-
+int num_fps = 0;
+struct vofa_struct vofa;
 bool app_stopped = false;
 void sigint_handler(int sig);
 extern uint8_t Grayscale[ROWSIMAGE][COLSIMAGE];
@@ -68,6 +69,7 @@ uint8_t my_Grayscale[ROWSIMAGE][COLSIMAGE];
 void CAM_CPU_while(void);
 void MatTo2DArray(const Mat &img, uchar array[ROWSIMAGE][COLSIMAGE]);
 void draw_imo_color(uint8_t myimo[ROWSIMAGE][COLSIMAGE], Mat mat);
+void show_params(Mat img, float *data);
 enum AI_Distance_Postion {
   AI_Distance_None = 0,
   AI_None_Start,
@@ -79,7 +81,8 @@ enum AI_Distance_Postion {
   AI_Bridge_Start,
   AI_Bridge_End
 } AI_distance_postion;
-shared_ptr<Uart> uart = make_shared<Uart>("/dev/ttyUSB0"); // 初始化串口驱动
+shared_ptr<Uart> uart = make_shared<Uart>("/dev/ttyBT0"); // 初始化串口驱动
+
 int main(int argc, char const *argv[]) {
   Preprocess preprocess;    // 图像预处理类
   Motion motion;            // 运动控制类
@@ -120,8 +123,9 @@ int main(int argc, char const *argv[]) {
     printf("can not open video device!!!\n");
     return 0;
   }
-  VideoWriter video("ouput.avi", cv::VideoWriter::fourcc('M', 'J', 'P', 'G'),
-                    30, Size(4 * COLSIMAGE, ROWSIMAGE), true);
+  // VideoWriter video("ouput.avi", cv::VideoWriter::fourcc('M', 'J', 'P',
+  // 'G'),
+  //                   30, Size(4 * COLSIMAGE, ROWSIMAGE), true);
   capture.set(CAP_PROP_FRAME_WIDTH, 320);  // 设置图像分辨率
   capture.set(CAP_PROP_FRAME_HEIGHT, 240); // 设置图像分辨率
                                            /// 标志位初始化
@@ -175,11 +179,22 @@ int main(int argc, char const *argv[]) {
               motion.params.speed_max, /////////////速度决策,
 
               motion.params.speed_add, ///////////
-              motion.params.speed_min,
-              motion.params.loop_target_speed,
-              motion.params.loop_out_distance); // 写在init_setpara（）后面
+              motion.params.speed_min, motion.params.loop_target_speed,
+              motion.params.loop_out_distance,
+              motion.params.STEER_MID); // 写在init_setpara（）后面
   // 改config文件，改set_setpara函数
   car_begin(); // 初始化车启动的标志位
+  cv::VideoWriter video("output.avi",
+                        cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 10,
+                        Size(1128, 360), true);
+
+  // 检查视频写入器是否成功创建
+  if (!video.isOpened()) {
+    std::cerr << "Could not open the output video file for writing"
+              << std::endl;
+    return -1;
+  }
+
   while (1) {
     // cout<<"camwf"<<motion.params.camwf<<endl;
     for (int i = 0; i < ROWSIMAGE; ++i) {
@@ -250,7 +265,7 @@ int main(int argc, char const *argv[]) {
                     .count();
     if (!capture.read(img))
       continue;
-
+    // imshow("4564564564654654",img);
     Size dsize_first = Size(188, 120);
     cv::resize(img, img, dsize_first, 0, 0, INTER_AREA);
 
@@ -298,7 +313,9 @@ int main(int argc, char const *argv[]) {
 
     /*///核心控制部分////*/
     CAM_CPU_while();
+    cout << "圆环标志位" << watch.InLoop << endl;
     cout << "目标速度djiaji" << mycar.target_speed << endl;
+    cout << "watch.InLoopAngle2  " << watch.InLoopAngle2 << endl;
     // draw_imo_color(imo3, imo3_img); // 扫弦图绿色是右边，蓝色是左边
 
     // draw_imo_color(imo4, imo4_img); // 逆透视
@@ -312,6 +329,7 @@ int main(int argc, char const *argv[]) {
     //     }
     //   }
     // }
+
     if (motion.params.debug) // 开启视频
     {
       draw_imo_color(imo3, imo3_img); // 扫弦图绿色是右边，蓝色是左边
@@ -333,36 +351,49 @@ int main(int argc, char const *argv[]) {
       Mat resizedImage2;
       Mat resizedImage3;
       Mat resizedImage4;
-      resize(imgBinary, resizedImage1, Size(), scale, scale);
-      resize(colorImage, resizedImage2, Size(), scale, scale);
-      resize(imo4_img, resizedImage3, Size(), scale, scale);
-      resize(imgBinary, resizedImage4, Size(), scale, scale);
+      //  resize(imgBinary, resizedImage1, Size(), scale, scale);
+
+      resize(colorImage, resizedImage2, Size(), scale, scale); // 补线图
+      resize(imo4_img, resizedImage3, Size(), scale, scale);   // 逆透视图
+
+      cv::Mat combinedFrame;
+      cv::hconcat(resizedImage2, resizedImage3, combinedFrame);
+      show_params(combinedFrame, vofa.loop);
+
+      imshow("789", combinedFrame);
+      if (motion.params.record_video) {
+        video.write(combinedFrame);
+      }
+      waitKey(1); // 等待显示，不能删！！！
+      // resize(imgBinary, resizedImage4, Size(), scale, scale);
       // 创建一个4x4的矩阵来显示四幅图像
-      Mat displayMatrix(2 * resizedImage1.rows, 2 * resizedImage1.cols,
-                        CV_8UC3);
+      // Mat displayMatrix(2 * resizedImage1.rows, 2 * resizedImage1.cols,
+      //                   CV_8UC3);
 
-      // 将四幅图像放入矩阵中
-      Mat roi;
+      // // 将四幅图像放入矩阵中
+      // Mat roi;
 
-      // 左上角
-      roi = displayMatrix(Rect(0, 0, resizedImage1.cols, resizedImage1.rows));
-      resizedImage1.copyTo(roi);
+      // // 左上角
+      // roi = displayMatrix(Rect(0, 0, resizedImage1.cols,
+      // resizedImage1.rows)); resizedImage1.copyTo(roi);
 
-      // 右上角
-      roi = displayMatrix(
-          Rect(resizedImage1.cols, 0, resizedImage1.cols, resizedImage1.rows));
-      resizedImage2.copyTo(roi);
+      // // 右上角
+      // roi = displayMatrix(
+      //     Rect(resizedImage1.cols, 0, resizedImage1.cols,
+      //     resizedImage1.rows));
+      // resizedImage2.copyTo(roi);
 
-      // 左下角
-      roi = displayMatrix(
-          Rect(0, resizedImage1.rows, resizedImage1.cols, resizedImage1.rows));
-      resizedImage3.copyTo(roi);
+      // // 左下角
+      // roi = displayMatrix(
+      //     Rect(0, resizedImage1.rows, resizedImage1.cols,
+      //     resizedImage1.rows));
+      // resizedImage3.copyTo(roi);
 
-      // 右下角
-      roi = displayMatrix(Rect(resizedImage1.cols, resizedImage1.rows,
-                               resizedImage1.cols, resizedImage1.rows));
-      resizedImage4.copyTo(roi);
-      imshow("四幅图像1", displayMatrix);
+      // // 右下角
+      // roi = displayMatrix(Rect(resizedImage1.cols, resizedImage1.rows,
+      //                          resizedImage1.cols, resizedImage1.rows));
+      // resizedImage4.copyTo(roi);
+      // imshow("四幅图像1", displayMatrix);
 
       // 显示结果
 
@@ -419,8 +450,10 @@ int main(int argc, char const *argv[]) {
         mycar.uart_servo = STEER_MIN;
       if (mycar.uart_servo > STEER_MAX)
         mycar.uart_servo = STEER_MAX;
+      mycar.uart_speed = 1;
       cout << "目标速度" << mycar.uart_speed << "舵机PWM" << mycar.uart_servo
            << endl;
+
       uart->carControl(
           mycar.uart_speed,
           mycar.uart_servo); // 串口通信控制车辆---传给下位机进行控制
@@ -428,23 +461,24 @@ int main(int argc, char const *argv[]) {
     Mat imgRes =
         Mat::zeros(Size(COLSIMAGE, ROWSIMAGE), CV_8UC3); // 创建全黑图像
     //[14] 综合显示调试UI窗口
-    if (motion.params.record_video) {
-      // 帧率计算
-      auto startTime = chrono::duration_cast<chrono::milliseconds>(
-                           chrono::system_clock::now().time_since_epoch())
-                           .count();
-      printf(">> FrameTime: %ldms | %.2ffps \n", startTime - preTime,
-             1000.0 / (startTime - preTime));
+    // if (motion.params.record_video) {
+    //   // 帧率计算
+    //   // auto startTime = chrono::duration_cast<chrono::milliseconds>(
+    //   // chrono::system_clock::now().time_since_epoch())
+    //   //                      .count();
+    //   // printf(">> FrameTime: %ldms | %.2ffps \n", startTime - preTime,
+    //   //        1000.0 / (startTime - preTime));
 
-      // circle(imgCorrect,
-      //        Point(tracking.pointsEdgeLeft[ring.left_breakpoint].y,
-      //              tracking.pointsEdgeLeft[ring.left_breakpoint].x),
-      //        5, Scalar(255, 152, 0), -1); // 我们自己的拐点
-      detection->drawBox(imgCorrect); // 图像绘制AI结果
-      ctrlCenter.drawImage(tracking,
-                           imgCorrect); // 图像绘制路径计算结果（控制中心）
-      waitKey(10);                      // 等待显示
-    } // 不能去
+    //   // // circle(imgCorrect,
+    //   // //        Point(tracking.pointsEdgeLeft[ring.left_breakpoint].y,
+    //   // //              tracking.pointsEdgeLeft[ring.left_breakpoint].x),
+    //   // //        5, Scalar(255, 152, 0), -1); // 我们自己的拐点
+    //   // detection->drawBox(imgCorrect); // 图像绘制AI结果
+    //   // ctrlCenter.drawImage(tracking,
+    //   //                      imgCorrect); //
+    //   图像绘制路径计算结果（控制中心） waitKey(1); //
+    //   等待显示，不能删！！！
+    // } // 不能去
 
     // cout<<width<<"height"<<height<<endl<<endl<<endl<<endl;
     // video.write(imgBinary);//图像1录像
@@ -571,4 +605,41 @@ void draw_imo_color(uint8_t myimo[ROWSIMAGE][COLSIMAGE], Mat mat) {
       mat.at<cv::Vec3b>(119 - i, j) = color;
     }
   }
+}
+void show_params(Mat img, float *data) {
+  vofa.loop[0] = watch.InLoop;
+  vofa.loop[1] = watch.InLoopAngleL;
+  vofa.loop[2] = distance_integral.integeral_data;
+  vofa.loop[3] = watch.InLoopAngle2;
+  vofa.loop[4] = watch.OutLoop;
+  vofa.loop[5] = Element;
+  vofa.loop[6] = watch.OutLoopAngle2;
+  vofa.loop[7] = mycar.RUNTIME;
+  std::string text1 = "Number 1: " + std::to_string(data[0]);
+  std::string text2 = "Number 2: " + std::to_string(data[1]);
+  std::string text3 = "Number 3: " + std::to_string(data[2]);
+  std::string text4 = "Number 4: " + std::to_string(data[3]);
+  std::string text5 = "Number 5: " + std::to_string(data[4]);
+  std::string text6 = "Number 6: " + std::to_string(data[5]);
+  std::string text7 = "Number 7: " + std::to_string(data[6]);
+  std::string text8 = "Number 8: " + std::to_string(data[7]);
+  std::string text9 = "Number 9: " + std::to_string(data[8]);
+  cv::putText(img, text1, cv::Point(10, 20), cv::FONT_HERSHEY_SIMPLEX, 0.4,
+              cv::Scalar(255, 255, 255), 1);
+  cv::putText(img, text2, cv::Point(10, 40), cv::FONT_HERSHEY_SIMPLEX, 0.4,
+              cv::Scalar(255, 255, 255), 1);
+  cv::putText(img, text3, cv::Point(10, 60), cv::FONT_HERSHEY_SIMPLEX, 0.4,
+              cv::Scalar(255, 255, 255), 1);
+  cv::putText(img, text4, cv::Point(10, 80), cv::FONT_HERSHEY_SIMPLEX, 0.4,
+              cv::Scalar(255, 255, 255), 1);
+  cv::putText(img, text5, cv::Point(10, 100), cv::FONT_HERSHEY_SIMPLEX, 0.4,
+              cv::Scalar(255, 255, 255), 1);
+  cv::putText(img, text6, cv::Point(10, 120), cv::FONT_HERSHEY_SIMPLEX, 0.4,
+              cv::Scalar(255, 255, 255), 1);
+  cv::putText(img, text7, cv::Point(10, 140), cv::FONT_HERSHEY_SIMPLEX, 0.4,
+              cv::Scalar(255, 255, 255), 1);
+  cv::putText(img, text8, cv::Point(10, 160), cv::FONT_HERSHEY_SIMPLEX, 0.4,
+              cv::Scalar(255, 255, 255), 1);
+  cv::putText(img, text9, cv::Point(10, 180), cv::FONT_HERSHEY_SIMPLEX, 0.4,
+              cv::Scalar(255, 255, 255), 1);
 }

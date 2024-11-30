@@ -9,6 +9,7 @@
 #include "math.h"
 mycar_STRUCT mycar;
 float Gyro_Z;
+float STEER_MID;
 // 左右轮差速表（百分比）
 float speed_dif_list[30] = {-0.226, -0.199, -0.18,  -0.169, -0.151, -0.133,
                             -0.119, -0.101, -0.087, -0.075, -0.057, -0.042,
@@ -60,16 +61,16 @@ void dir_control() {
 
   // set_steer(STEER_MID+mycar.steer_pwm);
   //        mycar.steer_pwm=PID_Positional(&CAM_Turn,mycar.original_err,0);
-  cout<<"err"<<mycar.original_err<<endl;
+  cout << "err" << mycar.original_err << endl;
   mycar.steer_pwm =
       Steer_PWM_Cal(-mycar.original_err); /////////////////根据情况调整符号
-  mycar.uart_servo = STEER_MID+mycar.steer_pwm+setpara.steer_adjust+mycar.steer_buchang;     // 传入
+  mycar.uart_servo = STEER_MID+ mycar.steer_pwm ; // 传入，后面可以考虑加上补偿 + setpara.steer_adjust +mycar.steer_buchang
   if (Element == None || Element == crossing)
     steer_buchang_cal();
   else
     mycar.steer_buchang = 0;
   ////////////////////////////
-  ///set_steer(STEER_MID+mycar.steer_pwm+setpara.steer_adjust+mycar.steer_buchang);
+  /// set_steer(STEER_MID+mycar.steer_pwm+setpara.steer_adjust+mycar.steer_buchang);
 
   //    set_steer(STEER_MID+setpara.steer_adjust);
 }
@@ -135,11 +136,11 @@ void common_running() {
     //  mycar.left_pwm_set=PID_Incremental(&Speed_left,mycar.left_speed,mycar.target_left_speed);//+setpara.speed_kf*Speed_left.kf_ratio*mycar.target_left_speed;
     //  mycar.right_pwm_set=PID_Incremental(&Speed_right,mycar.right_speed,mycar.target_right_speed);//+setpara.speed_kf*Speed_right.kf_ratio*mycar.target_right_speed;
     //  set_pwm(mycar.left_pwm_set,mycar.right_pwm_set);
-    mycar.uart_speed = mycar.target_speed; 
-    cout<<"赋给串口的值"<<mycar.uart_speed<<endl;
+    mycar.uart_speed = mycar.target_speed;
+    cout << "赋给串口的值" << mycar.uart_speed << endl;
     //////////需要的速度给到串口
-                                           // fan_begin(setpara.fan_speed);
-                                           // set_pwm(0,1000);
+    // fan_begin(setpara.fan_speed);
+    // set_pwm(0,1000);
     //        mycar.speed_Middle_PWM=velocity_PID_middle(mycar.present_speed2,mycar.target_speed);
     //        mycar.left_pwm_set=mycar.speed_Middle_PWM+mycar.Turn_PWM;
     //        mycar.right_pwm_set=mycar.speed_Middle_PWM-mycar.Turn_PWM;
@@ -360,7 +361,7 @@ void speed_ctrl() {
   }
 }
 // 设置固定速度,此时取消速度调整,直到调用clear_all_flag()函数
-void set_speed(uint16_t speed) {
+void set_speed(float speed) {
   mycar.speed_ctrl = 0;
   // cout<<"设置固定速度"<<mycar.target_speed<<endl;
   mycar.target_speed = speed;

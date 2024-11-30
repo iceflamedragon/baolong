@@ -19,8 +19,9 @@
 #define PI 3.14151926
 #define TREAD 15;
 #define WHEEL_DISTANCE 24;
-#define STEER_MID 747 // 换了频率之后一定要调整
+
 // 小车状态标志位
+
 typedef struct mycar_STRUCT {
   ////板卡特用参数
   float uart_speed; // 发送的速度值，
@@ -101,7 +102,7 @@ void current_control();
 float speed_differ_set(int16_t steer_pwm);
 float speed_left_differ_set(int16_t steer_pwm);  // 设置左轮差速
 float speed_right_differ_set(int16_t steer_pwm); // 设置左轮差速
-void set_speed(uint16_t speed);
+void set_speed(float speed);
 void fan_begin(uint8_t speed);
 void steer_buchang_cal();
 void fan_buchang_cal();
