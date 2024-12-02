@@ -21,14 +21,9 @@
  */
 
 #include "../include/common.hpp"     //公共类方法文件
-#include "../include/detection.hpp"  //百度Paddle框架移动端部署
 #include "../include/uart.hpp"       //串口通信驱动
 #include "controlcenter.cpp"         //控制中心计算类
-#include "detection/bridge.cpp"      //AI检测：坡道区
-#include "detection/danger.cpp"      //AI检测：危险区
-#include "detection/parking.cpp"     //AI检测：停车区
-#include "detection/racing.cpp"      //AI检测：追逐区
-#include "detection/rescue.cpp"      //AI检测：救援区
+                                     // AI检测：救援区
 #include "motion.cpp"                //智能车运动控制类
 #include "preprocess.cpp"            //图像预处理类
 #include "recognition/crossroad.cpp" //十字道路识别与路径规划类
@@ -93,18 +88,15 @@ int main(int argc, char const *argv[]) {
   Tracking tracking;        // 赛道识别类
   Crossroad crossroad;      // 十字道路识别类
   Ring ring;                // 环岛识别类
-  Bridge bridge;            // 坡道区检测类
-  Parking parking;          // 停车区检测类
-  Danger danger;            // 危险区检测类
-  Rescue rescue;            // 救援区检测类
-  Racing racing;            // 追逐区检测类
+                            // 追逐区检测类
   ControlCenter ctrlCenter; // 控制中心计算类
   Display display(4);       // 初始化UI显示窗口
   VideoCapture capture(0);  // Opencv相机类
 
   // 目标检测类(AI模型文件)
-  shared_ptr<Detection> detection = make_shared<Detection>(motion.params.model);
-  // detection->score = motion.params.score; // AI检测置信度
+  // shared_ptr<Detection> detection =
+  // make_shared<Detection>(motion.params.model); detection->score =
+  // motion.params.score; // AI检测置信度
 
   // USB转串口初始化： /dev/ttyUSB0
   // if(ring.flagpid){
@@ -254,10 +246,9 @@ int main(int argc, char const *argv[]) {
     // 之前的代码可以去除掉了？----积分现在没用到？
     ring.setmpu6050(mpu6050_now);
     ring.setdistance(distance_now);
-    rescue.setdistancere(distance_now);
-    rescue.setmpu6050(mpu6050_now);
+
     crossroad.setmpu6050(mpu6050_now);
-    danger.setdistance(distance_now);
+
     preTime = chrono::duration_cast<chrono::milliseconds>(
                   chrono::system_clock::now().time_since_epoch())
                   .count();
@@ -309,10 +300,10 @@ int main(int argc, char const *argv[]) {
     // 将矩阵转换为二维数组
     for (int i = 0; i < ROWSIMAGE; ++i) {
       for (int j = 0; j < COLSIMAGE; ++j) {
-        Grayscale[i][j] = imgBinary.at<uchar>(i, j);//是白色，
-// cout<< static_cast<int>(Grayscale[i][j]);
+        Grayscale[i][j] = imgBinary.at<uchar>(i, j); // 是白色，
+        // cout<< static_cast<int>(Grayscale[i][j]);
       }
-// cout<<endl;
+      // cout<<endl;
     }
 
     // cv::Mat mymat(ROWSIMAGE, COLSIMAGE, CV_8UC3, Grayscale);

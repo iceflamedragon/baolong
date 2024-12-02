@@ -38,15 +38,15 @@ pkg_search_module(SERIAL REQUIRED libserial)
 include_directories(${SERIAL_INCLUDE_DIRS})
 link_directories(${SERIAL_LIBRARY_DIRS})
 
-# find ppnc
-pkg_search_module(PPNC REQUIRED ppnc)
-include_directories(${PPNC_INCLUDE_DIRS})
-link_directories(${PPNC_LIBRARY_DIRS})
+# # find ppnc
+# pkg_search_module(PPNC REQUIRED ppnc)
+# include_directories(${PPNC_INCLUDE_DIRS})
+# link_directories(${PPNC_LIBRARY_DIRS})
 
-# find onnx
-pkg_search_module(ONNX REQUIRED onnx)
-include_directories(${ONNX_INCLUDE_DIRS})
-link_directories(${ONNX_LIBRARY_DIRS})
+# # find onnx
+# pkg_search_module(ONNX REQUIRED onnx)
+# include_directories(${ONNX_INCLUDE_DIRS})
+# link_directories(${ONNX_LIBRARY_DIRS})
 #---------------------------------------------------------------------
 #               [ bin ] ==> [ demo ]
 #---------------------------------------------------------------------
@@ -94,33 +94,3 @@ target_link_libraries(${ICAR_PROJECT_NAME} ${OpenCV_LIBS})
 target_link_libraries(${ICAR_PROJECT_NAME} pthread )
 target_link_libraries(${ICAR_PROJECT_NAME} ${SERIAL_LIBRARIES})
 
-# set(MYCAM_PROJECT_NAME "mycam")
-# set(MYCAM_PROJECT_SOURCES
-#     ${PROJECT_SOURCE_DIR}/src/CAM/control/mycar.c
-# ${PROJECT_SOURCE_DIR}/src/CAM/control/err_calculation.c
-# ${PROJECT_SOURCE_DIR}/src/CAM/control/filter.c
-# ${PROJECT_SOURCE_DIR}/src/CAM/control/fuzzy_pid.c
-# ${PROJECT_SOURCE_DIR}/src/CAM/control/integral.c
-# ${PROJECT_SOURCE_DIR}/src/CAM/control/pid.c
-# ${PROJECT_SOURCE_DIR}/src/CAM/camera_process/act_persp.c
-# ${PROJECT_SOURCE_DIR}/src/CAM/camera_process/black_obstacle.c
-# ${PROJECT_SOURCE_DIR}/src/CAM/camera_process/broken_circuit.c
-# ${PROJECT_SOURCE_DIR}/src/CAM/camera_process/circle.c
-# ${PROJECT_SOURCE_DIR}/src/CAM/camera_process/cross.c
-# ${PROJECT_SOURCE_DIR}/src/CAM/camera_process/garage.c
-# ${PROJECT_SOURCE_DIR}/src/CAM/camera_process/obstacle.c
-
-# ${PROJECT_SOURCE_DIR}/src/CAM/camera_process/zebra.c
-
-# ${PROJECT_SOURCE_DIR}/src/CAM/camera_process/slope.c
-# ${PROJECT_SOURCE_DIR}/src/CAM/camera_process/scan_line.c
-
-# ${PROJECT_SOURCE_DIR}/src/CAM/camera_process/patch_line.c
-
-# ${PROJECT_SOURCE_DIR}/src/CAM/camera_process/Element_recognition.c
-
-# ${PROJECT_SOURCE_DIR}/src/CAM/GUI/application.c
-# )
-# add_executable(${MYCAM_PROJECT_NAME} ${MYCAM_PROJECT_SOURCES})
-# # 包含头文件目录
-# include_directories(${PROJECT_SOURCE_DIR}/src/CAM)
