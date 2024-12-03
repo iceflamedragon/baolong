@@ -69,10 +69,30 @@ include CMakeFiles/icar.dir/progress.make
 # Include the compile flags for this target's objects.
 include CMakeFiles/icar.dir/flags.make
 
+icar_autogen/timestamp: /usr/lib/qt5/bin/moc
+icar_autogen/timestamp: CMakeFiles/icar.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=/home/bingflame/baolong/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Automatic MOC for target icar"
+	/usr/bin/cmake -E cmake_autogen /home/bingflame/baolong/build/CMakeFiles/icar_autogen.dir/AutogenInfo.json Debug
+	/usr/bin/cmake -E touch /home/bingflame/baolong/build/icar_autogen/timestamp
+
+CMakeFiles/icar.dir/icar_autogen/mocs_compilation.cpp.o: CMakeFiles/icar.dir/flags.make
+CMakeFiles/icar.dir/icar_autogen/mocs_compilation.cpp.o: icar_autogen/mocs_compilation.cpp
+CMakeFiles/icar.dir/icar_autogen/mocs_compilation.cpp.o: CMakeFiles/icar.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/bingflame/baolong/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/icar.dir/icar_autogen/mocs_compilation.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/icar.dir/icar_autogen/mocs_compilation.cpp.o -MF CMakeFiles/icar.dir/icar_autogen/mocs_compilation.cpp.o.d -o CMakeFiles/icar.dir/icar_autogen/mocs_compilation.cpp.o -c /home/bingflame/baolong/build/icar_autogen/mocs_compilation.cpp
+
+CMakeFiles/icar.dir/icar_autogen/mocs_compilation.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/icar.dir/icar_autogen/mocs_compilation.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/bingflame/baolong/build/icar_autogen/mocs_compilation.cpp > CMakeFiles/icar.dir/icar_autogen/mocs_compilation.cpp.i
+
+CMakeFiles/icar.dir/icar_autogen/mocs_compilation.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/icar.dir/icar_autogen/mocs_compilation.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/bingflame/baolong/build/icar_autogen/mocs_compilation.cpp -o CMakeFiles/icar.dir/icar_autogen/mocs_compilation.cpp.s
+
 CMakeFiles/icar.dir/src/icar.cpp.o: CMakeFiles/icar.dir/flags.make
 CMakeFiles/icar.dir/src/icar.cpp.o: /home/bingflame/baolong/src/src/icar.cpp
 CMakeFiles/icar.dir/src/icar.cpp.o: CMakeFiles/icar.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/bingflame/baolong/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/icar.dir/src/icar.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/bingflame/baolong/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/icar.dir/src/icar.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/icar.dir/src/icar.cpp.o -MF CMakeFiles/icar.dir/src/icar.cpp.o.d -o CMakeFiles/icar.dir/src/icar.cpp.o -c /home/bingflame/baolong/src/src/icar.cpp
 
 CMakeFiles/icar.dir/src/icar.cpp.i: cmake_force
@@ -83,14 +103,32 @@ CMakeFiles/icar.dir/src/icar.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/icar.dir/src/icar.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/bingflame/baolong/src/src/icar.cpp -o CMakeFiles/icar.dir/src/icar.cpp.s
 
+CMakeFiles/icar.dir/src/mainwindow.cpp.o: CMakeFiles/icar.dir/flags.make
+CMakeFiles/icar.dir/src/mainwindow.cpp.o: /home/bingflame/baolong/src/src/mainwindow.cpp
+CMakeFiles/icar.dir/src/mainwindow.cpp.o: CMakeFiles/icar.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/bingflame/baolong/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/icar.dir/src/mainwindow.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/icar.dir/src/mainwindow.cpp.o -MF CMakeFiles/icar.dir/src/mainwindow.cpp.o.d -o CMakeFiles/icar.dir/src/mainwindow.cpp.o -c /home/bingflame/baolong/src/src/mainwindow.cpp
+
+CMakeFiles/icar.dir/src/mainwindow.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/icar.dir/src/mainwindow.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/bingflame/baolong/src/src/mainwindow.cpp > CMakeFiles/icar.dir/src/mainwindow.cpp.i
+
+CMakeFiles/icar.dir/src/mainwindow.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/icar.dir/src/mainwindow.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/bingflame/baolong/src/src/mainwindow.cpp -o CMakeFiles/icar.dir/src/mainwindow.cpp.s
+
 # Object files for target icar
 icar_OBJECTS = \
-"CMakeFiles/icar.dir/src/icar.cpp.o"
+"CMakeFiles/icar.dir/icar_autogen/mocs_compilation.cpp.o" \
+"CMakeFiles/icar.dir/src/icar.cpp.o" \
+"CMakeFiles/icar.dir/src/mainwindow.cpp.o"
 
 # External object files for target icar
 icar_EXTERNAL_OBJECTS =
 
+icar: CMakeFiles/icar.dir/icar_autogen/mocs_compilation.cpp.o
 icar: CMakeFiles/icar.dir/src/icar.cpp.o
+icar: CMakeFiles/icar.dir/src/mainwindow.cpp.o
 icar: CMakeFiles/icar.dir/build.make
 icar: /usr/local/lib/libopencv_gapi.so.4.10.0
 icar: /usr/local/lib/libopencv_highgui.so.4.10.0
@@ -100,6 +138,7 @@ icar: /usr/local/lib/libopencv_photo.so.4.10.0
 icar: /usr/local/lib/libopencv_stitching.so.4.10.0
 icar: /usr/local/lib/libopencv_video.so.4.10.0
 icar: /usr/local/lib/libopencv_videoio.so.4.10.0
+icar: /usr/lib/x86_64-linux-gnu/libQt5Widgets.so.5.15.13
 icar: /usr/local/lib/libopencv_imgcodecs.so.4.10.0
 icar: /usr/local/lib/libopencv_dnn.so.4.10.0
 icar: /usr/local/lib/libopencv_calib3d.so.4.10.0
@@ -107,8 +146,10 @@ icar: /usr/local/lib/libopencv_features2d.so.4.10.0
 icar: /usr/local/lib/libopencv_flann.so.4.10.0
 icar: /usr/local/lib/libopencv_imgproc.so.4.10.0
 icar: /usr/local/lib/libopencv_core.so.4.10.0
+icar: /usr/lib/x86_64-linux-gnu/libQt5Gui.so.5.15.13
+icar: /usr/lib/x86_64-linux-gnu/libQt5Core.so.5.15.13
 icar: CMakeFiles/icar.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/bingflame/baolong/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable icar"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/bingflame/baolong/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Linking CXX executable icar"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/icar.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
@@ -119,7 +160,7 @@ CMakeFiles/icar.dir/clean:
 	$(CMAKE_COMMAND) -P CMakeFiles/icar.dir/cmake_clean.cmake
 .PHONY : CMakeFiles/icar.dir/clean
 
-CMakeFiles/icar.dir/depend:
+CMakeFiles/icar.dir/depend: icar_autogen/timestamp
 	cd /home/bingflame/baolong/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/bingflame/baolong/src /home/bingflame/baolong/src /home/bingflame/baolong/build /home/bingflame/baolong/build /home/bingflame/baolong/build/CMakeFiles/icar.dir/DependInfo.cmake "--color=$(COLOR)"
 .PHONY : CMakeFiles/icar.dir/depend
 

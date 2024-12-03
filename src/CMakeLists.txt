@@ -37,7 +37,7 @@ include_directories( ${OpenCV_INCLUDE_DIRS} )
 pkg_search_module(SERIAL REQUIRED libserial)
 include_directories(${SERIAL_INCLUDE_DIRS})
 link_directories(${SERIAL_LIBRARY_DIRS})
-
+find_package(Qt5 COMPONENTS Core Widgets REQUIRED)
 # # find ppnc
 # pkg_search_module(PPNC REQUIRED ppnc)
 # include_directories(${PPNC_INCLUDE_DIRS})
@@ -51,12 +51,7 @@ link_directories(${SERIAL_LIBRARY_DIRS})
 #               [ bin ] ==> [ demo ]
 #---------------------------------------------------------------------
 # 图像采集
-set(COL_PROJECT_NAME "collection")
-set(COL_PROJECT_SOURCES ${PROJECT_SOURCE_DIR}/tool/collection.cpp)
-add_executable(${COL_PROJECT_NAME} ${COL_PROJECT_SOURCES})
-target_link_libraries(${COL_PROJECT_NAME} pthread )
-target_link_libraries(${COL_PROJECT_NAME} ${OpenCV_LIBS})
-target_link_libraries(${COL_PROJECT_NAME} ${SERIAL_LIBRARIES})
+
 
 # 图像合成
 set(IMG2V_PROJECT_NAME "img2video")
@@ -86,7 +81,7 @@ target_link_libraries(${CAM_PROJECT_NAME} ${OpenCV_LIBS})
 #               [ bin ] ==> [ main ]
 #---------------------------------------------------------------------
 set(ICAR_PROJECT_NAME "icar")
-set(ICAR_PROJECT_SOURCES ${PROJECT_SOURCE_DIR}/src/icar.cpp)
+set(ICAR_PROJECT_SOURCES ${PROJECT_SOURCE_DIR}/src/icar.cpp ${PROJECT_SOURCE_DIR}/src/mainwindow.cpp ${PROJECT_SOURCE_DIR}/include/mainwindow.h)
 add_executable(${ICAR_PROJECT_NAME} ${ICAR_PROJECT_SOURCES})
 target_link_libraries(${ICAR_PROJECT_NAME} ${PPNC_LIBRARIES})
 target_link_libraries(${ICAR_PROJECT_NAME} ${ONNX_LIBRARIES})
@@ -94,3 +89,15 @@ target_link_libraries(${ICAR_PROJECT_NAME} ${OpenCV_LIBS})
 target_link_libraries(${ICAR_PROJECT_NAME} pthread )
 target_link_libraries(${ICAR_PROJECT_NAME} ${SERIAL_LIBRARIES})
 
+# 链接Qt库
+target_link_libraries(${ICAR_PROJECT_NAME} Qt5::Core Qt5::Widgets)
+
+# 启用MOC（元对象编译器）
+set_target_properties(${ICAR_PROJECT_NAME} PROPERTIES
+    AUTOMOC ON
+)
+
+# 添加包含目录
+target_include_directories(${ICAR_PROJECT_NAME} PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}
+)

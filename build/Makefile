@@ -117,19 +117,6 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named collection
-
-# Build rule for target.
-collection: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 collection
-.PHONY : collection
-
-# fast build rule for target.
-collection/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/collection.dir/build.make CMakeFiles/collection.dir/build
-.PHONY : collection/fast
-
-#=============================================================================
 # Target rules for targets named img2video
 
 # Build rule for target.
@@ -181,6 +168,56 @@ icar/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/icar.dir/build.make CMakeFiles/icar.dir/build
 .PHONY : icar/fast
 
+#=============================================================================
+# Target rules for targets named icar_autogen_timestamp_deps
+
+# Build rule for target.
+icar_autogen_timestamp_deps: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 icar_autogen_timestamp_deps
+.PHONY : icar_autogen_timestamp_deps
+
+# fast build rule for target.
+icar_autogen_timestamp_deps/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/icar_autogen_timestamp_deps.dir/build.make CMakeFiles/icar_autogen_timestamp_deps.dir/build
+.PHONY : icar_autogen_timestamp_deps/fast
+
+#=============================================================================
+# Target rules for targets named icar_autogen
+
+# Build rule for target.
+icar_autogen: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 icar_autogen
+.PHONY : icar_autogen
+
+# fast build rule for target.
+icar_autogen/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/icar_autogen.dir/build.make CMakeFiles/icar_autogen.dir/build
+.PHONY : icar_autogen/fast
+
+icar_autogen/mocs_compilation.o: icar_autogen/mocs_compilation.cpp.o
+.PHONY : icar_autogen/mocs_compilation.o
+
+# target to build an object file
+icar_autogen/mocs_compilation.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/icar.dir/build.make CMakeFiles/icar.dir/icar_autogen/mocs_compilation.cpp.o
+.PHONY : icar_autogen/mocs_compilation.cpp.o
+
+icar_autogen/mocs_compilation.i: icar_autogen/mocs_compilation.cpp.i
+.PHONY : icar_autogen/mocs_compilation.i
+
+# target to preprocess a source file
+icar_autogen/mocs_compilation.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/icar.dir/build.make CMakeFiles/icar.dir/icar_autogen/mocs_compilation.cpp.i
+.PHONY : icar_autogen/mocs_compilation.cpp.i
+
+icar_autogen/mocs_compilation.s: icar_autogen/mocs_compilation.cpp.s
+.PHONY : icar_autogen/mocs_compilation.s
+
+# target to generate assembly for a file
+icar_autogen/mocs_compilation.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/icar.dir/build.make CMakeFiles/icar.dir/icar_autogen/mocs_compilation.cpp.s
+.PHONY : icar_autogen/mocs_compilation.cpp.s
+
 src/icar.o: src/icar.cpp.o
 .PHONY : src/icar.o
 
@@ -204,6 +241,30 @@ src/icar.s: src/icar.cpp.s
 src/icar.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/icar.dir/build.make CMakeFiles/icar.dir/src/icar.cpp.s
 .PHONY : src/icar.cpp.s
+
+src/mainwindow.o: src/mainwindow.cpp.o
+.PHONY : src/mainwindow.o
+
+# target to build an object file
+src/mainwindow.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/icar.dir/build.make CMakeFiles/icar.dir/src/mainwindow.cpp.o
+.PHONY : src/mainwindow.cpp.o
+
+src/mainwindow.i: src/mainwindow.cpp.i
+.PHONY : src/mainwindow.i
+
+# target to preprocess a source file
+src/mainwindow.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/icar.dir/build.make CMakeFiles/icar.dir/src/mainwindow.cpp.i
+.PHONY : src/mainwindow.cpp.i
+
+src/mainwindow.s: src/mainwindow.cpp.s
+.PHONY : src/mainwindow.s
+
+# target to generate assembly for a file
+src/mainwindow.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/icar.dir/build.make CMakeFiles/icar.dir/src/mainwindow.cpp.s
+.PHONY : src/mainwindow.cpp.s
 
 tool/calibration.o: tool/calibration.cpp.o
 .PHONY : tool/calibration.o
@@ -253,30 +314,6 @@ tool/camera.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/camera.dir/build.make CMakeFiles/camera.dir/tool/camera.cpp.s
 .PHONY : tool/camera.cpp.s
 
-tool/collection.o: tool/collection.cpp.o
-.PHONY : tool/collection.o
-
-# target to build an object file
-tool/collection.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/collection.dir/build.make CMakeFiles/collection.dir/tool/collection.cpp.o
-.PHONY : tool/collection.cpp.o
-
-tool/collection.i: tool/collection.cpp.i
-.PHONY : tool/collection.i
-
-# target to preprocess a source file
-tool/collection.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/collection.dir/build.make CMakeFiles/collection.dir/tool/collection.cpp.i
-.PHONY : tool/collection.cpp.i
-
-tool/collection.s: tool/collection.cpp.s
-.PHONY : tool/collection.s
-
-# target to generate assembly for a file
-tool/collection.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/collection.dir/build.make CMakeFiles/collection.dir/tool/collection.cpp.s
-.PHONY : tool/collection.cpp.s
-
 tool/img2video.o: tool/img2video.cpp.o
 .PHONY : tool/img2video.o
 
@@ -309,23 +346,27 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
+	@echo "... icar_autogen"
+	@echo "... icar_autogen_timestamp_deps"
 	@echo "... calibration"
 	@echo "... camera"
-	@echo "... collection"
 	@echo "... icar"
 	@echo "... img2video"
+	@echo "... icar_autogen/mocs_compilation.o"
+	@echo "... icar_autogen/mocs_compilation.i"
+	@echo "... icar_autogen/mocs_compilation.s"
 	@echo "... src/icar.o"
 	@echo "... src/icar.i"
 	@echo "... src/icar.s"
+	@echo "... src/mainwindow.o"
+	@echo "... src/mainwindow.i"
+	@echo "... src/mainwindow.s"
 	@echo "... tool/calibration.o"
 	@echo "... tool/calibration.i"
 	@echo "... tool/calibration.s"
 	@echo "... tool/camera.o"
 	@echo "... tool/camera.i"
 	@echo "... tool/camera.s"
-	@echo "... tool/collection.o"
-	@echo "... tool/collection.i"
-	@echo "... tool/collection.s"
 	@echo "... tool/img2video.o"
 	@echo "... tool/img2video.i"
 	@echo "... tool/img2video.s"

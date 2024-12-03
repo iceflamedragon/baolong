@@ -1,12 +1,6 @@
 [
 {
   "directory": "/home/bingflame/baolong/build",
-  "command": "/usr/bin/c++  -I/home/bingflame/baolong/src/include -I/home/bingflame/baolong/src/config -I/home/bingflame/baolong/src/src/CAM_cpp/camera_process -I/home/bingflame/baolong/src/src/CAM_cpp/control -I/home/bingflame/baolong/src/src/CAM_cpp/GUI -I/home/bingflame/baolong/src/src/CAM_cpp -I/home/bingflame/baolong/src/src -I/home/bingflame/baolong/src/tool -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -isystem /usr/local/include/opencv4 -O3 -Wall -mcpu=native -flto -pthread -g -g -std=gnu++17 -o CMakeFiles/collection.dir/tool/collection.cpp.o -c /home/bingflame/baolong/src/tool/collection.cpp",
-  "file": "/home/bingflame/baolong/src/tool/collection.cpp",
-  "output": "CMakeFiles/collection.dir/tool/collection.cpp.o"
-},
-{
-  "directory": "/home/bingflame/baolong/build",
   "command": "/usr/bin/c++  -I/home/bingflame/baolong/src/include -I/home/bingflame/baolong/src/config -I/home/bingflame/baolong/src/src/CAM_cpp/camera_process -I/home/bingflame/baolong/src/src/CAM_cpp/control -I/home/bingflame/baolong/src/src/CAM_cpp/GUI -I/home/bingflame/baolong/src/src/CAM_cpp -I/home/bingflame/baolong/src/src -I/home/bingflame/baolong/src/tool -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -isystem /usr/local/include/opencv4 -O3 -Wall -mcpu=native -flto -pthread -g -g -std=gnu++17 -o CMakeFiles/img2video.dir/tool/img2video.cpp.o -c /home/bingflame/baolong/src/tool/img2video.cpp",
   "file": "/home/bingflame/baolong/src/tool/img2video.cpp",
   "output": "CMakeFiles/img2video.dir/tool/img2video.cpp.o"
@@ -25,8 +19,20 @@
 },
 {
   "directory": "/home/bingflame/baolong/build",
-  "command": "/usr/bin/c++  -I/home/bingflame/baolong/src/include -I/home/bingflame/baolong/src/config -I/home/bingflame/baolong/src/src/CAM_cpp/camera_process -I/home/bingflame/baolong/src/src/CAM_cpp/control -I/home/bingflame/baolong/src/src/CAM_cpp/GUI -I/home/bingflame/baolong/src/src/CAM_cpp -I/home/bingflame/baolong/src/src -I/home/bingflame/baolong/src/tool -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -isystem /usr/local/include/opencv4 -O3 -Wall -mcpu=native -flto -pthread -g -g -std=gnu++17 -o CMakeFiles/icar.dir/src/icar.cpp.o -c /home/bingflame/baolong/src/src/icar.cpp",
+  "command": "/usr/bin/c++ -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -I/home/bingflame/baolong/build/icar_autogen/include -I/home/bingflame/baolong/src/include -I/home/bingflame/baolong/src/config -I/home/bingflame/baolong/src/src/CAM_cpp/camera_process -I/home/bingflame/baolong/src/src/CAM_cpp/control -I/home/bingflame/baolong/src/src/CAM_cpp/GUI -I/home/bingflame/baolong/src/src/CAM_cpp -I/home/bingflame/baolong/src/src -I/home/bingflame/baolong/src/tool -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/home/bingflame/baolong/src -isystem /usr/local/include/opencv4 -isystem /usr/include/x86_64-linux-gnu/qt5 -isystem /usr/include/x86_64-linux-gnu/qt5/QtCore -isystem /usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -isystem /usr/include/x86_64-linux-gnu/qt5/QtWidgets -isystem /usr/include/x86_64-linux-gnu/qt5/QtGui -O3 -Wall -mcpu=native -flto -pthread -g -g -std=gnu++17 -fPIC -o CMakeFiles/icar.dir/icar_autogen/mocs_compilation.cpp.o -c /home/bingflame/baolong/build/icar_autogen/mocs_compilation.cpp",
+  "file": "/home/bingflame/baolong/build/icar_autogen/mocs_compilation.cpp",
+  "output": "CMakeFiles/icar.dir/icar_autogen/mocs_compilation.cpp.o"
+},
+{
+  "directory": "/home/bingflame/baolong/build",
+  "command": "/usr/bin/c++ -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -I/home/bingflame/baolong/build/icar_autogen/include -I/home/bingflame/baolong/src/include -I/home/bingflame/baolong/src/config -I/home/bingflame/baolong/src/src/CAM_cpp/camera_process -I/home/bingflame/baolong/src/src/CAM_cpp/control -I/home/bingflame/baolong/src/src/CAM_cpp/GUI -I/home/bingflame/baolong/src/src/CAM_cpp -I/home/bingflame/baolong/src/src -I/home/bingflame/baolong/src/tool -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/home/bingflame/baolong/src -isystem /usr/local/include/opencv4 -isystem /usr/include/x86_64-linux-gnu/qt5 -isystem /usr/include/x86_64-linux-gnu/qt5/QtCore -isystem /usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -isystem /usr/include/x86_64-linux-gnu/qt5/QtWidgets -isystem /usr/include/x86_64-linux-gnu/qt5/QtGui -O3 -Wall -mcpu=native -flto -pthread -g -g -std=gnu++17 -fPIC -o CMakeFiles/icar.dir/src/icar.cpp.o -c /home/bingflame/baolong/src/src/icar.cpp",
   "file": "/home/bingflame/baolong/src/src/icar.cpp",
   "output": "CMakeFiles/icar.dir/src/icar.cpp.o"
+},
+{
+  "directory": "/home/bingflame/baolong/build",
+  "command": "/usr/bin/c++ -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -I/home/bingflame/baolong/build/icar_autogen/include -I/home/bingflame/baolong/src/include -I/home/bingflame/baolong/src/config -I/home/bingflame/baolong/src/src/CAM_cpp/camera_process -I/home/bingflame/baolong/src/src/CAM_cpp/control -I/home/bingflame/baolong/src/src/CAM_cpp/GUI -I/home/bingflame/baolong/src/src/CAM_cpp -I/home/bingflame/baolong/src/src -I/home/bingflame/baolong/src/tool -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/home/bingflame/baolong/src -isystem /usr/local/include/opencv4 -isystem /usr/include/x86_64-linux-gnu/qt5 -isystem /usr/include/x86_64-linux-gnu/qt5/QtCore -isystem /usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -isystem /usr/include/x86_64-linux-gnu/qt5/QtWidgets -isystem /usr/include/x86_64-linux-gnu/qt5/QtGui -O3 -Wall -mcpu=native -flto -pthread -g -g -std=gnu++17 -fPIC -o CMakeFiles/icar.dir/src/mainwindow.cpp.o -c /home/bingflame/baolong/src/src/mainwindow.cpp",
+  "file": "/home/bingflame/baolong/src/src/mainwindow.cpp",
+  "output": "CMakeFiles/icar.dir/src/mainwindow.cpp.o"
 }
 ]

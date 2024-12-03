@@ -1,7 +1,8 @@
-/home/bingflame/baolong/build/CMakeFiles/collection.dir
 /home/bingflame/baolong/build/CMakeFiles/img2video.dir
 /home/bingflame/baolong/build/CMakeFiles/calibration.dir
 /home/bingflame/baolong/build/CMakeFiles/camera.dir
 /home/bingflame/baolong/build/CMakeFiles/icar.dir
 /home/bingflame/baolong/build/CMakeFiles/edit_cache.dir
 /home/bingflame/baolong/build/CMakeFiles/rebuild_cache.dir
+/home/bingflame/baolong/build/CMakeFiles/icar_autogen_timestamp_deps.dir
+/home/bingflame/baolong/build/CMakeFiles/icar_autogen.dir
