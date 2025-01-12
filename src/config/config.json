@@ -1,5 +1,7 @@
 {
-    "STEER_MID": 747,
+    "STEER_MID":4930,
+    "STEER_MIN": 4000,
+    "STEER_MAX": 6000,
     "speed_max": 105,
     "/*speed_max*/": "是轮胎前视距，不是最高速度",
     "speed_add": 1.5,

@@ -29,7 +29,7 @@
 #include <math.h>                 // 数学函数类
 #include <stdint.h>               // 整型数据类
 #include <string.h>
-#include <thread>
+#include <thread>//多线程
 
 extern float mpu6050_later;
 using namespace LibSerial;
@@ -384,7 +384,7 @@ public:
    * @brief 车辆速度+方向控制
    *
    * @param speed 速度：m/s
-   * @param servo 方向：PWM（250~747~1250）
+   * @param servo 方向：PWM（舵机中值4800）
    */
   void carControl(float speed, uint16_t servo) {
     if (!isOpen)

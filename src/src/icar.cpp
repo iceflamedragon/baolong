@@ -40,7 +40,7 @@
 #include <opencv2/opencv.hpp>  //OpenCV终端部署
 #include <signal.h>
 #include <unistd.h>
-
+#include <chrono>//记录耗时
 #include "CAM_cpp/global.hpp"
 
 #define toStr(name) (#name)
@@ -63,8 +63,8 @@ bool Is_AI_detection = 1;             // 是否开启AI
 int distance_start = 0;
 double AI_distance_start = 0,
        AI_distance_end = 0; // AI标志与距离积分的开始和结束
-int STEER_MIN = 400;        // 舵机限幅
-int STEER_MAX = 900;
+int STEER_MIN ;        // 舵机限幅
+int STEER_MAX ;
 // 定义二维数组
 uint8_t my_Grayscale[ROWSIMAGE][COLSIMAGE];
 // struct lineinfo_s lineinfo[120];
@@ -100,8 +100,8 @@ int main(int argc, char const *argv[]) {
   Racing racing;            // 追逐区检测类
   ControlCenter ctrlCenter; // 控制中心计算类
   Display display(4);       // 初始化UI显示窗口
-  VideoCapture capture(0);  // Opencv相机类
-
+  // VideoCapture capture(0);  // Opencv相机类
+ cv::VideoCapture capture("v4l2src ! videoconvert ! videoscale ! video/x-raw,width=320,height=240 ! appsink", cv::CAP_GSTREAMER);
   // 目标检测类(AI模型文件)
   shared_ptr<Detection> detection = make_shared<Detection>(motion.params.model);
   // detection->score = motion.params.score; // AI检测置信度
@@ -112,6 +112,14 @@ int main(int argc, char const *argv[]) {
   // cout<<"主函数中设置成进环pid了"<<endl;
   // }else  motion.flag=0;
   // cout<<"motion中的flag值"<<motion.flag<<endl;
+
+// 使用 GStreamer 管道（硬件加速）
+   
+    // if (!capture.isOpened()) {
+    //     std::cerr << "Error: Could not open camera." << std::endl;
+    //     return -1;
+    // }
+
   int ret = uart->open();
   if (ret != 0) {
     printf("[Error] Uart Open failed!\n");
@@ -122,7 +130,7 @@ int main(int argc, char const *argv[]) {
   // USB摄像头初始化
   // if (motion.params.debug)
   // capture = VideoCapture(motion.params.video); // 打开本地视频
-
+  capture.open(0, cv::CAP_V4L2);//打开摄像头
   if (!capture.isOpened()) {
     printf("can not open video device!!!\n");
     return 0;
@@ -130,9 +138,19 @@ int main(int argc, char const *argv[]) {
   // VideoWriter video("ouput.avi", cv::VideoWriter::fourcc('M', 'J', 'P',
   // 'G'),
   //                   30, Size(4 * COLSIMAGE, ROWSIMAGE), true);
-  capture.set(CAP_PROP_FRAME_WIDTH, 320);  // 设置图像分辨率
-  capture.set(CAP_PROP_FRAME_HEIGHT, 240); // 设置图像分辨率
+  capture.set(CAP_PROP_FRAME_WIDTH,320);// 设置图像分辨率//有些摄像头需要
+  capture.set(CAP_PROP_FRAME_HEIGHT,240); // 设置图像分辨率
                                            /// 标志位初始化
+    // 设置更小的分辨率
+    // int desired_width = 640;  // 设置宽度为 320
+    // int desired_height = 480; // 设置高度为 240
+    // capture.set(cv::CAP_PROP_FRAME_WIDTH, desired_width);
+    // capture.set(cv::CAP_PROP_FRAME_HEIGHT, desired_height);
+
+    // 设置帧率
+  //   double desired_fps = 350; // 设置帧率为 120 fps
+    capture.set(cv::CAP_PROP_FPS, 60);
+  // // capture.set(cv::CAP_PROP_FPS, 60);//设置帧率
   AI_distance_postion = AI_Distance_None;
   // 等待按键发车
   // if (!motion.params.debug) {
@@ -185,9 +203,10 @@ int main(int argc, char const *argv[]) {
               motion.params.speed_add, ///////////
               motion.params.speed_min, motion.params.loop_target_speed,
               motion.params.loop_out_distance,
-              motion.params.STEER_MID); // 写在init_setpara（）后面
+              motion.params.STEER_MID,motion.params.STEER_MIN,motion.params.STEER_MAX); // 写在init_setpara（）后面
   // 改config文件，改set_setpara函数
   car_begin(); // 初始化车启动的标志位
+  //////////////////视频输出
   cv::VideoWriter video("output.avi",
                         cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 10,
                         Size(1128, 360), true);
@@ -198,12 +217,16 @@ int main(int argc, char const *argv[]) {
               << std::endl;
     return -1;
   }
+  ///
   int temp = 456;
   string str = toStr(temp);
   cout << str.c_str() << endl; // temp
   while (1) {
     // cout<<"camwf"<<motion.params.camwf<<endl;
-    for (int i = 0; i < ROWSIMAGE; ++i) {
+      auto start = std::chrono::high_resolution_clock::now(); // 记录开始时间
+
+    // 你的代码块 1
+    for (int i = 0; i < ROWSIMAGE; ++i) {//耗时大概16us
       std::fill(imo3[i], imo3[i] + COLSIMAGE, 0);
     }
     for (int i = 0; i < ROWSIMAGE; ++i) {
@@ -212,6 +235,10 @@ int main(int argc, char const *argv[]) {
     //  ring.RoundaboutGetArc(tracking, 1, 20, 30, 160);
     cv::Mat imo3_img(ROWSIMAGE, COLSIMAGE, CV_8UC3);
     cv::Mat imo4_img(ROWSIMAGE, COLSIMAGE, CV_8UC3);
+
+
+   
+    //最多16us
     // if (ring.flagpid)
     //   ctrlCenter.flagring = 1;
     // else
@@ -265,13 +292,27 @@ int main(int argc, char const *argv[]) {
     //[01] 视频源读取
     // 读取mpu6050
 
+//到这11us    
     if (motion.params.debug) // 综合显示调试UI窗口
       preTime = chrono::duration_cast<chrono::milliseconds>(
                     chrono::system_clock::now().time_since_epoch())
                     .count();
-    if (!capture.read(img))
-      continue;
-    // imshow("4564564564654654",img);
+ auto end1 = std::chrono::high_resolution_clock::now(); // 记录结束时间
+    std::chrono::duration<double> duration1 = end1 - start;
+    std::cout << "Task 1 took " << duration1.count() << " seconds" << std::endl;
+//到这11us    
+   if (!capture.read(img)) {///原图像
+            std::cerr << "Error: Could not read frame." << std::endl;
+            continue;
+        }
+
+ auto end2 = std::chrono::high_resolution_clock::now(); // 记录结束时间
+    std::chrono::duration<double> duration2 = end2 - end1;
+    std::cout << "readimg " << duration2.count() << " seconds" << std::endl;
+
+///从while到这28ms
+
+    // imshow("original",img);//显示原图像
     Size dsize_first = Size(188, 120);
     cv::resize(img, img, dsize_first, 0, 0, INTER_AREA);
 
@@ -315,6 +356,7 @@ int main(int argc, char const *argv[]) {
 // cout<<endl;
     }
 
+///从while到这30ms
     // cv::Mat mymat(ROWSIMAGE, COLSIMAGE, CV_8UC3, Grayscale);
 
     // imshow("Image5", mymat);
@@ -338,6 +380,7 @@ int main(int argc, char const *argv[]) {
     //   }
     // }
 
+ ///从while到这30ms   
     if (motion.params.debug) // 开启视频
     {
       draw_imo_color(imo3, imo3_img); // 扫弦图绿色是右边，蓝色是左边
@@ -374,6 +417,7 @@ int main(int argc, char const *argv[]) {
       if (motion.params.record_video) {
         video.write(combinedFrame);
       }
+    
       waitKey(1); // 等待显示，不能删！！！
       // resize(imgBinary, resizedImage4, Size(), scale, scale);
       // 创建一个4x4的矩阵来显示四幅图像
@@ -418,6 +462,8 @@ int main(int argc, char const *argv[]) {
 
       //   video.write(roi);
     }
+
+ ///从while到这35ms 
     // 打印二维数组
     // std::cout << "二维数组内容：" << std::endl;
     // for (int i = 0; i < ROWSIMAGE; ++i) {
@@ -446,7 +492,7 @@ int main(int argc, char const *argv[]) {
     //      uart->carControl(0, PWMSERVOMID); // 控制车辆停止运动
     //      sleep(1);
     //      printf("-----> System Exit!!! <-----\n");
-    //      exit(0); // 程序退出
+    //      exit(0); // 程序退
     //    }
     //  }
 
@@ -461,6 +507,7 @@ int main(int argc, char const *argv[]) {
       if (mycar.uart_servo > STEER_MAX)
         mycar.uart_servo = STEER_MAX;
       // mycar.uart_speed = 1;
+      // mycar.uart_servo=STEER_MID;
       cout << "目标速度" << mycar.uart_speed << "舵机PWM" << mycar.uart_servo
            << endl;
 
@@ -468,6 +515,8 @@ int main(int argc, char const *argv[]) {
           mycar.uart_speed,
           mycar.uart_servo); // 串口通信控制车辆---传给下位机进行控制
     }
+
+ ///从while到这35ms 
     Mat imgRes =
         Mat::zeros(Size(COLSIMAGE, ROWSIMAGE), CV_8UC3); // 创建全黑图像
     //[14] 综合显示调试UI窗口
@@ -517,7 +566,7 @@ void sigint_handler(int sig) {
     app_stopped = true;
     // uart->carpid(500, 1000, 0,
     //              0); // 调刹车pid，参数分别为p，i，d，是否存入flash
-    uart->carControl(0, 750);
+    uart->carControl(0, 4800);
 
     exit(0);
   }
