@@ -500,4 +500,6 @@ CMakeFiles/icar.dir/src/icar.cpp.o: \
  /home/edgeboard/car/baolong/src/src/CAM_cpp/control/mycar.cpp \
  /home/edgeboard/car/baolong/src/src/CAM_cpp/control/mycar.hpp \
  /home/edgeboard/car/baolong/src/src/CAM_cpp/control/pid.cpp \
- /home/edgeboard/car/baolong/src/src/CAM_cpp/control/pid.hpp
+ /home/edgeboard/car/baolong/src/src/CAM_cpp/control/pid.hpp \
+ /usr/include/c++/7/mutex /usr/include/c++/7/bits/std_mutex.h \
+ /usr/include/c++/7/condition_variable /usr/include/c++/7/atomic

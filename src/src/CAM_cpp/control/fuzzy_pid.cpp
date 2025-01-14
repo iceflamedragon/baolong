@@ -190,7 +190,7 @@ void updata_fuzzy_speed(float err,float k)
     else d_k=setpara.fuzzy_k*0.1;
 
        mycar.target_speed=setpara.speed_min+speed_add;//+d_k;
-       cout<<"加和求得速度"<<mycar.target_speed<<endl;
+    //    cout<<"加和求得速度"<<mycar.target_speed<<endl;
 
 }
 

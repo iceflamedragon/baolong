@@ -7,7 +7,7 @@
 #include "application.hpp"
 extern float STEER_MID;
 extern int STEER_MIN, STEER_MAX ;        // 舵机限幅
- 
+extern bool Is_showimg;
 struct setpara_STRUCT setpara; // 可调量(即祖传代码的所有参量)
 void GUI_Init()                // GUI初始化函数,放在while循环之前
 {
@@ -142,14 +142,13 @@ void set_setpara(float turn_PIDkp, float turn_PIDkd, float gyroturn_PIDkp,
                  float big_loop_PIDkp, float big_loop_PIDkd, float camwf,
                  float camwl, float camwr, float speed_max, float speed_add,
                  float speed_min, float loop_target_speed,
-                 float loop_out_distance, float steer_mid,int steer_min,int steer_max) {
+                 float loop_out_distance, float steer_mid,int steer_min,int steer_max,bool is_showimg) {
   setpara.com_turn_PID.kp = turn_PIDkp;
   setpara.com_turn_PID.kd = turn_PIDkd;
   setpara.gyro_PID.kp = gyroturn_PIDkp;
   setpara.gyro_PID.ki = gyroturn_PIDki;
   setpara.gyro_PID.kd = gyroturn_PIDkd;
   setpara.loop_turn_PID.kp = loop_turn_PIDkp;
-
   setpara.loop_turn_PID.kd = loop_turn_PIDkd;
   setpara.big_loop_PID.kp = big_loop_PIDkp;
   setpara.big_loop_PID.kd = big_loop_PIDkd;
@@ -163,6 +162,7 @@ void set_setpara(float turn_PIDkp, float turn_PIDkd, float gyroturn_PIDkp,
   setpara.loop_out_distance = loop_out_distance;
   STEER_MID = steer_mid;
   STEER_MIN=steer_min;STEER_MAX=steer_max;
+  Is_showimg=is_showimg;
 }
 void init_setpara() // 各个参数的初始化，不在参数表上的参数仍然可以正常初始化与使用，只是不可调
 {

@@ -165,10 +165,11 @@ public:
     float STEER_MID;
     int STEER_MIN;
     int STEER_MAX;
+    bool Is_showimg;//显示原图
     string model = "../res/model/yolov3_mobilenet_v1"; // 模型路径
     string video = "../res/samples/demo.mp4";          // 视频路径
     NLOHMANN_DEFINE_TYPE_INTRUSIVE(
-        Params, speedLow, speedHigh, turn_PIDkp, STEER_MID,STEER_MIN,STEER_MAX, turn_PIDkd,
+        Params, speedLow, speedHigh, turn_PIDkp, STEER_MID,STEER_MIN,STEER_MAX,Is_showimg, turn_PIDkd,
         speed_max, speed_add, speed_min, gyroturn_PIDkp, gyroturn_PIDki,
         gyroturn_PIDkd, loop_turn_PIDkp, loop_turn_PIDkd, big_loop_PIDkp,
         big_loop_PIDkd, camwf, camwl, camwr, speedBridge, speedDown, runP1,

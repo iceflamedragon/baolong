@@ -137,7 +137,7 @@ void common_running() {
     //  mycar.right_pwm_set=PID_Incremental(&Speed_right,mycar.right_speed,mycar.target_right_speed);//+setpara.speed_kf*Speed_right.kf_ratio*mycar.target_right_speed;
     //  set_pwm(mycar.left_pwm_set,mycar.right_pwm_set);
     mycar.uart_speed = mycar.target_speed;
-    cout << "赋给串口的值" << mycar.uart_speed << endl;
+    // cout << "赋给串口的值" << mycar.uart_speed << endl;
     //////////需要的速度给到串口
     // fan_begin(setpara.fan_speed);
     // set_pwm(0,1000);
