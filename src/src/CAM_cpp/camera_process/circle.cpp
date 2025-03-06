@@ -166,7 +166,7 @@ void left_ring_second_angle()
             cout<<"检测到左环的第二个角点"<<endl<<endl;
                watch.InLoopAngle2 = y;
                watch.InLoopAngle2_x=lineinfo[watch.InLoopAngle2].left;
-               //imo3[watch.InLoopAngle2][lineinfo[watch.InLoopAngle2].left]=4;
+               imo3[watch.InLoopAngle2][lineinfo[watch.InLoopAngle2].left]=4;
                //if()
                //watch.InLoopCirc=0;
                break;

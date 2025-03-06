@@ -29,7 +29,7 @@ typedef struct mycar_STRUCT {
 
   ////
   //       u8 status;   //小车运行状态
-  uint32_t RUNTIME; // 小车运行时间(单位为10ms)//////可能改为1ms
+  uint32_t RUNTIME; // 小车运行时间(单位为10ms)//////
   /*
           u32 save_times;
           u32 savenum;

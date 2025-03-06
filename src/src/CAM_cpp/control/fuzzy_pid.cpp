@@ -173,7 +173,8 @@ void updata_fuzzy_pid(float err,float d_err)
 //    if(far_line_count==0)watch.angle_far_line=setpara.far_line;
 
 }
-
+/*直道加速，弯道取消加速，设置大小为**3**的缓冲空间，防止噪点误判，根据`setpara.speed_max`决定加减速时机
+![图像的距离行](./image/图像的距离行.png)*/
 void updata_fuzzy_speed(float err,float k)
 {
     //speed_add
@@ -250,7 +251,12 @@ float fuzzy_speed2(float d_k)//没有用到
 
     return result;
 }
-
+//## 2.算法含义
+/*车轮延长线数组获取方法：将小车摆在直道中间，从小车前轮处贴一条笔直的黑线，
+利用图传查看黑线点坐标记录下来（即`car_track[120]`），
+查询二值化图中坐标拟合小车车身前方道路状况，连续累加白点行，
+如果所有行搜索完或有连续四行为黑点行即认为已到弯道边界，比较左右边界行，
+近端为`watch.track_count`，远端为`watch.track_count_far`。*/
 int car_track[120]={65,66,66,66,66,66,66,67,67,67,67,68,68,68,69,69,69,69,70,70,
         70,70,71,71,71,71,72,72,72,72,72,73,73,73,73,74,74,74,74,74,
         75,75,75,75,76,76,76,76,77,77,77,77,78,78,78,79,79,79,79,79,
@@ -265,26 +271,26 @@ void speed_ctrl_cal()//速度决策
     int left_track_flag=0;
     int right_track_flag=0;
     for(int y=0;y<110;y++){
-        if(Grayscale[119-y][car_track[y]+4]>50&&left_track_flag<4){
-            left_track_count++;
-            left_track_flag=0;}
-        else if(Grayscale[119-y][car_track[y]+4]==0)left_track_flag++;
-        if(Grayscale[119-y][183-car_track[y]]>50&&right_track_flag<4){
-            right_track_count++;
-            right_track_flag=0;}
-        else if(Grayscale[119-y][183-car_track[y]]==0)right_track_flag++;
+        if(Grayscale[119-y][car_track[y]+4]>50&&left_track_flag<4){//沿着左侧车轮延长线遍历直到连续四黑点
+            left_track_count++;//如果车轮前向延长线上是白点，此变量计数
+            left_track_flag=0;}//清除黑点计数
+        else if(Grayscale[119-y][car_track[y]+4]==0)left_track_flag++;//如果车轮前向延长线上是黑点，此变量计数
+        if(Grayscale[119-y][183-car_track[y]]>50&&right_track_flag<4){//沿着右侧车轮延长线遍历直到连续四黑点
+            right_track_count++;//如果车轮前向延长线上是白点，此变量计数
+            right_track_flag=0;}//清除黑点计数
+        else if(Grayscale[119-y][183-car_track[y]]==0)right_track_flag++;//如果车轮前向延长线上是黑点，此变量计数
     }
 
 
-    watch.track_count=left_track_count<=right_track_count?left_track_count:right_track_count;
+    watch.track_count=left_track_count<=right_track_count?left_track_count:right_track_count;//比较一下左右谁先碰到连续四黑点，选择小的那个
     watch.track_count_far=left_track_count<=right_track_count?right_track_count:left_track_count;
 
     if(left_track_count<=3&&right_track_count<=3)mycar.track_warn_flag=1;
-    else mycar.track_warn_flag=0;
+    else mycar.track_warn_flag=0;//要是左侧车轮延长线与右侧车轮延长线都在图像底下直接就碰到了四个黑点，则认为出界
 
-    if(left_track_count-right_track_count>=2&&watch.track_count<85)mycar.corner_flag=1;
-    else if(right_track_count-left_track_count>=2&&watch.track_count<85)mycar.corner_flag=2;
-    else {mycar.corner_flag=0;}
+    if(left_track_count-right_track_count>=2&&watch.track_count<85)mycar.corner_flag=1;//左侧车轮延长线白点多，所以认为前方左转
+    else if(right_track_count-left_track_count>=2&&watch.track_count<85)mycar.corner_flag=2;//右侧车轮延长线白点多，所以认为前方右转
+    else {mycar.corner_flag=0;}//左右两个车轮延长线上白点数量差不多，认为是直行
 
 
 }
