@@ -72,23 +72,34 @@ int STEER_MIN ;        // 舵机限幅
 int STEER_MAX ;
 // 定义二维数组
 uint8_t my_Grayscale[ROWSIMAGE][COLSIMAGE];
+extern Element_range Element;     // 元素识别
 // struct lineinfo_s lineinfo[120];
 // 将图像矩阵转换为二维数组的函数
 
 //多线程相关
-const int MAX_PRELOAD_QUEUE_SIZE = 5; // 预读取队列的最大大小
+const int MAX_PRELOAD_QUEUE_SIZE = 3; // 预读取队列的最大大小
 const int MAX_DISPLAY_QUEUE_SIZE = 2;// 显示队列的最大大小
 
-std::queue<cv::Mat> preload_queue; // 存储预读取的帧
-std::queue<cv::Mat> display_queue; // 存储待显示的帧
-std::mutex preload_mtx;            // 保护预读取队列的互斥锁
-std::mutex display_mtx;            // 保护显示队列的互斥锁
-std::condition_variable preload_cv; // 用于预读取线程和主线程通信的条件变量
-std::condition_variable display_cv; // 用于主线程和显示线程通信的条件变量
+queue<cv::Mat> preload_queue; // 存储预读取的帧
+queue<cv::Mat> display_queue; // 存储待显示的帧
+mutex preload_mtx;            // 保护预读取队列的互斥锁
+mutex display_mtx;            // 保护显示队列的互斥锁
+condition_variable preload_cv; // 用于预读取线程和主线程通信的条件变量
+condition_variable display_cv; // 用于主线程和显示线程通信的条件变量
+condition_variable inference_cv;
 // bool stop_threads = false;         // 标志位，用于停止线程
-std::atomic<bool> stop_threads(false); // 控制线程退出的标志位
-std::thread thread_cam,thread_show;   //线程对象
+atomic<bool> stop_threads(false); // 控制线程退出的标志位
+thread thread_cam,thread_show;   //线程对象
+thread inference_thread;
+mutex inference_mtx;
+cv::Mat inference_img;
+bool inference_ready = false;
+bool inference_done = false;
+bool stop_inference_thread = true;    //是否关闭推理线程
 bool Is_showimg;//显示原图
+float mpu6050_now;    //现在的mpu6050Z轴角度
+float mpu6050_later;
+float distance_now;   //距离积分
 //AI是否开启标志位
 enum AI_Distance_Postion {
   AI_Distance_None = 0,
@@ -102,7 +113,6 @@ enum AI_Distance_Postion {
   AI_Bridge_End
 } AI_distance_postion;
 
-
 shared_ptr<Uart> uart = make_shared<Uart>("/dev/ttyUSB0"); // 初始化串口驱动
 void CAM_CPU_while(void);
 
@@ -112,9 +122,13 @@ float *set_show_params_mode(int num);//选择显示模式
 
 void preload_thread(cv::VideoCapture& capture);//预读取线程负责从摄像头或视频源中读取帧，并将帧放入预读取队列
 void display_thread();
+void inference_thread_func();
+
+Motion motion;            // 运动控制类
+shared_ptr<Detection> detection;
+
 int main(int argc, char const *argv[]) {
   Preprocess preprocess;    // 图像预处理类
-  Motion motion;            // 运动控制类
   Tracking tracking;        // 赛道识别类
   Crossroad crossroad;      // 十字道路识别类
   Ring ring;                // 环岛识别类
@@ -127,16 +141,12 @@ int main(int argc, char const *argv[]) {
   Display display(4);       // 初始化UI显示窗口
   // VideoCapture capture(0);  // Opencv相机类
   cv::VideoCapture capture(0, cv::CAP_V4L2);  // 强制使用 V4L2 后端
-  
-  shared_ptr<Detection> detection = make_shared<Detection>(motion.params.model);
-  // detection->score = motion.params.score; // AI检测置信度
+  detection = make_shared<Detection>(motion.params.model);
+  detection->score = motion.params.score; // AI检测置信度
+
 
   // USB转串口初始化： /dev/ttyUSB0
-  // if(ring.flagpid){
-  // motion.flag=1;
-  // cout<<"主函数中设置成进环pid了"<<endl;
-  // }else  motion.flag=0;
-  // cout<<"motion中的flag值"<<motion.flag<<endl;
+
   int ret = uart->open();
   if (ret != 0) {
     printf("[Error] Uart Open failed!\n");
@@ -144,21 +154,23 @@ int main(int argc, char const *argv[]) {
   }
   uart->startReceive(); // 启动数据接收子线程
   capture.set(cv::CAP_PROP_FOURCC, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'));
+  cv::VideoWriter video;
+  video.open("Output.avi",
+    cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30,
+    Size(188, 120), true);
 // cv::VideoCapture capture("v4l2src ! videoconvert ! videoscale ! video/x-raw,width=320,height=240,framerate=120/1 ! appsink", cv::CAP_GSTREAMER);
   // 目标检测类(AI模型文件)
   // 设置分辨率为 320x240
     capture.set(cv::CAP_PROP_FRAME_WIDTH, 320);
     capture.set(cv::CAP_PROP_FRAME_HEIGHT, 240);
-
     // 设置帧率为 120fps
     capture.set(cv::CAP_PROP_FPS, 120);
+    // capture.set(cv::CAP_PROP_BUFFERSIZE, 5);
   // USB摄像头初始化
   // if (motion.params.debug)
   // capture = VideoCapture(motion.params.video); // 打开本地视频
-
   // VideoWriter video("ouput.avi", cv::VideoWriter::fourcc('M', 'J', 'P',
-  // 'G'),
-  //                   30, Size(4 * COLSIMAGE, ROWSIMAGE), true);
+  // 'G'),30, Size(4 * COLSIMAGE, ROWSIMAGE), true);
     // 设置帧率
   //   double desired_fps = 350; // 设置帧率为 120 fps 
 
@@ -167,9 +179,10 @@ int main(int argc, char const *argv[]) {
     return 0;
   } 
  // 启动预读取线程
-    std::thread thread_cam(preload_thread, std::ref(capture));
+    thread thread_cam(preload_thread, ref(capture));
 // 启动显示线程
-    // std::thread thread_show(display_thread);
+    thread thread_show(display_thread);
+    // inference_thread = thread(inference_thread_func);
   AI_distance_postion = AI_Distance_None;
   // 等待按键发车
   // if (!motion.params.debug) {
@@ -188,25 +201,20 @@ int main(int argc, char const *argv[]) {
   // }
 
   // 初始化参数
-  Scene scene = Scene::NormalScene;     // 初始化场景：常规道路
-  Scene sceneLast = Scene::NormalScene; // 记录上一次场景状态
+  // Scene scene = Scene::NormalScene;     // 初始化场景：常规道路
+  // Scene sceneLast = Scene::NormalScene; // 记录上一次场景状态
   long preTime;
  
   uart->carpid(300, 750, 0, 0); // 调pid，参数分别为p，i，d，是否存入flash
   // clock_t startTime, endTime;     // 统计程序时间
   // signal(SIGINT, sigint_handler); // 中断，结束的时候
 
-  int s1 = 1;
-  string s2 = ".jpg";
-  float mpu6050_now;
-  float mpu6050_later;
-  float distance_now;
-  int ai_check = 0;
-  int ai_middle_quanzhong;
   distance_start = uart->get_distance();
   int picture_num = 0;
-
-  /////////////////祖传算法需要初始化的地方
+  int fps_count=0;
+  float sum_time=0;
+  float ave_time= 0;
+   /////////////////祖传算法需要初始化的地方
   init_setpara();
   act_perst_init();
   PID_init();
@@ -217,136 +225,145 @@ int main(int argc, char const *argv[]) {
               motion.params.big_loop_PIDkd, motion.params.camwf,
               motion.params.camwl, motion.params.camwr,
               motion.params.speed_max, /////////////速度决策,
-
               motion.params.speed_add, ///////////
               motion.params.speed_min, motion.params.loop_target_speed,
               motion.params.loop_out_distance,
-              motion.params.STEER_MID,motion.params.STEER_MIN,motion.params.STEER_MAX,&motion.params.Is_showimg); // 写在init_setpara（）后面
+              motion.params.STEER_MID,motion.params.STEER_MIN,motion.params.STEER_MAX,&motion.params.Is_showimg,
+              motion.params.zebra_distance,motion.params.zebra_begin_time,motion.params.zebra_line_count,motion.params.zebra_speed); 
+              // 写在init_setpara（）后面
   // 改config文件，改set_setpara函数
   Is_showimg=motion.params.Is_showimg;
-  cout<<"Is_showimg"<<Is_showimg<<endl;
   car_begin(); // 初始化车启动的标志位
   //////////////////视频输出
-  cv::VideoWriter video("output.avi",
-                        cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 10,
-                        Size(1128, 360), true);
+
 
   // 检查视频写入器是否成功创建
   if (!video.isOpened()) {
-    std::cerr << "Could not open the output video file for writing"
-              << std::endl;
+    cerr << "Could not open the output video file for writing"
+              << endl;
     return -1;
   }
   signal(SIGINT, sigint_handler); // 中断，结束的时候
 // capture.set(cv::CAP_PROP_BUFFERSIZE, 3);
-  cv::Mat img;//原图像
+  
   ///////////主循环
-// const std::chrono::microseconds interval(1000); // 10ms 定时
-// auto next_time = std::chrono::high_resolution_clock::now();//缓冲定时
-
+// const chrono::microseconds interval(1000); // 10ms 定时
+// auto next_time = chrono::high_resolution_clock::now();//缓冲定时
+  cv::Mat img;//原图像
   while (!stop_threads) {
     // 等待定时    
-    auto start = std::chrono::high_resolution_clock::now(); // 记录开始时间
-    // std::this_thread::sleep_until(next_time);
+    auto start = chrono::high_resolution_clock::now(); // 记录开始时间
+    // this_thread::sleep_until(next_time);
     // next_time += interval;
       
         // cout<<"camwf"<<motion.params.camwf<<endl;
-
 // 从预读取队列中取出帧
         {
-            std::unique_lock<std::mutex> lock(preload_mtx);
+            unique_lock<mutex> lock(preload_mtx);
             preload_cv.wait(lock, [] { return !preload_queue.empty() || stop_threads; });
             if (stop_threads && preload_queue.empty()) {
                 break;
             }
-    auto end_CV = std::chrono::high_resolution_clock::now(); // 记录结束时间
-    std::chrono::duration<double> duration_CV = end_CV - start;
-    std::cout << "reading_CV " << duration_CV.count() << " seconds" << std::endl;          
+     
             img = preload_queue.front();
-            preload_queue.pop();
+            preload_queue.pop(); //
+         auto end_CV = chrono::high_resolution_clock::now(); // 记录结束时间
+    chrono::duration<double> duration_CV = end_CV - start;
+    cout << "reading_CV " << duration_CV.count() << " seconds" << endl;     
         }
-// 将处理后的帧放入显示队列
- auto end1 = std::chrono::high_resolution_clock::now(); // 记录结束时间
-    std::chrono::duration<double> duration1 = end1 - start;
-    std::cout << "reading1 " << duration1.count() << " seconds" << std::endl;
-        {
-            std::lock_guard<std::mutex> lock(display_mtx);
-            display_queue.push(img.clone());
+        if (1) {void *p;//？
+          cv::Mat img_record=img.clone();
+          img_record = cv::Mat(188, 120, CV_8UC3, (uchar*)p);
+          video.write(img_record);
+            // 检查VideoWriter是否成功创建
+            if (!video.isOpened()) {
+              cout << "无法创建视频文件" << endl;
+              return -1;
+            }
+          
         }
-        display_cv.notify_one(); // 通知显示线程
+        auto start_AI = chrono::high_resolution_clock::now(); // 记录开始时间
+        // detection->inference(img);//AI推理
+     // 将图像传递给推理线程
+     if(!stop_inference_thread)
+    { 
+      {
+      unique_lock<mutex> lock(inference_mtx);
+      inference_img = img.clone();
+      inference_ready = true;
+      inference_done = false;
+      inference_cv.notify_one();
+      }
 
- auto end22 = std::chrono::high_resolution_clock::now(); // 记录结束时间
-    std::chrono::duration<double> duration22 = end22 - start;
-    std::cout << "reading2 " << duration22.count() << " seconds" << std::endl;
+  // 等待推理完成
+      {
+      unique_lock<mutex> lock(inference_mtx);
+      inference_cv.wait(lock, [] { return inference_done || stop_inference_thread; });
+  
+      }
+    }
+        auto end_AI = chrono::high_resolution_clock::now(); // 记录开始时间
+        chrono::duration<double> durationAI = end_AI - start_AI;
+        printf("%s%.5f ","AI inference",durationAI.count());
+            // cout << "AI " << durationAI.count() << " seconds" << endl;
+// // 将处理后的帧放入显示队列
+//  auto end1 = chrono::high_resolution_clock::now(); // 记录结束时间
+//     chrono::duration<double> duration1 = end1 - start;
+//     // cout << "reading1 " << duration1.count() << " seconds" << endl;
+//         {
+//             lock_guard<mutex> lock(display_mtx);
+//             display_queue.push(img.clone());
+//         }
+//         display_cv.notify_one(); // 通知显示线程
+
+ auto end22 = chrono::high_resolution_clock::now(); // 记录结束时间
+//     chrono::duration<double> duration22 = end22 - start;
+    // cout << "reading2 " << duration22.count() << " seconds" << endl;
    
-    for (int i = 0; i < ROWSIMAGE; ++i) {
-      std::fill(imo3[i], imo3[i] + COLSIMAGE, 0);//全给灰色？
+    for (int i = 0; i < ROWSIMAGE; ++i) {//最多16us
+      fill(imo3[i], imo3[i] + COLSIMAGE, 0);//全给灰色？
     }
     for (int i = 0; i < ROWSIMAGE; ++i) {
-      std::fill(imo4[i], imo4[i] + COLSIMAGE, 0);
+      fill(imo4[i], imo4[i] + COLSIMAGE, 0);
     }
-    //  ring.RoundaboutGetArc(tracking, 1, 20, 30, 160);
+  //   auto start_resize = chrono::high_resolution_clock::now(); // 记录结束时间
 
-    Size dsize_first = Size(188, 120);
-    cv::resize(img, img, dsize_first, 0, 0, INTER_AREA);
+  //   // Size dsize_first = Size(188, 120);
+  //   // cv::resize(img, img, dsize_first, 0, 0, INTER_AREA);//效果比较好
+  //  auto end_resize = chrono::high_resolution_clock::now(); // 记录结束时间   
+    // chrono::duration<double> duration_size = end_resize - end22;
+    // cout << "resize" << duration_size.count() << " seconds" << endl;
+// double rate = capture.get(CAP_PROP_FPS);            // 读取图像的帧率
+// double width = capture.get(CAP_PROP_FRAME_WIDTH);   // 读取图像的宽度
+// double height = capture.get(CAP_PROP_FRAME_HEIGHT); // 读取图像的高度
+// cout << "Camera Param: frame rate = " << rate << " width = " << width
+//      << " height = " << height << endl;
 
-    //最多16us
-double rate = capture.get(CAP_PROP_FPS);            // 读取图像的帧率
-double width = capture.get(CAP_PROP_FRAME_WIDTH);   // 读取图像的宽度
-double height = capture.get(CAP_PROP_FRAME_HEIGHT); // 读取图像的高度
-cout << "Camera Param: frame rate = " << rate << " width = " << width
-     << " height = " << height << endl;
-    // if(std::cin.rdbuf()->in_avail()>0)
-    // {
-    //   char c =std::cin.get();
-    //   if(c==' ')
-    //   {cout<<"发车"<<endl<<endl<<endl;
-    //   uart->carpid(300, 750, 0, 0); //
-    //   调pid，参数分别为p，i，d，是否存入flash}
-    // }
-    // }
-     auto end2 = std::chrono::high_resolution_clock::now(); // 记录结束时间
-    std::chrono::duration<double> duration2 = end2 - end22;
-    std::cout << "imgyidong " << duration2.count() << " seconds" << std::endl;
+     auto end2 = chrono::high_resolution_clock::now(); // 记录结束时间
 
 
 
   //mpu数据60us
-    auto start_message = std::chrono::high_resolution_clock::now(); 
+    auto start_message = chrono::high_resolution_clock::now(); 
     mpu6050_now = uart->get_mpu6050();   // mpu6050_now就是mpu的数值
     distance_now = uart->get_distance(); // 编码器获取
     Gyro_Z = uart->get_gyro_z();         // 角速度
 
-    cout << "现在的距离积分" << distance_now - distance_start << endl;
-    cout << mpu6050_now << endl; // 输出mpu
+    cout << "现在的距离积分" << distance_now - distance_start ;
+    cout <<"          mpu"<< mpu6050_now << endl; // 输出mpu
     // cout << "角速度" << Gyro_Z << endl;
     angal_integeral(mpu6050_now);    // 把现在角度积分不断传入
     distant_integeral(distance_now); //
 
     // 之前的代码可以去除掉了？----积分现在没用到？
-    ring.setmpu6050(mpu6050_now);
-    ring.setdistance(distance_now);
-    rescue.setdistancere(distance_now);
-    rescue.setmpu6050(mpu6050_now);
-    crossroad.setmpu6050(mpu6050_now);
-    danger.setdistance(distance_now);
-    preTime = chrono::duration_cast<chrono::milliseconds>(
-                  chrono::system_clock::now().time_since_epoch())
-                  .count();
-    // startTime = clock();
+    // crossroad.setmpu6050(mpu6050_now);
+    // danger.setdistance(distance_now);
     //[01] 视频源读取
     // 读取mpu6050  
-    if (motion.params.debug) // 综合显示调试UI窗口
-      preTime = chrono::duration_cast<chrono::milliseconds>(
-                    chrono::system_clock::now().time_since_epoch())
-                    .count();
-auto end_message = std::chrono::high_resolution_clock::now(); // 记录结束时间
-    std::chrono::duration<double> duration_mess = end_message - start_message;
-    std::cout << "message " << duration_mess.count() << " seconds" << std::endl;
-
-
+  auto end_message = chrono::high_resolution_clock::now(); // 记录结束时间
+    chrono::duration<double> duration_mess = end_message - start_message;
+    // cout << "message " << duration_mess.count() << " seconds" << endl;
 ///从while到这28ms
-
     //  if (motion.params.saveImg && !motion.params.debug) // 存储原始图像
     //    savePicture(img);
     //  if (waitKey(1) == 27) { // 如果用户按下 ESC 键，退出循环
@@ -357,12 +374,11 @@ auto end_message = std::chrono::high_resolution_clock::now(); // 记录结束时
     Mat imgCorrect = img; // 图像矫正（已停止
     Mat imgBinary = preprocess.binaryzation(imgCorrect); // 图像二值化
 
-  
-auto start_CAM = std::chrono::high_resolution_clock::now(); // 记录结束时间
+auto start_CAM = chrono::high_resolution_clock::now(); // 记录结束时间
     // char buffer[50];
     // sprintf(buffer, "%d.jpg", picture_num);
     // picture_num++;//截图
-    // std::cout << "图像" << buffer << std::endl; // 输出: The answer is:
+    // cout << "图像" << buffer << endl; // 输出: The answer is:
     //  imwrite(buffer, imgBinary);
     // Mat element = getStructuringElement(
     //     MORPH_RECT, Size(4, 4)); // 小于8*8方块的白色噪点都会被腐蚀
@@ -379,92 +395,69 @@ auto start_CAM = std::chrono::high_resolution_clock::now(); // 记录结束时�
 
     /*///核心控制部分////*/
     CAM_CPU_while();/////400us
-    cout << "圆环标志位" << watch.InLoop << endl;
+    // cout << "圆环标志位" << watch.InLoop << endl;
     // cout << "目标速度" << mycar.target_speed << endl;
-    cout << "watch.InLoopAngle2  " << watch.InLoopAngle2 << endl;
-auto end_CAM = std::chrono::high_resolution_clock::now(); // 记录结束时间
-    std::chrono::duration<double> duration_CAM = end_CAM - start_CAM;
-    std::cout << "cpu " << duration_CAM.count() << " seconds" << std::endl;
+    // cout << "watch.InLoopAngle2  " << watch.InLoopAngle2 << endl;
+auto end_CAM = chrono::high_resolution_clock::now(); // 记录结束时间
+    chrono::duration<double> duration_CAM = end_CAM - start_CAM;
+    // cout << "cpu " << duration_CAM.count() << " seconds" << endl;
 
  ///从while到这30ms   
     if (motion.params.debug) // 开启视频
     {
-    // imshow("original",img);//显示原图像
-
-      draw_imo_color(imo3, imo3_img); // 扫弦图绿色是右边，蓝色是左边
+      // 定义缩放比例
+      // float orignal_scale = 1; // 你可以根据需要调整这个值
+      // cv::Mat resizedImage;// 创建一个 Mat 对象来存储缩放后的图像
+      // resize(img, resizedImage, Size(), orignal_scale, orignal_scale);// 使用 resize 函数对图像进行缩放
+      // imshow("original", resizedImage);// 显示缩放后的原图像
+      draw_imo_color(imo3, imo3_img); // 扫弦图绿色是右边，红色是左边
       draw_imo_color(imo4, imo4_img); // 逆透视
       //////////////如果嫌太慢可以用这个
-      // cv::Mat colorImage = cv::Mat::zeros(120, 188, CV_8UC3);
-      // cv::cvtColor(imgBinary, colorImage, cv::COLOR_GRAY2BGR);
-      // for (int i = 0; i < colorImage.rows; ++i) {
-      //   for (int j = 0; j < colorImage.cols; ++j) {
-      //     cv::Vec3b overlayPixel = imo3_img.at<cv::Vec3b>(i, j);
-      //     if (overlayPixel != cv::Vec3b(0, 0, 0)) {
-      //       colorImage.at<cv::Vec3b>(i, j) = overlayPixel;
-      //     }
-      //   }
-      // }
-      // 将二值图像 imgBinary 转换为灰度图像
-// 创建一个彩色图像 colorImage，用于叠加
- auto startshow = std::chrono::high_resolution_clock::now(); // 记录结束时间
-cv::Mat colorImage = cv::Mat::zeros(120, 188, CV_8UC3);
-
-// 将二值图像 imgBinary 转换为灰度图像，并将黑色部分改为灰色
-for (int i = 0; i < imgBinary.rows; ++i) {
-    for (int j = 0; j < imgBinary.cols; ++j) {
-        uchar binaryPixel = imgBinary.at<uchar>(i, j); // 获取二值图像的像素值
-        if (binaryPixel == 0) {
-            // 如果像素是黑色（值为 0），改为灰色（128）
-            colorImage.at<cv::Vec3b>(i, j) = cv::Vec3b(128, 128, 128); // BGR格式的灰色
-        } else {
-            // 如果像素是白色（值为 255），保持白色
-            colorImage.at<cv::Vec3b>(i, j) = cv::Vec3b(255, 255, 255); // BGR格式的白色
+      cv::Mat colorImage = cv::Mat::zeros(120, 188, CV_8UC3);
+      if(motion.params.debug==2)
+    {  
+      cv::cvtColor(imgBinary, colorImage, cv::COLOR_GRAY2BGR);
+      for (int i = 0; i < colorImage.rows; ++i) {
+        for (int j = 0; j < colorImage.cols; ++j) {
+          cv::Vec3b overlayPixel = imo3_img.at<cv::Vec3b>(i, j);
+          if (overlayPixel != cv::Vec3b(0, 0, 0)) {
+            colorImage.at<cv::Vec3b>(i, j) = overlayPixel;
+          }
         }
-    }
-}
-
-// 叠加 imo3_img 的非黑色像素到 colorImage 上
-for (int i = 0; i < colorImage.rows; ++i) {
-    for (int j = 0; j < colorImage.cols; ++j) {
-        cv::Vec3b overlayPixel = imo3_img.at<cv::Vec3b>(i, j);
-        if (overlayPixel != cv::Vec3b(0, 0, 0)) { // 如果 imo3_img 的像素不是黑色
+      }
+        for (int i = 0; i < colorImage.rows; ++i) {
+          for (int j = 0; j < colorImage.cols; ++j) {
+          cv::Vec3b overlayPixel = imo3_img.at<cv::Vec3b>(i, j);
+          if (overlayPixel != cv::Vec3b(0, 0, 0)) { // 如果 imo3_img 的像素不是黑色
             colorImage.at<cv::Vec3b>(i, j) = overlayPixel; // 叠加到 colorImage 上
         }
+        }
+      }
     }
-}
-  // // 创建一个灰度图像 colorImage
-  //   cv::Mat grayImage = cv::Mat::zeros(imgBinary.size(), CV_8UC1);
 
-  //   // 将二值图像 imgBinary 转换为灰度图像
-  //   for (int i = 0; i < imgBinary.rows; ++i) {
-  //       for (int j = 0; j < imgBinary.cols; ++j) {
-  //           uchar binaryPixel = imgBinary.at<uchar>(i, j); // 获取二值图像的像素值
-  //           if (binaryPixel == 0) {
-  //               // 如果像素是黑色（值为 0），改为灰色（128）
-  //               grayImage.at<uchar>(i, j) = 128; // 灰度图像的灰色
-  //           } else {
-  //               // 如果像素是白色（值为 255），保持白色
-  //               grayImage.at<uchar>(i, j) = 255; // 灰度图像的白色
-  //           }
-  //       }
-  //   }
+      // 将二值图像 imgBinary 转换为灰度图像
+// 创建一个彩色图像 colorImage，用于叠加
+      auto startshow = chrono::high_resolution_clock::now(); // 记录结束时间
+// cv::Mat colorImage = cv::Mat::zeros(120, 188, CV_8UC3);
+// // 将二值图像 imgBinary 转换为灰度图像，并将黑色部分改为灰色
+// for (int i = 0; i < imgBinary.rows; ++i) {
+//     for (int j = 0; j < imgBinary.cols; ++j) {
+//         uchar binaryPixel = imgBinary.at<uchar>(i, j); // 获取二值图像的像素值
+//         if (binaryPixel == 0) {
+//             // 如果像素是黑色（值为 0），改为灰色（128）
+//             colorImage.at<cv::Vec3b>(i, j) = cv::Vec3b(128, 128, 128); // BGR格式的灰色
+//         } else {
+//             // 如果像素是白色（值为 255），保持白色
+//             colorImage.at<cv::Vec3b>(i, j) = cv::Vec3b(255, 255, 255); // BGR格式的白色
+//         }
+//     }
+// }
+// 叠加 imo3_img 的非黑色像素到 colorImage 上
 
-  //   // 叠加 imo3_img 的非黑色像素到 grayImage 上
-  //   for (int i = 0; i < grayImage.rows; ++i) {
-  //       for (int j = 0; j < grayImage.cols; ++j) {
-  //           uchar overlayPixel = imo3_img.at<uchar>(i, j);
-  //           if (overlayPixel != 0) { // 如果 imo3_img 的像素不是黑色
-  //               grayImage.at<uchar>(i, j) = overlayPixel; // 叠加到 grayImage 上
-  //           }
-  //       }
-  //   }
-
-
-
- auto endshow = std::chrono::high_resolution_clock::now(); // 记录结束时间
-    std::chrono::duration<double> duration_show = endshow - startshow;
-    std::cout << "show " << duration_show.count() << " seconds" << std::endl;
-      double scale = 3;
+    auto endshow = chrono::high_resolution_clock::now(); // 记录结束时间
+    chrono::duration<double> duration_show = endshow - startshow;
+    // cout << "show " << duration_show.count() << " seconds" << endl;
+      double scale = 1.5;
 
       // 缩放图像
       Mat resizedImage1;
@@ -472,87 +465,40 @@ for (int i = 0; i < colorImage.rows; ++i) {
       Mat resizedImage3;
       Mat resizedImage4;
       //  resize(imgBinary, resizedImage1, Size(), scale, scale);
-
-      resize(colorImage, resizedImage2, Size(), scale, scale); // 补线图
+    if(motion.params.debug==2)
+      resize(colorImage, resizedImage2, Size(), scale, scale); // 补线图 colorImage
+    else resize(imo3_img, resizedImage2, Size(), scale, scale);
       resize(imo4_img, resizedImage3, Size(), scale, scale);   // 逆透视图
 
-      cv::Mat combinedFrame;
-      cv::hconcat(resizedImage2, resizedImage3, combinedFrame);
+      cv::Mat combinedFrame;  //定义变量
+      cv::hconcat(resizedImage2, resizedImage3, combinedFrame);//两图拼接
 
-
-      cout << "mode" << motion.params.show_params_mode << endl;
+      //cout << "mode" << motion.params.show_params_mode << endl;
       float *params_mode = set_show_params_mode(motion.params.show_params_mode);
-      show_params(combinedFrame, params_mode);
-
-      imshow("789", combinedFrame);
+      show_params(combinedFrame, params_mode);//显示参数
+      // {
+      //       lock_guard<mutex> lock(display_mtx);
+      //       display_queue.push(combinedFrame.clone());
+      //  }
+      //       display_cv.notify_one(); // 通知显示线程
+      
+      imshow("789", combinedFrame);//显示图像    imshow("789", combinedFrame);
       if (motion.params.record_video) {
         video.write(combinedFrame);
       }
-    
       waitKey(1); // 等待显示，不能删！！！
-      // resize(imgBinary, resizedImage4, Size(), scale, scale);
-      // 创建一个4x4的矩阵来显示四幅图像
-      // Mat displayMatrix(2 * resizedImage1.rows, 2 * resizedImage1.cols,
-      //                   CV_8UC3);
-
-      // // 将四幅图像放入矩阵中
-      // Mat roi;
-
-      // // 左上角
-      // roi = displayMatrix(Rect(0, 0, resizedImage1.cols,
-      // resizedImage1.rows)); resizedImage1.copyTo(roi);
-
-      // // 右上角
-      // roi = displayMatrix(
-      //     Rect(resizedImage1.cols, 0, resizedImage1.cols,
-      //     resizedImage1.rows));
-      // resizedImage2.copyTo(roi);
-
-      // // 左下角
-      // roi = displayMatrix(
-      //     Rect(0, resizedImage1.rows, resizedImage1.cols,
-      //     resizedImage1.rows));
-      // resizedImage3.copyTo(roi);
-
-      // // 右下角
-      // roi = displayMatrix(Rect(resizedImage1.cols, resizedImage1.rows,
-      //                          resizedImage1.cols, resizedImage1.rows));
-      // resizedImage4.copyTo(roi);
-      // imshow("四幅图像1", displayMatrix);
 
       // 显示结果
 
-      // if (motion.params.record_video == 1) {
-      //   // 检查VideoWriter是否成功创建
-      //   if (!video.isOpened()) {
-      //     cout << "无法创建视频文件" << endl;
-      //     return -1;
-      //   }
 
-      //   // 录制视频
-
-      //   video.write(roi);
     }
-auto end_a = std::chrono::high_resolution_clock::now(); // 记录结束时间
-    std::chrono::duration<double> duration_a = end_a - start;
-    std::cout << "after_show " << duration_a.count() << " seconds" << std::endl;
+auto end_a = chrono::high_resolution_clock::now(); // 记录结束时间
+    chrono::duration<double> duration_a = end_a - start;
+    // cout << "after_show " << duration_a.count() << " seconds" << endl;
  ///从while到这35ms 
-    // 打印二维数组
-    // std::cout << "二维数组内容：" << std::endl;
-    // for (int i = 0; i < ROWSIMAGE; ++i) {
-    //   for (int j = 0; j < COLSIMAGE; ++j) {
-    //     std::cout << static_cast<int>(imo4[i][j]) << " ";
-    //   }
-    //   std::cout << std::endl; // 换行
-    // }
+   
 
-    auto startTime = chrono::duration_cast<chrono::milliseconds>(
-                         chrono::system_clock::now().time_since_epoch())
-                         .count(); // 原来这里有个q
-    printf(">> FrameTime: %ldms | %.2ffps \n", startTime - preTime,
-           1000.0 / (startTime - preTime));
-
-    mycar.RUNTIME += (startTime - preTime)/10; // 运行时间
+    
     //  ring.RoundaboutGetArc(tracking, 1, 20, 30, 160);
     //[12] 车辆控制中心拟合
 
@@ -574,125 +520,121 @@ auto end_a = std::chrono::high_resolution_clock::now(); // 记录结束时间
     // cout<<"motion.params.motion_start"<<motion.params.motion_start<<endl;
     if (motion.params.motion_start) // 是否运动
     {
-
       if (mycar.uart_servo < STEER_MIN)
         mycar.uart_servo = STEER_MIN;
       if (mycar.uart_servo > STEER_MAX)
         mycar.uart_servo = STEER_MAX;
       // mycar.uart_speed = 1;
       // mycar.uart_servo=STEER_MID;
-      // cout << "目标速度" << mycar.uart_speed << "舵机PWM" << mycar.uart_servo
-      //      << endl;
-
+      cout << "目标速度" << mycar.uart_speed << "舵机PWM" << mycar.uart_servo << endl;
       uart->carControl(
           mycar.uart_speed,
           mycar.uart_servo); // 串口通信控制车辆---传给下位机进行控制
     }
-auto end_uart = std::chrono::high_resolution_clock::now(); // 记录结束时间
-    std::chrono::duration<double> duration_uart = end_uart - end_a;
-    std::cout << "after_uart " << duration_uart.count() << " seconds" << std::endl;
- ///从while到这35ms 
-    // Mat imgRes =
-    //     Mat::zeros(Size(COLSIMAGE, ROWSIMAGE), CV_8UC3); // 创建全黑图像
-    //[14] 综合显示调试UI窗口
-    // if (motion.params.record_video) {
-    //   // 帧率计算
-    //   // auto startTime = chrono::duration_cast<chrono::milliseconds>(
-    //   // chrono::system_clock::now().time_since_epoch())
-    //   //                      .count();
-    //   // printf(">> FrameTime: %ldms | %.2ffps \n", startTime - preTime,
-    //   //        1000.0 / (startTime - preTime));
+    auto end_uart = chrono::high_resolution_clock::now(); // 记录结束时间
+    chrono::duration<double> duration_uart = end_uart - end_a;
+    // cout << "after_uart " << duration_uart.count() << " seconds" << endl;
+    ///从while到这35ms 
+     auto end_all = chrono::high_resolution_clock::now(); // 记录结束时间
+    chrono::duration<double> duration_all = end_all - start;
 
-    //   // // circle(imgCorrect,
-    //   // //        Point(tracking.pointsEdgeLeft[ring.left_breakpoint].y,
-    //   // //              tracking.pointsEdgeLeft[ring.left_breakpoint].x),
-    //   // //        5, Scalar(255, 152, 0), -1); // 我们自己的拐点
-    //   // detection->drawBox(imgCorrect); // 图像绘制AI结果
-    //   // ctrlCenter.drawImage(tracking,
-    //   //                      imgCorrect); //
-    //   图像绘制路径计算结果（控制中心） waitKey(1); //
-    //   等待显示，不能删！！！
-    // } // 不能去
+    mycar.RUNTIME += duration_all.count()*100; // 运行时间
 
-    // cout<<width<<"height"<<height<<endl<<endl<<endl<<endl;
-    // video.write(imgBinary);//图像1录像
-    //     if(motion.params.record_video==1)
-    // {
-    //    Mat  resultImg = Mat(width, height, CV_8UC3, Scalar::all(0));
-    //     Mat ROI_1 = resultImg(Rect(0, 0, w1, h1));
-    //     Mat ROI_2 = resultImg(Rect(w1, 0, w2, h2));
-    //     Mat ROI_3 = resultImg(Rect(w2, 0, w3, h3));
-    //    imgTrack.copyTo(ROI_1);
-    //    imgRes.copyTo(ROI_2);
-    //    imgCorrect.copyTo(ROI_3);
-    // video.write(resultImg);
-    //   }
+    
+    fps_count++;
+    sum_time+=duration_all.count()*1000;
+    ave_time=sum_time/fps_count;
 
+    // cout << "FrameTime " <<1/duration_all.count()<<" FPS    " <<duration_all.count()*1000 << "  ms   " <<"平均时间： "<<ave_time<<" ms"<< endl;
+    printf(">> FrameTime: %.2fms | %.2ffps \n", duration_all.count()*1000,
+          1.0 / duration_all.count());
+    cout <<"平均时间： "<<ave_time<<" ms"<< endl;
 
-     auto end_all = std::chrono::high_resolution_clock::now(); // 记录结束时间
-    std::chrono::duration<double> duration_all = end_all - start;
-    std::cout << "all " << duration_all.count() << " s" << std::endl;
   }
   // 等待线程结束
     if (thread_cam.joinable()) {
         thread_cam.join();
     }
-    // if (thread_show.joinable()) {
-    //     thread_show.join();
-    // }
+    if (thread_show.joinable()) {
+        thread_show.join();
+    }
+    if (inference_thread.joinable()) {
+      inference_thread.join();
+  }
     // preload_cv.notify_all();// 唤醒预读取线程
     // display_cv.notify_all(); // 唤醒显示线程
-   
+  video.release();
   uart->close(); // 串口通信关闭
   capture.release();//关闭摄像头
   cv::destroyAllWindows(); // 关闭所有窗口
   return 0;
 }
 
-/////////////////////////////////////////////////////
-
-                        /*下面是函数*/
-
-///////////////
-
-
-
-
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                                                  /*下面是函数*/
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //预读取线程负责从摄像头或视频源中读取帧，并将帧放入预读取队列
 void preload_thread(cv::VideoCapture& capture) {
     cv::Mat img;
     while (!stop_threads) {
-      auto start_read = std::chrono::high_resolution_clock::now(); // 记录结束时间
-        if (!capture.read(img)) {
-            continue; // 如果读取失败，跳过当前帧
+      auto start_read = chrono::high_resolution_clock::now(); // 记录结束时间
+        if (!capture.read(img)) { 
+            printf("%s","capture_read_fault");// 如果读取失败，跳过当前帧
+            continue;
         }
- auto end_read = std::chrono::high_resolution_clock::now(); // 记录结束时间
-    std::chrono::duration<double> duration_read = end_read - start_read;
-    std::cout << "read_thread " << duration_read.count() << " seconds" << std::endl;
+ auto end_read = chrono::high_resolution_clock::now(); // 记录结束时间
+    chrono::duration<double> duration_read = end_read - start_read;
+    cout << "read_thread " << duration_read.count() << " seconds" << endl;
         // 将帧放入预读取队列
         {
-            std::lock_guard<std::mutex> lock(preload_mtx);
+            lock_guard<mutex> lock(preload_mtx);
             if (preload_queue.size() >= MAX_PRELOAD_QUEUE_SIZE) {
                 preload_queue.pop(); // 丢弃旧的帧
             }
+            Size dsize_first = Size(188, 120);//在这里做大小缩放
+            cv::resize(img, img, dsize_first, 0, 0, INTER_AREA);//效果比较好
+
             preload_queue.push(img.clone());
         }
         preload_cv.notify_one(); // 通知主线程
     }
 }
 
+// 推理线程函数
+void inference_thread_func() {
+  while (!stop_inference_thread) {
+      cv::Mat img;
+      {
+        unique_lock<mutex> lock(inference_mtx);
+          inference_cv.wait(lock, [] { return inference_ready || stop_inference_thread; });
+          if (stop_inference_thread) {
+              break;
+          }
+          img = inference_img.clone();
+          inference_ready = false;
+      }
 
-// 显示线程函数，暂时没用
+      detection->inference(img);
+
+      {
+          unique_lock<mutex> lock(inference_mtx);
+          inference_done = true;
+          inference_cv.notify_one();
+          
+      }
+  }
+}
+// 显示线程函数，
 void display_thread() {
     int display_counter = 0;
-    int display_interval = 5; // 每 2 帧显示一次
+    // int display_interval = 5; // 每 2 帧显示一次
 
     while (!stop_threads) {
         cv::Mat img;
         // cout<<"Ishowommg"<<Is_showimg<<endl;
         {
-            std::unique_lock<std::mutex> lock(display_mtx);
+            unique_lock<mutex> lock(display_mtx);
             // 等待队列中有帧可显示
             display_cv.wait(lock, [] { return !display_queue.empty() || stop_threads; });
             if (stop_threads && display_queue.empty()) {
@@ -701,13 +643,10 @@ void display_thread() {
             img = display_queue.front(); // 取出帧
             display_queue.pop();         // 从队列中移除
         }
-
+          imshow("sacnline", img);//显示图像    imshow("789", combinedFrame);
+          waitKey(1);
         // 降低显示帧率
-        if ((display_counter % display_interval == 0&&Is_showimg)) {
-            cv::imshow("Display", img);
-            cv::waitKey(1); // 等待 1ms
-        }
-        display_counter++;
+       
     }
 }
 
@@ -718,7 +657,7 @@ void sigint_handler(int sig) {
 
   if (sig == SIGINT) {
     
-    std::cout << "Ctrl+C 被按下！" << std::endl;
+    cout << "Ctrl+C 被按下！" << endl;
     // uart->carpid(500, 1000, 0,
     //              0); // 调刹车pid，参数分别为p，i，d，是否存入flash
     uart->carControl(0, 4800);
@@ -746,11 +685,11 @@ void sigint_handler(int sig) {
 
 void CAM_CPU_while(void) {
   scan_line();
-  Element_recognition(); // 元素识别
-  linefix();
-  original_err_calculation();
-  dir_control();   // 舵机控制
-  motor_control(); // 电机控制
+  Element_recognition();         // 元素识别
+  linefix();                      //赛道补线
+  original_err_calculation();  //原始误差计算
+  dir_control();                 // 舵机控制
+  motor_control();               // 电机控制
 }
 
 void draw_imo_color(uint8_t myimo[ROWSIMAGE][COLSIMAGE], Mat mat) {
@@ -763,34 +702,34 @@ void draw_imo_color(uint8_t myimo[ROWSIMAGE][COLSIMAGE], Mat mat) {
       switch (value) {
       case 1:
 
-        color = cv::Vec3b(0, 0, 255); // 红色
+        color = cv::Vec3b(0, 0, 255);     // 红色
         break;
       case 2:
-        color = cv::Vec3b(0, 255, 0); // 绿色
+        color = cv::Vec3b(0, 255, 0);     // 绿色
         break;
       case 3:
-        color = cv::Vec3b(0, 255, 255); // 黄色
+        color = cv::Vec3b(0, 255, 255);   // 黄色
         break;
       case 4:
-        color = cv::Vec3b(255, 0, 0); // 蓝色
+        color = cv::Vec3b(255, 0, 0);     // 蓝色
         break;
       case 5:
         color = cv::Vec3b(255, 0, 255); // 洋红色
         break;
       case 6:
-        color = cv::Vec3b(0, 255, 255); // 青色
+        color = cv::Vec3b(0, 255, 255);   // 青色
         break;
       case 7:
         color = cv::Vec3b(128, 128, 128); // 灰色
         break;
       case 8:
-        color = cv::Vec3b(128, 0, 0); // 深红色
+        color = cv::Vec3b(128, 0, 0);   // 深红色
         break;
       case 9:
-        color = cv::Vec3b(0, 128, 0); // 深绿色
+        color = cv::Vec3b(0, 128, 0);   // 深绿色
         break;
       default:
-        color = cv::Vec3b(0, 0, 0); // 黑色
+        color = cv::Vec3b(0, 0, 0);       // 黑色
         break;
       }
 
@@ -800,24 +739,25 @@ void draw_imo_color(uint8_t myimo[ROWSIMAGE][COLSIMAGE], Mat mat) {
   }
 }
 void show_params(Mat img, float *data) {
-  vofa.turn[0] = mycar.steer_pwm;
+  vofa.turn[0] = Element;
   vofa.turn[1] = mycar.original_err;
-  vofa.turn[2] = Element;
-  vofa.turn[3] = watch.OutLoopAngle2;
+  vofa.turn[2] = mycar.uart_speed;
+  vofa.turn[3] = mycar.uart_servo;
   vofa.turn[4] = CAM_Turn.PID_output;
   vofa.turn[5] = mycar.RUNTIME;
   // vofa.turn[6]=abs(mycar.original_err);
   vofa.turn[6] = watch.InLoop;
   vofa.turn[7] = mycar.present_speed;
 
-  vofa.loop[0] = watch.InLoop;
-  vofa.loop[1] = watch.InLoopAngleL;
-  vofa.loop[2] = distance_integral.integeral_data;
-  vofa.loop[3] = watch.InLoopAngle2;
-  vofa.loop[4] = watch.OutLoop;
-  vofa.loop[5] = Element;
-  vofa.loop[6] = watch.OutLoopAngle2;
-  vofa.loop[7] = mycar.RUNTIME;
+  vofa.loop[0] = Element;
+  vofa.loop[1] = watch.InLoop;        // 入环标志位
+  vofa.loop[2] = watch.InLoopAngleL;  // 入左环前直行的第一个角所在行（直道与圆环交接的角点）
+  vofa.loop[3] = watch.InLoopAngleR;  //入右环前直行的第一个角所在行（直道与圆环交接的角点）
+  vofa.loop[4] = distance_integral.integeral_data;//积分距离
+  vofa.loop[5] = watch.InLoopAngle2;  //开始转向入环时前方的角点所在行（直道与圆环交接的角点）
+  vofa.loop[6] = watch.OutLoop;//出环标记变量 1:出环时进入直道与圆环交界处
+  vofa.loop[7] = watch.OutLoopAngle2;   //出环后直行时前方的角点所在行（直道与圆环交接的角点）
+  vofa.loop[8] = mycar.RUNTIME;         // 运行时间
 
   vofa.speed[0] = mycar.left_speed;
   vofa.speed[1] = mycar.right_speed;
@@ -828,7 +768,7 @@ void show_params(Mat img, float *data) {
                   (float)mycar.present_speed;
   vofa.speed[6] = mycar.RUNTIME;
   vofa.speed[7] = mycar.target_speed;
-  vofa.speed[8] = Element;
+  vofa.speed[8] = mycar.speed_ctrl;//mycar.speed_ctrl;
 
   vofa.element_rem[0] = Element_rem.Element_count;
   vofa.element_rem[1] = Element_rem.Element_data[Element_rem.Element_count];
@@ -839,19 +779,19 @@ void show_params(Mat img, float *data) {
   // vofa.element_rem[6] = imu.pitch;
   vofa.element_rem[7] = watch.out_garage_flag;
 
-  vofa.obstacle[0] = watch.black_obstacle_flag;
-  vofa.obstacle[1] = watch.black_obstacle_line;
-  vofa.obstacle[2] = watch.left_obstacle_x;
-  vofa.obstacle[3] = watch.ZebraInLine;
-  vofa.obstacle[4] = Element;
+  vofa.obstacle[0] = Element;
+  vofa.obstacle[1] = watch.black_obstacle_flag;
+  vofa.obstacle[2] = watch.black_obstacle_line;
+  vofa.obstacle[3] = watch.left_obstacle_x;
+  vofa.obstacle[4] = watch.ZebraInLine;
   vofa.obstacle[5] = angle_integral.integeral_data;
   vofa.obstacle[6] = mycar.RUNTIME;
 
-  vofa.broken[0] = watch.broken_circuit_flag;
-  vofa.broken[1] = Element_rem.Element_count;
+  vofa.broken[0] = Element;
+  vofa.broken[1] = watch.broken_circuit_flag;
+  vofa.broken[2] = Element_rem.Element_count;
   // vofa.broken[2] = imu.pitch;//惯导
-  // vofa.broken[3] = imu.gyroy;
-  vofa.broken[4] = Element;
+  // vofa.broken[3] = imu.gyroy;  
   vofa.broken[5] = mycar.RUNTIME;
 
   vofa.cross[0] = Element;
@@ -859,9 +799,10 @@ void show_params(Mat img, float *data) {
   vofa.cross[2] = watch.cross_flag;
   vofa.cross[3] = watch.cross_LD_angle;
   vofa.cross[4] = watch.cross_RD_angle;
-  vofa.cross[5] = watch.cross_AngleL;
-  vofa.cross[6] = watch.cross_AngleR;
-  vofa.cross[7] = watch.cross_AngleR_x;
+  vofa.cross[5] = watch.cross_AngleL;         //左角点所在行
+  vofa.cross[6] = watch.cross_AngleL_x;
+  vofa.cross[7] = watch.cross_AngleR;         //右角点所在行
+  vofa.cross[8] = watch.cross_AngleR_x;
 
   vofa.speed_differ[0] = mycar.steer_pwm;
   vofa.speed_differ[1] = mycar.RUNTIME;
@@ -900,52 +841,67 @@ void show_params(Mat img, float *data) {
   vofa.fuzzy_pid[7] = Element;
   vofa.fuzzy_pid[8] = mycar.RUNTIME;
 
-  vofa.fuzzy_speed[0] = mycar.target_left_speed;
-  vofa.fuzzy_speed[1] = mycar.target_right_speed;
-  vofa.fuzzy_speed[2] = mycar.left_speed;
-  vofa.fuzzy_speed[3] = mycar.right_speed;
-  vofa.fuzzy_speed[4] = mycar.steer_pwm;
-  vofa.fuzzy_speed[5] = watch.track_count;
-  vofa.fuzzy_speed[6] = mycar.left_pwm_set;
-  vofa.fuzzy_speed[7] = Element;
+  vofa.fuzzy_speed[0] = Element;
+  vofa.fuzzy_speed[1] = mycar.target_left_speed;
+  vofa.fuzzy_speed[2] = mycar.target_right_speed;
+  vofa.fuzzy_speed[3] = mycar.left_speed;
+  vofa.fuzzy_speed[4] = mycar.right_speed;
+  vofa.fuzzy_speed[5] = mycar.steer_pwm;
+  vofa.fuzzy_speed[6] = watch.track_count;
+  vofa.fuzzy_speed[7] = mycar.left_pwm_set;
   vofa.fuzzy_speed[8] = mycar.RUNTIME;
 
-  vofa.steer_cal[0] = mycar.nonlinear_trackpos;
-  vofa.steer_cal[1] = mycar.Steer_PWM_Kp;
-  vofa.steer_cal[2] = mycar.raw_track_diff;
-  vofa.steer_cal[3] = mycar.track_diff;
-  vofa.steer_cal[4] = mycar.original_err;
-  vofa.steer_cal[5] = mycar.steer_pwm;
-  vofa.steer_cal[6] = mycar.d_original_err;
-  vofa.steer_cal[7] = Element;
+  vofa.steer_cal[0] = Element;
+  vofa.steer_cal[1] = mycar.nonlinear_trackpos;
+  vofa.steer_cal[2] = mycar.Steer_PWM_Kp;
+  vofa.steer_cal[3] = mycar.raw_track_diff;
+  vofa.steer_cal[4] = mycar.track_diff;
+  vofa.steer_cal[5] = mycar.original_err;
+  vofa.steer_cal[6] = mycar.steer_pwm;
+  vofa.steer_cal[7] = mycar.d_original_err;
 
-  vofa.zebra[0] = mycar.target_speed;
+  vofa.zebra[0] = Element;
   vofa.zebra[1] = watch.zebra_flag;
-  vofa.zebra[2] = Element;
-  vofa.zebra[3] = watch.stop_count;
-  vofa.zebra[4] = mycar.RUNTIME;
-  vofa.zebra[5] = mycar.present_speed;
+  vofa.zebra[2] = mycar.target_speed;
+  vofa.zebra[3] = mycar.present_speed;
+  vofa.zebra[4] = watch.stop_count;
+  vofa.zebra[5] = mycar.RUNTIME;
+  vofa.zebra[6] = distance_integral.integeral_flag;
+  vofa.zebra[7] = distance_integral.integeral_data;
+  vofa.zebra[8] = distance_integral.integeral_Thres;
 
-  // vofa.current[0] = adc.current_l;
-  vofa.current[1] = mycar.target_current_l;
-  vofa.current[2] = mycar.left_speed;
-  vofa.current[3] = mycar.right_speed;
-  vofa.current[4] = mycar.left_pwm_set;
-  vofa.current[5] = Element;
-  vofa.current[6] = mycar.target_left_speed;
-  vofa.current[7] = mycar.target_right_speed;
-  vofa.current[8] = mycar.RUNTIME;
-  std::string text1 = "Number 1: " + std::to_string(data[0]);
-  std::string text2 = "Number 2: " + std::to_string(data[1]);
-  std::string text3 = "Number 3: " + std::to_string(data[2]);
-  std::string text4 = "Number 4: " + std::to_string(data[3]);
-  std::string text5 = "Number 5: " + std::to_string(data[4]);
-  std::string text6 = "Number 6: " + std::to_string(data[5]);
-  std::string text7 = "Number 7: " + std::to_string(data[6]);
-  std::string text8 = "Number 8: " + std::to_string(data[7]);
-  std::string text9 = "Number 9: " + std::to_string(data[8]);
-  cv::putText(img, text1, cv::Point(10, 20), cv::FONT_HERSHEY_SIMPLEX, 0.4,
-              cv::Scalar(255, 0, 255), 1);
+
+  vofa.mpu6050[0]=Element;
+  vofa.mpu6050[1]=mpu6050_now;
+  vofa.mpu6050[2]=distance_now;
+  string text1;
+  switch (Element)
+  {
+  case 0:      text1 = " None: "           ;break;//无元素       0
+  case 1:      text1 = " Left_ring: "      ;break;//左环         1
+  case 2:      text1 = " Right_ring: "     ;break;//右环         2
+  case 3:      text1 = " Slope: "          ;break;//斜坡         3
+  case 4:      text1 = " broken_circuit: " ;break;//断路         4
+  case 5:      text1 = " obstacle: "       ;break;//障碍         5
+  case 6:      text1 = " ingarage: "       ;break;//入库         6
+  case 7:      text1 = " outgarage: "      ;break;//出库         7
+  case 8:      text1 = " crossing: "       ;break;//十字         8
+  case 9:      text1 = " black_obstacle: " ;break;//小型黑色路障  9
+  case 10:     text1 = " zebra: "          ;break;//斑马线       10
+  case 11:     text1 = " running_protect " ;break;//保护         11
+  default: break;
+  }
+  // string text1 = " 1: " + to_string(data[0]);
+  string text2 = " 2: " + to_string(data[1]);
+  string text3 = " 3: " + to_string(data[2]);
+  string text4 = " 4: " + to_string(data[3]);
+  string text5 = " 5: " + to_string(data[4]);
+  string text6 = " 6: " + to_string(data[5]);
+  string text7 = " 7: " + to_string(data[6]);
+  string text8 = " 8: " + to_string(data[7]);
+  string text9 = " 9: " + to_string(data[8]);
+  cv::putText(img, text1, cv::Point(10, 20), cv::FONT_HERSHEY_SIMPLEX, 0.8,
+              cv::Scalar(0, 0, 255), 1);
   cv::putText(img, text2, cv::Point(10, 40), cv::FONT_HERSHEY_SIMPLEX, 0.4,
               cv::Scalar(255, 0, 255), 1);
   cv::putText(img, text3, cv::Point(10, 60), cv::FONT_HERSHEY_SIMPLEX, 0.4,
@@ -961,7 +917,7 @@ void show_params(Mat img, float *data) {
   cv::putText(img, text8, cv::Point(10, 160), cv::FONT_HERSHEY_SIMPLEX, 0.4,
               cv::Scalar(255, 0, 255), 1);
   cv::putText(img, text9, cv::Point(10, 180), cv::FONT_HERSHEY_SIMPLEX, 0.4,
-              cv::Scalar(255, 0, 255), 1);
+              cv::Scalar(0, 0, 255), 1);
 }
 float *set_show_params_mode(int num) {
   switch (num) {
@@ -999,7 +955,7 @@ float *set_show_params_mode(int num) {
     return vofa.zebra;
     break;
   case 12:
-    return vofa.current;
+    return vofa.mpu6050;
     break;
   }
 }

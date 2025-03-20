@@ -182,7 +182,7 @@ void updata_fuzzy_speed(float err,float k)
     if(watch.track_count<setpara.speed_max)watch_count2++;else watch_count2--;
     if(watch_count2<=0){watch_count2=0;speed_add=setpara.speed_add;}
     if(watch_count2>=3){watch_count2=3;speed_add=0;}
-    cout<<watch_count2<<endl;
+    // cout<<watch_count2<<endl;
     //if(mycar.RUNTIME<setpara.begin_time)speed_add=setpara.speed_add;//起步斑马线黑块误识别
     //d_k
     float d_k;

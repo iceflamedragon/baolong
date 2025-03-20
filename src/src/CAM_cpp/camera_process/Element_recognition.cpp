@@ -94,14 +94,15 @@ void Element_recognition() {
     complete_out_garage();
     break;
   case black_obstacle:
-    // black_obstacle_enter();
+    black_obstacle_enter();
     cout<<"元素路障"<<endl;
-    // black_obstacle_out();
-  // case zebra:
-  //   cout<<"元素斑马线"<<endl;
-  //   zebra_stop();
-  //   zebra_out();
-
+    black_obstacle_out();
+    break;
+  case zebra:
+    cout<<"元素斑马线"<<endl;
+    zebra_stop();
+    zebra_out();
+    break;
   default:
     break;
   }
@@ -142,22 +143,22 @@ void enter_task() {
       // obstacle_identification();
 
       if (setpara.cross_open_flag >= 1) {
-        cross_enter();
+        // cross_enter();
       }
 
       if (setpara.bla_obs_open_flag >= 1) {
-        // black_obstacle_enter();
+         black_obstacle_enter();
       }
 
-      // zebra_enter();
+      zebra_enter();
     }
     break;
   default:
     out_element();
-    // zebra_out();
+    zebra_out();
     break;
   }
-  // zebra_indentification(); //斑马线识别
+   //zebra_indentification(); //斑马线识别
 }
 // 元素初始化
 void element_init() {
@@ -211,7 +212,7 @@ void clear_all_flags() {
   // 清除积分标志位
   clear_angle_integeral();
   clear_distant_integeral();
-  // 清楚圆环标志
+  // 清除圆环标志
   watch.InLoop = 0;
   watch.InLoopAngleL = 120;
   watch.InLoopAngleR = 120;

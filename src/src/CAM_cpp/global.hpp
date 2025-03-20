@@ -45,6 +45,7 @@ struct vofa_struct {
   float steer_cal[9];
   float zebra[9];
   float current[9];
+  float mpu6050[9];
 };
 typedef struct ADRC_para_STRUCT {
   // TD para

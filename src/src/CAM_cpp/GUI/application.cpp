@@ -142,7 +142,8 @@ void set_setpara(float turn_PIDkp, float turn_PIDkd, float gyroturn_PIDkp,
                  float big_loop_PIDkp, float big_loop_PIDkd, float camwf,
                  float camwl, float camwr, float speed_max, float speed_add,
                  float speed_min, float loop_target_speed,
-                 float loop_out_distance, float steer_mid,int steer_min,int steer_max,bool is_showimg) {
+                 float loop_out_distance, float steer_mid,int steer_min,int steer_max,bool is_showimg,
+                 float zebra_distance,float zebra_begin_time,float zebra_line_count,float zebra_speed) {
   setpara.com_turn_PID.kp = turn_PIDkp;
   setpara.com_turn_PID.kd = turn_PIDkd;
   setpara.gyro_PID.kp = gyroturn_PIDkp;
@@ -160,6 +161,10 @@ void set_setpara(float turn_PIDkp, float turn_PIDkd, float gyroturn_PIDkp,
   setpara.speed_min = speed_min;
   setpara.loop_target_speed = loop_target_speed;
   setpara.loop_out_distance = loop_out_distance;
+  setpara.zebra_distance = zebra_distance;
+  setpara.zebra_begin_time = zebra_begin_time;
+  setpara.zebra_line_count = zebra_line_count;
+  setpara.zebra_speed = zebra_speed;
   STEER_MID = steer_mid;
   STEER_MIN=steer_min;STEER_MAX=steer_max;
   Is_showimg=is_showimg;
@@ -171,13 +176,21 @@ void init_setpara() // 各个参数的初始化，不在参数表上的参数仍
   setpara.speed_add = 0.5; ///////////
   setpara.speed_min = 1.6; /////////////////
   setpara.speed_adjust_kp = 55;
+  setpara.black_obstacle_turn_PID.kp = 20;
+  setpara.black_obstacle_turn_PID.kd = 3;
+  setpara.bla_obs_begin_time = 300;
+  setpara.bla_obs_open_flag = 1;
+  setpara.zebra_distance = 0;//斑马线停止前目标距离积分
+  setpara.zebra_speed = -10;
+  setpara.zebra_line_count = 4;
+  setpara.zebra_begin_time = 5000;//ms     
   setpara.obstacle_speed =  1.8;
   setpara.broken_target_speed =  1.8;
   setpara.differ_ratio = 55;
   setpara.loop_target_speed = 2; /// 原先为48
   setpara.big_loop_speed =  1.8;   // 大环内的目标速度没用上
   setpara.slope_speed =  1.8;
-  setpara.cross_speed =  1.8;
+  setpara.cross_speed =  0.5;
   setpara.fuzzy_kp = 90;
   setpara.fuzzy_kd = 110;
   setpara.fuzzy_k = 40; // 50
@@ -203,17 +216,31 @@ void init_setpara() // 各个参数的初始化，不在参数表上的参数仍
   setpara.obstacle_turn1_PID.kd = 3;
   setpara.obstacle_turn2_PID.kp = 3;
   setpara.obstacle_turn2_PID.kd = 3;
-  setpara.black_obstacle_turn_PID.kp = 20;
-  setpara.black_obstacle_turn_PID.kd = 3;
+  
   setpara.camwf = -31;   ////////
   setpara.camwl = 92;    /////////
   setpara.camwr = 82;    ////////97
   setpara.far_line = 70; ////////
+  setpara.bla_obs_speed=0.8;
+
+
                          //{&setpara.TextRow,  "TextRow", 1},
   setpara.threshold_max = 120;
   setpara.threshold_min = 80;
   //{&setpara.begin_pwm,"begin_pwm",10},
   //{&setpara.begin_time,"begin_time",10},
+
+
+
+
+
+
+
+
+
+
+
+
   setpara.adc_L_gain = 100;
   setpara.adc_M_gain = 100;
   setpara.adc_R_gain = 100;
@@ -226,7 +253,7 @@ void init_setpara() // 各个参数的初始化，不在参数表上的参数仍
   //************************************第二页************************
   setpara.start_mode = 1;
   setpara.stop_time = 15000;
-  setpara.begin_time = 400;
+  setpara.begin_time = 40;
   setpara.set_element[1] = 1;
   setpara.set_element[2] = 8;
   setpara.set_element[3] = 8;
@@ -275,21 +302,15 @@ void init_setpara() // 各个参数的初始化，不在参数表上的参数仍
   setpara.garage_turn_PID.kp = 15;
   setpara.garage_turn_PID.kd = 10;
   setpara.broken_circuit_slow_distane = 200;
-
   setpara.track_diff_cutoff = 100; // 跟踪差值截止频率
   setpara.steer_buchang = 0;
   setpara.steer_adjust = 0;
-  setpara.zebra_distance = 0;
   setpara.cross_open_flag = 1;
-  setpara.bla_obs_open_flag = 1;
   setpara.track_open_flag = 1;
-  setpara.bla_obs_begin_time = 300;
   setpara.slope_begin_time = 300;
-  setpara.zebra_begin_time = 5000;      //ms
   setpara.stop_over_count = 55;
-  setpara.zebra_speed = -10;
-  setpara.zebra_line_count = 4;
   setpara.USART_flag = 0;
+
 
   // mycar.steer_pwm=4000;
   // setpara.loop_angle_out=60;
@@ -413,26 +434,26 @@ void init_setpara() // 各个参数的初始化，不在参数表上的参数仍
       setpara.camcfg.autogain     = 30    ;
   */
   /////////车库相关
-  setpara.garage_outangle =
-      250; // 出库角度，+左-右（可优化多加一个12标志，不用拧这么久
-  setpara.garage_outtime = 3; // 出库锁角度时间，×0.01s
-  setpara.ZebraCount = 3;     // 必须给值
+  setpara.garage_outangle =250;// 出库角度，+左-右（可优化多加一个12标志，不用拧这么久
+  setpara.garage_outtime = 3;// 出库锁角度时间，×0.01s
+  setpara.ZebraCount = 3;// 必须给值
   setpara.stop_kp = 100;
   setpara.stop_kd = 25;
-  // setpara.StopSpeed           = 70    ;
+  // setpara.StopSpeed= 70;
+ 
   /////////圆环相关
   setpara.CamLoopKp = 13;
   setpara.CamLoopKd = 2;
-
   setpara.InLoopLine = 80;
   setpara.WhenInLoop = 83;
-  // setpara.InLoopRow    = 67    ;
+  // setpara.InLoopRow = 67;
   setpara.LoopThres = 8;
   setpara.OutLoopThres = 40;
   setpara.distanceThres_in_loop = 6000;
   setpara.distanceThres_out_loop = 15000;
   setpara.distanceThres_in_broken_circuit = 9000;
   setpara.distanceThres_out_broken_circuit = 5000;
+
   //////////三岔路相关
   setpara.StrThres = 10;
   setpara.TempRL = 2; // 三岔路临时变量，左1右2，后期由OpenMV发送
@@ -445,6 +466,7 @@ void init_setpara() // 各个参数的初始化，不在参数表上的参数仍
   // setpara.JuncSpeed    = -2    ;
   setpara.DetectTime = 30;
   setpara.number = 1;
+  
   //////////二维码相关
   // setpara.AprilCount   = 5     ;
   // setpara.AprilStop    = 78    ;
@@ -452,10 +474,12 @@ void init_setpara() // 各个参数的初始化，不在参数表上的参数仍
   // setpara.AprilTime    = 110   ;
   // setpara.BackTime     = 15    ;
   // setpara.LaserTime    = 80    ;
+ 
   /////////测试相关
   setpara.TextLine = 33;
   setpara.TextRow = 2;
   // setpara.TextDistance = 0     ;
+ 
   /////////坡道
   setpara.SlopeDown = 3;
   // fuzzy.s_output.rolling_angle = 0;
@@ -464,6 +488,7 @@ void init_setpara() // 各个参数的初始化，不在参数表上的参数仍
   setpara.jun_CamKp = 12;
   setpara.jun_CamKd = 2;
   // setpara.cross_base = 80;
+ 
   //////其他参数
   setpara.rolling_angle_mid = 0;
   setpara.steer_far = 110;

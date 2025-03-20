@@ -31,7 +31,8 @@ typedef enum
     outgarage,      //出库        7
     crossing,        //十字        8
     black_obstacle,  //小型黑色路障  9
-    zebra           //斑马线     10
+    zebra    ,       //斑马线     10
+    run_protect  //运行保护    11
 
 }Element_range;
 struct Element_struct

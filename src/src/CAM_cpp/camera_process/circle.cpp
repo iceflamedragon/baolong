@@ -8,6 +8,7 @@
 #include "../control/mycar.hpp"
 
 using namespace std;
+//扫描范围
 #define loop_forward_far 100
 #define loop_forward_near 20
 //检测左环第一个角点(Inloop=1)

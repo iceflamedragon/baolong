@@ -69,7 +69,7 @@ void black_obstacle_confirm()
         watch.right_obstacle_flag=0;
         enter_element(black_obstacle);
         set_speed(setpara.bla_obs_speed);
-        begin_distant_integeral(9000);//路障长240mm，折合脉冲数约2824个
+        begin_distant_integeral(1000);//路障长240mm，折合脉冲数约2824个
         watch.black_obstacle_flag=1;
         // beep2(7,100);
         }
@@ -81,7 +81,7 @@ void black_obstacle_confirm()
         watch.right_obstacle_flag=1;
         enter_element(black_obstacle);
         set_speed(setpara.bla_obs_speed);
-        begin_distant_integeral(9000);//路障长240mm，折合脉冲数约2824个
+        begin_distant_integeral(1000);//路障长240mm，折合脉冲数约2824个
         watch.black_obstacle_flag=1;
         // beep2(7,100);
         }

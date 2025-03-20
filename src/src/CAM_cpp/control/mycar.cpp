@@ -10,6 +10,8 @@
 mycar_STRUCT mycar;
 float Gyro_Z;
 float STEER_MID;
+extern Motion motion;
+extern Element_range Element;
 // 左右轮差速表（百分比）
 float speed_dif_list[30] = {-0.226, -0.199, -0.18,  -0.169, -0.151, -0.133,
                             -0.119, -0.101, -0.087, -0.075, -0.057, -0.042,
@@ -94,7 +96,8 @@ void motor_control() {
   //        mycar.steer_pwm=Steer_PWM_Cal(-mycar.original_err)+setpara.steer_adjust;
   //        set_steer(STEER_MID+mycar.steer_pwm);
   //    }
-  running_protect(); // 运行保护
+  if(motion.params.protect==true){running_protect();}// 运行保护
+   
   common_running();
   if (mycar.car_running == 0) {
     mycar.uart_speed = 0;
@@ -150,83 +153,65 @@ void common_running() {
 void current_control() {}
 // 小车运行保护
 void running_protect() {
-  // static int danger_time_speed,danger_time_distence,danger_time_black;
-  // if(mycar.car_running==1)
-  // {
-  //     mycar.RUNTIME++;
-  //     //时间保护
-  //     if(mycar.RUNTIME>setpara.stop_time)
-  //     {
-  //         if(setpara.stop_time>0&&setpara.stop_time<30000)
-  //         {
-  //             mycar.RUNTIME=0;
-  //             car_stop();
-  //             if(mycar.stop_mode==0)
-  //             mycar.stop_mode=1;
-  //         }
-  //     }
-  //     if(mycar.RUNTIME>1000&&Element!=zebra)//失速保护
-  //     {
-  //         if((mycar.left_speed<1&&abs(mycar.left_pwm_set)>1000)||(mycar.right_speed<1&&abs(mycar.right_pwm_set)>1000))
-  //         {
-  //             danger_time_speed++;
-  //             if(danger_time_speed>200)
-  //             {
-  //                 danger_time_speed=0;
-  //                 mycar.car_running=0;
-  //                 car_stop();
-  //                 stop_warning();
-  //                 clear_integral(&Speed_left);
-  //                 clear_integral(&Speed_right);
-  //                 if(mycar.stop_mode==0)
-  //                 mycar.stop_mode=2;
-  //             }
-  //         }
-  //         else if(danger_time_speed>0)danger_time_speed--;
-  //     }
-  //     //距离保护
-  //     if(dl1b_distance_mm<setpara.obstacle_detect_distance)
-  //     {
-  //         danger_time_distence++;
-  //         if(danger_time_distence>100)
-  //         {
-  //             danger_time_distence=0;
-  //             mycar.car_running=0;
-  //             car_stop();
-  //             stop_warning();
-  //             clear_integral(&Speed_left);
-  //             clear_integral(&Speed_right);
-  //             if(mycar.stop_mode==0)
-  //             mycar.stop_mode=3;
-  //         }
-  //     }
-  //     else if(danger_time_distence>0)danger_time_distence--;
-  //     //电感保护
-  //     if(adc.data[0]<setpara.adc_protect&&adc.data[1]<setpara.adc_protect&&adc.data[2]<setpara.adc_protect&&Element!=ingarage&&Element!=outgarage&&Element!=obstacle)
-  //     {
-  //         //car_stop();
-  //     }
+  static int danger_time_speed,danger_time_distence,danger_time_black;
+  if(mycar.car_running==1)
+  {
+      mycar.RUNTIME++;
+      //时间保护
+      if(mycar.RUNTIME>setpara.stop_time)
+      {
+          if(setpara.stop_time>0&&setpara.stop_time<30000)
+          {
+              mycar.RUNTIME=0;
+              car_stop();
+              if(mycar.stop_mode==0)
+              mycar.stop_mode=1;
+          }
+      }
+      if(mycar.RUNTIME>1000&&Element!=zebra)//失速保护
+      {
+          if((mycar.left_speed<1&&abs(mycar.left_pwm_set)>1000)||(mycar.right_speed<1&&abs(mycar.right_pwm_set)>1000))
+          {
+              danger_time_speed++;
+              if(danger_time_speed>200)
+              {
+                  danger_time_speed=0;
+                  mycar.car_running=0;
+                  car_stop();
+                  // stop_warning();
+                  clear_integral(&Speed_left);
+                  clear_integral(&Speed_right);
+                  if(mycar.stop_mode==0)
+                  mycar.stop_mode=2;
+              }
+          }
+          else if(danger_time_speed>0)danger_time_speed--;
+      }
+  
 
-  //     //视觉保护
-  //     if(setpara.track_open_flag>=1){
-  //     if(mycar.track_warn_flag)
-  //     {
-  //         danger_time_black++;
-  //         if(danger_time_black>100)
-  //         {
-  //             danger_time_black=0;
-  //             mycar.car_running=0;
-  //             car_stop();
-  //             // stop_warning();
-  //             clear_integral(&Speed_left);
-  //             clear_integral(&Speed_right);
-  //             if(mycar.stop_mode==0)
-  //             mycar.stop_mode=4;
-  //             }
-  //     }
-  //     else if(danger_time_black>0)danger_time_black--;
-  //     }
-  // }
+      //视觉保护
+      if(setpara.track_open_flag>=1){
+      if(mycar.track_warn_flag)
+      {
+        cout<<"视觉保护1"<<endl;
+          danger_time_black++;
+          if(danger_time_black>0)
+          {
+            cout<<"视觉保护2"<<endl;
+            Element=run_protect;
+              danger_time_black=0;
+              mycar.car_running=0;
+              car_stop();
+              // stop_warning();
+              clear_integral(&Speed_left);
+              clear_integral(&Speed_right);
+              if(mycar.stop_mode==0)
+              mycar.stop_mode=4;
+              }
+      }
+      else if(danger_time_black>0)danger_time_black--;
+      }
+  }
 }
 
 // 发车函数

@@ -73,7 +73,7 @@ public:
 
     threshold(imageGray, imageBinary, 0, 255, THRESH_OTSU); //
     // OTSU二值化方法
-
+    // threshold(imageGray, imageBinary, 128, 255, THRESH_BINARY);固定阈值二值化方法
     return imageBinary;
   }
 

@@ -103,6 +103,10 @@ public:
     float runP1_fast;
     float runP2_fast;
     float turnD_fast;
+    float zebra_distance;
+    float zebra_begin_time;
+    float zebra_line_count;
+    float zebra_speed;
     float ring_p1b; // 圆环的pid
     float ring_p2b;
     float ring_db;
@@ -144,7 +148,7 @@ public:
     float turnP = 3.5;           // 一阶比例系数：转弯控制量
     float turnD = 0;             // 一阶微分系数：转弯控制量
     float turnI;                 // 积分项--减少漂移情况
-    bool debug = false;          // 调试模式使能
+    int debug = false;          // 调试模式使能
     bool saveImg = false;        // 存图使能
     uint16_t rowCutUp = 200;     // 图像顶部切行
     uint16_t rowCutBottom = 200; // 图像顶部切行
@@ -166,10 +170,11 @@ public:
     int STEER_MIN;
     int STEER_MAX;
     bool Is_showimg;//显示原图
+    bool protect;
     string model = "../res/model/yolov3_mobilenet_v1"; // 模型路径
     string video = "../res/samples/demo.mp4";          // 视频路径
     NLOHMANN_DEFINE_TYPE_INTRUSIVE(
-        Params, speedLow, speedHigh, turn_PIDkp, STEER_MID,STEER_MIN,STEER_MAX,Is_showimg, turn_PIDkd,
+        Params, speedLow, speedHigh, turn_PIDkp, STEER_MID,STEER_MIN,STEER_MAX,Is_showimg,protect, turn_PIDkd,
         speed_max, speed_add, speed_min, gyroturn_PIDkp, gyroturn_PIDki,
         gyroturn_PIDkd, loop_turn_PIDkp, loop_turn_PIDkd, big_loop_PIDkp,
         big_loop_PIDkd, camwf, camwl, camwr, speedBridge, speedDown, runP1,
@@ -177,7 +182,7 @@ public:
         rowCutBottom, bridge, danger, rescue, racing, parking, ring, cross,
         score, model, ring_p1b, ring_p2b, ring_db, record_video, video, areaMax,
         show_params_mode, submit, angle_p, loop_target_speed,
-        loop_out_distance); // 添加构造函数
+        loop_out_distance,zebra_distance,zebra_begin_time,zebra_line_count,zebra_speed); // 添加构造函数
   };
 
   Params params; // 读取控制参数

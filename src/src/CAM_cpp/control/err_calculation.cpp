@@ -246,5 +246,5 @@ int Steer_PWM_Cal(int track_pos) {
   steertemp =
       (steertemp > 1000 ? 1000 : (steertemp < -1000 ? -1000 : steertemp));
 
-  return 1.f * 500 * steertemp / 1000;
+  return 1.f * 1200 * steertemp / 1000;
 }

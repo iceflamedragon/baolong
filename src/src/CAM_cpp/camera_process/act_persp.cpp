@@ -91,11 +91,11 @@ void persp_task(int16_t xl, int16_t xr, int16_t y) {
     lineinfo[y].persp_rx = oxr;
     lineinfo[y].persp_ry = oyr;
 
-    // 计算此行左边界点到左轮的斜率的倒数的1000倍
+    // 计算此行左边界点到左轮的斜率的倒数的125倍
     lineinfo[y].angel_left =
         125 * (lineinfo[y].persp_lx - setpara.camwl) /
         (lineinfo[y].persp_ly - setpara.camwf); // persp_lx=67
-    // 计算此行右边界点到右轮的斜率的倒数的1000倍
+    // 计算此行右边界点到右轮的斜率的倒数的125倍
     lineinfo[y].angel_right =
         125 * (lineinfo[y].persp_rx - setpara.camwr) /
         (lineinfo[y].persp_ry - setpara.camwf); // persp_lf=97
