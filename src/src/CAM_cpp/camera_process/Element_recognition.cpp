@@ -143,7 +143,7 @@ void enter_task() {
       // obstacle_identification();
 
       if (setpara.cross_open_flag >= 1) {
-        // cross_enter();
+        cross_enter();
       }
 
       if (setpara.bla_obs_open_flag >= 1) {

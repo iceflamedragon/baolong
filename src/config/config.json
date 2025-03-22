@@ -5,7 +5,7 @@
     "speed_max": 105,
     "/*speed_max*/": "是轮胎前视2距，不是最高速度",
     "speed_add": 0,
-    "speed_min": 1.8,
+    "speed_min": 2.5,
     "turn_PIDkp":54,
     "turn_PIDkd": 3,
     "protect":true,
@@ -14,11 +14,19 @@
     "gyroturn_PIDki": 0,
     "gyroturn_PIDkd": 0,
     "loop_target_speed": 2,
-    "loop_turn_PIDkp": 60,
-    "loop_turn_PIDkd": 5,
+    "loop_turn_PIDkp": 50,
+    "loop_turn_PIDkd": 4,
     "loop_out_distance": 700,
     "big_loop_PIDkp": 13,
     "big_loop_PIDkd": 11,
+
+    "/*zebra*/":"斑马线相关",
+    "zebra_distance":900,
+    "zebra_begin_time":2000,
+    "zebra_line_count":6,
+    "zebra_speed":-0.3,
+    
+    "Is_AI_detection":true,
     "show_params_mode": 7,
     "/*show_params_mode*/":"1是turn,2是loop,3speed,4 element_rem,5 obstacle ,6 broken ,7 cross,8speed_differ,9 fuzzy_pid,10 steer_cal,11 zebra,12 mpu6050",
     "camwf": -29,
@@ -27,7 +35,7 @@
     "Is_showimg":false,
     "/Is_showimg/":"是否开启原图，现在用不了",
     
-    "debug": 2,
+    "debug": 0,
     "/*debug*/": "debug2为完整的有黑白的图,debug为1显示窗口,为0无窗口",
    
     "record_video": false,
@@ -45,11 +53,7 @@
     "speedHighpro": 1.6,
     "speedBridge": 0.2,
    
-    "/*zebra*/":"斑马线相关",
-    "zebra_distance":900,
-    "zebra_begin_time":0,
-    "zebra_line_count":6,
-    "zebra_speed":-0.3,
+   
 
 
     "/*lowpid*/": "开ai的低俗pid",

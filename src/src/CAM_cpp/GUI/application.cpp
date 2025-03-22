@@ -190,7 +190,7 @@ void init_setpara() // 各个参数的初始化，不在参数表上的参数仍
   setpara.loop_target_speed = 2; /// 原先为48
   setpara.big_loop_speed =  1.8;   // 大环内的目标速度没用上
   setpara.slope_speed =  1.8;
-  setpara.cross_speed =  0.5;
+  setpara.cross_speed =  1.5;
   setpara.fuzzy_kp = 90;
   setpara.fuzzy_kd = 110;
   setpara.fuzzy_k = 40; // 50

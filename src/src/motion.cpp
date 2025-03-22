@@ -32,7 +32,7 @@
 
 using namespace std;
 using namespace cv;
-
+extern struct setpara_STRUCT setpara;
 /**
  * @brief 运动控制器
  *
@@ -171,18 +171,20 @@ public:
     int STEER_MAX;
     bool Is_showimg;//显示原图
     bool protect;
+    bool protect_status;
+    bool Is_AI_detection;
     string model = "../res/model/yolov3_mobilenet_v1"; // 模型路径
     string video = "../res/samples/demo.mp4";          // 视频路径
     NLOHMANN_DEFINE_TYPE_INTRUSIVE(
         Params, speedLow, speedHigh, turn_PIDkp, STEER_MID,STEER_MIN,STEER_MAX,Is_showimg,protect, turn_PIDkd,
         speed_max, speed_add, speed_min, gyroturn_PIDkp, gyroturn_PIDki,
         gyroturn_PIDkd, loop_turn_PIDkp, loop_turn_PIDkd, big_loop_PIDkp,
-        big_loop_PIDkd, camwf, camwl, camwr, speedBridge, speedDown, runP1,
+        big_loop_PIDkd, camwf, camwl, camwr,speedBridge, speedDown, runP1,
         runP2, runP3, turnP, turnD, turnI, debug, saveImg, rowCutUp,
         rowCutBottom, bridge, danger, rescue, racing, parking, ring, cross,
         score, model, ring_p1b, ring_p2b, ring_db, record_video, video, areaMax,
         show_params_mode, submit, angle_p, loop_target_speed,
-        loop_out_distance,zebra_distance,zebra_begin_time,zebra_line_count,zebra_speed); // 添加构造函数
+        loop_out_distance,zebra_distance,zebra_begin_time,zebra_line_count,zebra_speed,Is_AI_detection); // 添加构造函数
   };
 
   Params params; // 读取控制参数

@@ -43,19 +43,19 @@ using namespace cv;
 #define PWMSERVOMID 4800    // 舵机PWM中值
 #define PWMSERVOMIN 4000    // 舵机PWM最小值（右）
 
-#define LABEL_BOMB 0      // AI标签：爆炸物
-#define LABEL_BRIDGE 1    // AI标签：坡道
-#define LABEL_SAFETY 2    // AI标签：普通车辆
-#define LABEL_CONE 3      // AI标签：锥桶
-#define LABEL_CROSSWALK 4 // AI标签：斑马线
-#define LABEL_DANGER 5    // AI标签：危险车辆
-#define LABEL_EVIL 6      // AI标签：恐怖分子
-#define LABEL_BLOCK 7     // AI标签：障碍物
-#define LABEL_PATIENT 8   // AI标签：伤员
-#define LABEL_PROP 9      // AI标签：道具车
-#define LABEL_SPY 10      // AI标签：嫌疑车辆
-#define LABEL_THIEF 11    // AI标签：盗贼
-#define LABEL_TUMBLE 12   // AI标签：跌倒
+// #define LABEL_BRIDGE 1    // AI标签：坡道
+// #define LABEL_CONE 3      // AI标签：锥桶
+// #define LABEL_CROSSWALK 4 // AI标签：斑马线
+#define LABEL_BATTERY 0    // AI标签：充电站
+#define LABEL_BLOCK 1      // AI标签：障碍物
+#define LABEL_BRIDGE 2     // AI标签：坡道
+#define LABEL_BURGER 3     // AI标签：汉堡
+#define LABEL_CAR 4        // AI标签：道具车
+#define LABEL_COMPANY 5    // AI标签：公司
+#define LABEL_CONE 6       // AI标签：锥桶
+#define LABEL_CROSSWALK 7  // AI标签：斑马线
+#define LABEL_PEDESTRIAN 8 // AI标签：行人
+#define LABEL_SCHOOL 9     // AI标签：学校
 
 /**
  * @brief 场景类型（路况）

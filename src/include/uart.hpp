@@ -121,6 +121,7 @@ private:
    * @return int
    */
   int transmitByte(unsigned char data) {
+
     // try检测语句块有没有异常
     try {
       serialPort->WriteByte(data); // 写数据到串口
@@ -481,7 +482,7 @@ public:
 
     buff[0] = USB_FRAME_HEAD;  // 帧头
     buff[1] = USB_ADDR_BUZZER; // 地址
-    buff[2] = 5;               // 帧长
+    buff[2] = 6;               // 帧长
     switch (sound) {
     case Buzzer::BUZZER_OK: // 确认
       buff[3] = 1;
@@ -506,6 +507,10 @@ public:
 
     // 循环发送数据
     for (size_t i = 0; i < 6; i++)
-      transmitByte(buff[i]);
+    {
+       transmitByte(buff[i]);
+      // cout<<"transmitByte"<<endl;
+    }
+     
   }
 };

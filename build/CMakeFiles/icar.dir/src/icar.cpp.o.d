@@ -388,13 +388,13 @@ CMakeFiles/icar.dir/src/icar.cpp.o: \
  /home/edgeboard/car/baolong/src/src/controlcenter.cpp \
  /home/edgeboard/car/baolong/src/src/recognition/tracking.cpp \
  /home/edgeboard/car/baolong/src/src/detection/bridge.cpp \
- /home/edgeboard/car/baolong/src/src/detection/danger.cpp \
- /home/edgeboard/car/baolong/src/src/detection/../motion.cpp \
- /home/edgeboard/car/baolong/src/src/detection/../../include/json.hpp \
+ /home/edgeboard/car/baolong/src/src/detection/obstacle.cpp \
+ /home/edgeboard/car/baolong/src/src/detection/catering.cpp \
+ /home/edgeboard/car/baolong/src/src/detection/layby.cpp \
  /home/edgeboard/car/baolong/src/src/detection/parking.cpp \
- /home/edgeboard/car/baolong/src/src/detection/racing.cpp \
- /home/edgeboard/car/baolong/src/src/detection/rescue.cpp \
- /home/edgeboard/car/baolong/src/src/detection/../mapping.cpp \
+ /home/edgeboard/car/baolong/src/src/detection/crosswalk.cpp \
+ /home/edgeboard/car/baolong/src/src/motion.cpp \
+ /home/edgeboard/car/baolong/src/src/../include/json.hpp \
  /home/edgeboard/car/baolong/src/src/preprocess.cpp \
  /home/edgeboard/car/baolong/src/src/recognition/crossroad.cpp \
  /home/edgeboard/car/baolong/src/src/recognition/ring.cpp \

@@ -71,7 +71,7 @@ int ai_flag;
         this->predictor_nms_ = std::make_shared<PPNCPredictor>("../src/config/config_ppncnms.json");
         this->onnx_env_ = Ort::Env(OrtLoggingLevel::ORT_LOGGING_LEVEL_WARNING, "test");
         Ort::SessionOptions session_options;
-        session_options.SetIntraOpNumThreads(8);
+        session_options.SetIntraOpNumThreads(4);        // 设置内核线程数
         session_options.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_ENABLE_EXTENDED);
         std::string onnx_model = pathModel + "/post.onnx";
         this->predictor_onnx_ = std::make_shared<Ort::Session>(this->onnx_env_, onnx_model.c_str(), session_options);

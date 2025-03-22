@@ -320,7 +320,26 @@ void crossing_linefix()
                 xl=top_x-(115-y)*SlopeL;
             }
         }
-                                      
+        else if(watch.cross_flag==1)
+        {
+            if(watch.cross_LD_angle>21)
+            {
+                float x1=lineinfo[watch.cross_LD_angle].left,x2=lineinfo[watch.cross_LD_angle-5].left,x3=lineinfo[watch.cross_LD_angle-10].left,x4=lineinfo[watch.cross_LD_angle-15].left;
+                float y1=watch.cross_LD_angle;
+                float x_avg=(x1+x2+x3+x4)/4;
+                float y_avg=(float)watch.cross_LD_angle-7.5;
+                SlopeL=(x1*x1+x2*x2+x3*x3+x4*x4-4*x_avg*x_avg)/(y1*x1+(y1-5)*x2+(y1-10)*x3+(y1-15)*x4-4*y_avg*x_avg);//用线性回归计算斜率
+                top_x=lineinfo[0].left+SlopeL*115;
+                xl = lineinfo[0].left+SlopeL*y;
+                SlopeR=(float)(lineinfo[0].right-top_x)/115;
+                xr=top_x+(115-y)*SlopeR;
+            }
+            else
+            {
+                xr=top_x+SlopeR*(115-y);
+                xl=top_x-(115-y)*SlopeL;
+            }
+        }                            
         else
         {
             xl = lineinfo[y].left;

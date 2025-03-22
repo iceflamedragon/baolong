@@ -26,10 +26,11 @@
 #include "../include/uart.hpp"       //串口通信驱动
 #include "controlcenter.cpp"         //控制中心计算类
 #include "detection/bridge.cpp"      //AI检测：坡道区
-#include "detection/danger.cpp"      //AI检测：危险区
-#include "detection/parking.cpp"     //AI检测：停车区
-#include "detection/racing.cpp"      //AI检测：追逐区
-#include "detection/rescue.cpp"      //AI检测：救援区
+#include "detection/obstacle.cpp"    //AI检测：障碍区
+#include "detection/catering.cpp"    //AI检测：餐饮区
+#include "detection/layby.cpp"       //AI检测：临时停车区
+#include "detection/parking.cpp"     //AI检测：充电停车场
+#include "detection/crosswalk.cpp"   //AI检测：停车区
 #include "motion.cpp"                //智能车运动控制类
 #include "preprocess.cpp"            //图像预处理类
 #include "recognition/crossroad.cpp" //十字道路识别与路径规划类
@@ -95,7 +96,7 @@ mutex inference_mtx;
 cv::Mat inference_img;
 bool inference_ready = false;
 bool inference_done = false;
-bool stop_inference_thread = true;    //是否关闭推理线程
+bool stop_inference_thread ;    //是否关闭推理线程
 bool Is_showimg;//显示原图
 float mpu6050_now;    //现在的mpu6050Z轴角度
 float mpu6050_later;
@@ -133,17 +134,21 @@ int main(int argc, char const *argv[]) {
   Crossroad crossroad;      // 十字道路识别类
   Ring ring;                // 环岛识别类
   Bridge bridge;            // 坡道区检测类
-  Parking parking;          // 停车区检测类
-  Danger danger;            // 危险区检测类
-  Rescue rescue;            // 救援区检测类
-  Racing racing;            // 追逐区检测类
   ControlCenter ctrlCenter; // 控制中心计算类
   Display display(4);       // 初始化UI显示窗口
+  Motion motion;            // 运动控制类
+  Catering catering;        // 快餐店检测类
+  Obstacle obstacle;        // 障碍区检测类
+  Layby layby;              // 临时停车区检测类
+  Parking parking;          // 充电停车场检测类
+  StopArea stopArea;        // 停车区识别与路径规划类
+  //VideoCapture capture;     // Opencv相机类
+  int countInit = 0;        // 初始化计数器
   // VideoCapture capture(0);  // Opencv相机类
   cv::VideoCapture capture(0, cv::CAP_V4L2);  // 强制使用 V4L2 后端
   detection = make_shared<Detection>(motion.params.model);
   detection->score = motion.params.score; // AI检测置信度
-
+  stop_inference_thread=!motion.params.Is_AI_detection;
 
   // USB转串口初始化： /dev/ttyUSB0
 
@@ -173,7 +178,7 @@ int main(int argc, char const *argv[]) {
   // 'G'),30, Size(4 * COLSIMAGE, ROWSIMAGE), true);
     // 设置帧率
   //   double desired_fps = 350; // 设置帧率为 120 fps 
-
+  // std::cout << cv::getBuildInformation() << std::endl;
   if (!capture.isOpened()) {
     printf("can not open video device!!!\n");
     return 0;
@@ -181,8 +186,8 @@ int main(int argc, char const *argv[]) {
  // 启动预读取线程
     thread thread_cam(preload_thread, ref(capture));
 // 启动显示线程
-    thread thread_show(display_thread);
-    // inference_thread = thread(inference_thread_func);
+    // thread thread_show(display_thread);
+    inference_thread = thread(inference_thread_func);
   AI_distance_postion = AI_Distance_None;
   // 等待按键发车
   // if (!motion.params.debug) {
@@ -198,8 +203,14 @@ int main(int argc, char const *argv[]) {
   //   }
   //   uart->keypress = false;
   //   uart->buzzerSound(uart->BUZZER_START); // 祖传提示音效
-  // }
+  // } 
 
+
+  // if(watch.InLoop ==1||watch.cross_flag ==1||watch.slope_flag ==1||motion.params.protect_status==true)         //设别到元素，蜂鸣器响
+  // {
+  //   uart->buzzerSound(uart->BUZZER_DING);        
+  // } 
+  // uart->buzzerSound(uart->BUZZER_DING);  
   // 初始化参数
   // Scene scene = Scene::NormalScene;     // 初始化场景：常规道路
   // Scene sceneLast = Scene::NormalScene; // 记录上一次场景状态
@@ -255,7 +266,11 @@ int main(int argc, char const *argv[]) {
     auto start = chrono::high_resolution_clock::now(); // 记录开始时间
     // this_thread::sleep_until(next_time);
     // next_time += interval;
-      
+    if(watch.InLoop ==1||watch.cross_flag ==1||watch.slope_flag ==1||motion.params.protect_status==true)         //设别到元素，蜂鸣器响
+    {
+      uart->buzzerSound(uart->BUZZER_DING);        
+    } 
+    uart->buzzerSound(uart->BUZZER_DING);    
         // cout<<"camwf"<<motion.params.camwf<<endl;
 // 从预读取队列中取出帧
         {
@@ -287,9 +302,9 @@ int main(int argc, char const *argv[]) {
      // 将图像传递给推理线程
      if(!stop_inference_thread)
     { 
+      inference_img = img.clone();
       {
       unique_lock<mutex> lock(inference_mtx);
-      inference_img = img.clone();
       inference_ready = true;
       inference_done = false;
       inference_cv.notify_one();
@@ -305,7 +320,6 @@ int main(int argc, char const *argv[]) {
         auto end_AI = chrono::high_resolution_clock::now(); // 记录开始时间
         chrono::duration<double> durationAI = end_AI - start_AI;
         printf("%s%.5f ","AI inference",durationAI.count());
-            // cout << "AI " << durationAI.count() << " seconds" << endl;
 // // 将处理后的帧放入显示队列
 //  auto end1 = chrono::high_resolution_clock::now(); // 记录结束时间
 //     chrono::duration<double> duration1 = end1 - start;
@@ -538,7 +552,7 @@ auto end_a = chrono::high_resolution_clock::now(); // 记录结束时间
      auto end_all = chrono::high_resolution_clock::now(); // 记录结束时间
     chrono::duration<double> duration_all = end_all - start;
 
-    mycar.RUNTIME += duration_all.count()*100; // 运行时间
+    mycar.RUNTIME += duration_all.count()*1000; // 运行时间
 
     
     fps_count++;

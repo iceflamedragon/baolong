@@ -265,10 +265,10 @@ typedef struct setpara_STRUCT
 
            int bla_obs_begin_time;
            int slope_begin_time;
-           int zebra_begin_time;
+           int zebra_begin_time;//斑马线检测屏蔽时间
            int stop_over_count;
            int USART_flag;
-           int zebra_line_count;
+           int zebra_line_count;        //斑马线条数
            int track_open_flag;
            int fan_differ_ratio;
            int pwm_adjust;

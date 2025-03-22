@@ -32,6 +32,7 @@ void cross_enter()
         set_speed(setpara.cross_speed);
         watch.cross_flag=3;
         begin_distant_integeral(1000);
+        cout<<" 十字状态0距离积分"<<endl;
     }
     if(setpara.cross_open_flag==1){
     for(int y=20;y<60;y++)
@@ -68,6 +69,7 @@ void cross_enter()
                 )
         {
             //车身右倾进入十字
+            cout<<"车身右倾进入十字"<<endl;
             enter_element(crossing);   //进入十字 clear_all_flags();元素
     //        watch.angle_far_line=110;
             set_speed(setpara.cross_speed);
@@ -106,6 +108,7 @@ void cross_enter()
                 )
         {
             //车身左倾进入十字
+            cout<<"车身左倾进入十字"<<endl;
             enter_element(crossing);   //进入十字 clear_all_flags();元素
     //        watch.angle_far_line=110;
             watch.cross_LD_angle=y;

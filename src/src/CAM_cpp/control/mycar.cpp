@@ -154,6 +154,7 @@ void current_control() {}
 // 小车运行保护
 void running_protect() {
   static int danger_time_speed,danger_time_distence,danger_time_black;
+  motion.params.protect=false;
   if(mycar.car_running==1)
   {
       mycar.RUNTIME++;
@@ -198,6 +199,7 @@ void running_protect() {
           if(danger_time_black>0)
           {
             cout<<"视觉保护2"<<endl;
+            motion.params.protect_status=true;
             Element=run_protect;
               danger_time_black=0;
               mycar.car_running=0;

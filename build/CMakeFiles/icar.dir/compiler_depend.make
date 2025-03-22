@@ -470,13 +470,13 @@ CMakeFiles/icar.dir/src/icar.cpp.o: /home/edgeboard/car/baolong/src/src/icar.cpp
   /home/edgeboard/car/baolong/src/src/controlcenter.cpp \
   /home/edgeboard/car/baolong/src/src/recognition/tracking.cpp \
   /home/edgeboard/car/baolong/src/src/detection/bridge.cpp \
-  /home/edgeboard/car/baolong/src/src/detection/danger.cpp \
+  /home/edgeboard/car/baolong/src/src/detection/obstacle.cpp \
+  /home/edgeboard/car/baolong/src/src/detection/catering.cpp \
+  /home/edgeboard/car/baolong/src/src/detection/layby.cpp \
+  /home/edgeboard/car/baolong/src/src/detection/parking.cpp \
+  /home/edgeboard/car/baolong/src/src/detection/crosswalk.cpp \
   /home/edgeboard/car/baolong/src/src/motion.cpp \
   /home/edgeboard/car/baolong/src/include/json.hpp \
-  /home/edgeboard/car/baolong/src/src/detection/parking.cpp \
-  /home/edgeboard/car/baolong/src/src/detection/racing.cpp \
-  /home/edgeboard/car/baolong/src/src/detection/rescue.cpp \
-  /home/edgeboard/car/baolong/src/src/mapping.cpp \
   /home/edgeboard/car/baolong/src/src/preprocess.cpp \
   /home/edgeboard/car/baolong/src/src/recognition/crossroad.cpp \
   /home/edgeboard/car/baolong/src/src/recognition/ring.cpp \
@@ -682,15 +682,11 @@ CMakeFiles/icar.dir/src/icar.cpp.o: /home/edgeboard/car/baolong/src/src/icar.cpp
 
 /home/edgeboard/car/baolong/src/src/recognition/ring.cpp:
 
-/home/edgeboard/car/baolong/src/src/mapping.cpp:
-
-/home/edgeboard/car/baolong/src/src/detection/racing.cpp:
-
 /home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/slope.cpp:
 
 /home/edgeboard/car/baolong/src/src/detection/parking.cpp:
 
-/home/edgeboard/car/baolong/src/src/detection/danger.cpp:
+/home/edgeboard/car/baolong/src/src/detection/layby.cpp:
 
 /home/edgeboard/car/baolong/src/src/detection/bridge.cpp:
 
@@ -916,6 +912,8 @@ CMakeFiles/icar.dir/src/icar.cpp.o: /home/edgeboard/car/baolong/src/src/icar.cpp
 
 /usr/include/c++/8/cctype:
 
+/home/edgeboard/car/baolong/src/src/detection/obstacle.cpp:
+
 /usr/include/aarch64-linux-gnu/bits/locale.h:
 
 /usr/include/aarch64-linux-gnu/bits/types/wint_t.h:
@@ -1005,6 +1003,8 @@ CMakeFiles/icar.dir/src/icar.cpp.o: /home/edgeboard/car/baolong/src/src/icar.cpp
 /home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/black_obstacle.hpp:
 
 /usr/include/aarch64-linux-gnu/bits/typesizes.h:
+
+/home/edgeboard/car/baolong/src/src/detection/catering.cpp:
 
 /usr/local/include/opencv2/core/hal/interface.h:
 
@@ -1102,6 +1102,8 @@ CMakeFiles/icar.dir/src/icar.cpp.o: /home/edgeboard/car/baolong/src/src/icar.cpp
 
 /usr/include/c++/8/type_traits:
 
+/home/edgeboard/car/baolong/src/src/detection/crosswalk.cpp:
+
 /usr/include/aarch64-linux-gnu/sys/select.h:
 
 /usr/include/c++/8/stdexcept:
@@ -1129,8 +1131,6 @@ CMakeFiles/icar.dir/src/icar.cpp.o: /home/edgeboard/car/baolong/src/src/icar.cpp
 /usr/local/include/opencv2/videostab/deblurring.hpp:
 
 /usr/local/include/opencv2/videoio/videoio_c.h:
-
-/home/edgeboard/car/baolong/src/src/detection/rescue.cpp:
 
 /usr/include/c++/8/clocale:
 
