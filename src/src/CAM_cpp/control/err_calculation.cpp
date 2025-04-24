@@ -28,8 +28,9 @@ void original_err_calculation() {
   case Slope:
     mycar.original_err = cam_err_calculation();
     break;
-  case obstacle:
-    mycar.original_err = 0;
+  case eobstacle:
+    // mycar.original_err = 0;
+    mycar.original_err = cam_err_calculation();
     break;
   case ingarage:
     if (watch.zebra_flag == 3 || watch.zebra_flag == 6)
@@ -60,7 +61,6 @@ float cam_err_calculation() {
   int watchright = setpara.far_line;
   int left_lost_count = 0, right_lost_count = 0;
   static float angle_target, angle_target_last;
-  static float err, d_err;
 
   for (int y = watch.angle_near_line; y < watch.angle_far_line;
        y++) // 打角范围遍历，可以根据不同元素的需求更改遍历的打角
@@ -78,7 +78,7 @@ float cam_err_calculation() {
         else
           left_lost_count = 0;
       }
-      if (AngleLeft < lineinfo[y].angel_left
+      if (AngleLeft < lineinfo[y].angel_left//求的是斜率的倒数
           //&&!lineinfo[y].left_lost
           && (abs(AngleLeft - AngleLeftLast) < 400)) {
         AngleLeft =
@@ -138,7 +138,7 @@ float cam_err_calculation() {
       else */
   // angle_target=atan(0.001*AngleLeftLast) + atan(0.001*AngleRightLast);
   //    angle_target=atan(0.001*(AngleLeftLast+AngleRightLast));
-  angle_target = AngleLeftLast + AngleRightLast;
+  angle_target = AngleLeftLast + AngleRightLast;//左右线斜率
   // 对变化量进行限制
   if ((angle_target - angle_target_last) > d_can_err_limit) {
     angle_target = angle_target_last + d_can_err_limit;
@@ -175,8 +175,10 @@ float cam_err_calculation() {
       uint16_t imo_r =
           (setpara.camwr +
            AngleRightLast * (lineinfo[y].persp_ry - setpara.camwf) / 125);
+      // cout<<imo_l<<"  "<<lineinfo[y].persp_ly<<endl<<endl;
       if (imo_l < (188-1) && imo_l >= 0 && lineinfo[y].persp_ly < 119 &&
           lineinfo[y].persp_ly > 0) {
+        // cout<<"左线画黄线"<<endl<<endl<<endl;
         imo4[lineinfo[y].persp_ly][imo_l] = 3;
       }
       if (imo_r < (188 - 1) && imo_r >= 0 && lineinfo[y].persp_ry < 119 &&

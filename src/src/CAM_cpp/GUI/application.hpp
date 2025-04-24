@@ -38,6 +38,7 @@ typedef struct setpara_STRUCT
         float bla_obs_speed;//路障中的目标速度
         float slope_speed;//坡道中的目标速度
         float zebra_speed;//斑马线停车速度
+        float catering_speed;// 餐饮区速度
         int gyro_kp;             //角速度环kp值
         float speed_max;           //最大速度
         float speed_min;           //最小速度
@@ -272,6 +273,13 @@ typedef struct setpara_STRUCT
            int track_open_flag;
            int fan_differ_ratio;
            int pwm_adjust;
+
+           float catering_slope_0;
+           float catering_slope_1;
+           
+            bool elenable;
+           
+           
 } setpara_STRUCT;
 
 struct paralist_s

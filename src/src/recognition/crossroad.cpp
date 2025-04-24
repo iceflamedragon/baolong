@@ -28,8 +28,6 @@
  */
 
 #include "../../include/common.hpp"
-#include "tracking.cpp"
-// #include "ring.cpp"
 #include <cmath>
 #include <fstream>
 #include <iostream>

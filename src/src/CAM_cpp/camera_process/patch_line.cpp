@@ -33,11 +33,17 @@ void linefix()
         case crossing:
             crossing_linefix();
             break;
-        case obstacle:
-            obstacle_linefix();
+        case eobstacle:
+            // obstacle_linefix();
             break;
         case black_obstacle:
             black_obstacle_linefix();
+            break;
+        case ecatering:
+            break;
+        case elayby:
+            break;
+        case eparking:
             break;
         default:
             common_linefix();

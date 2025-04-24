@@ -36,11 +36,14 @@ using namespace std;
 class Bridge
 {
 public:
-    bool process(Tracking &track, vector<PredictResult> predict)
+    uint16_t counterSession = 0; // 图像场次计数器
+     uint16_t counterRec = 0;     // 加油站标志检测计数器
+     bool bridgeEnable = false;   // 桥区域使能标志
+bool process(vector<PredictResult> predict)
     {
         if (bridgeEnable) // 进入坡道
         {
-            if (track.pointsEdgeLeft.size() > ROWSIMAGE / 2 && track.pointsEdgeRight.size() > ROWSIMAGE / 2) // 切行，防止错误前瞻引发转向
+            /*if (track.pointsEdgeLeft.size() > ROWSIMAGE / 2 && track.pointsEdgeRight.size() > ROWSIMAGE / 2) // 切行，防止错误前瞻引发转向
             {
                 track.pointsEdgeLeft.resize(track.pointsEdgeLeft.size() / 2);
                 track.pointsEdgeRight.resize(track.pointsEdgeRight.size() / 2);
@@ -51,22 +54,26 @@ public:
                 counterRec = 0;
                 counterSession = 0;
                 bridgeEnable = false;
-            }
+            }*/
 
             return true;
         }
         else // 检测坡道
         {
+            //cout<<"坡道坡道坡道坡道坡道坡道坡道坡道坡道坡道坡道坡道坡道坡道"<<endl;
             for (size_t i = 0; i < predict.size(); i++)
             {
-                if (predict[i].type == LABEL_BRIDGE && predict[i].score > 0.6 && (predict[i].y + predict[i].height) > ROWSIMAGE * 0.32)
+               
+                if (predict[i].type == LABEL_BRIDGE /*&& predict[i].score > 0.6/*&& (predict[i].y + predict[i].height) > ROWSIMAGE * 0.32*/ )
                 {
-                    counterRec++;
+                    bridgeEnable = true;
+                    return true;
+                    //counterRec++;
                     break;
                 }
-            }
+           }
 
-            if (counterRec)
+   /*         if (counterRec)
             {
                 counterSession++;
                 if (counterRec >= 4 && counterSession < 8)
@@ -82,7 +89,7 @@ public:
                     counterSession = 0;
                 }
             }
-
+*/
             return false;
         }
     }
@@ -110,7 +117,5 @@ public:
     }
 
 private:
-    uint16_t counterSession = 0; // 图像场次计数器
-    uint16_t counterRec = 0;     // 加油站标志检测计数器
-    bool bridgeEnable = false;   // 桥区域使能标志
+    
 };

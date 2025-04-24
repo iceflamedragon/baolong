@@ -467,59 +467,9 @@ CMakeFiles/icar.dir/src/icar.cpp.o: /home/edgeboard/car/baolong/src/src/icar.cpp
   /usr/include/aarch64-linux-gnu/bits/termios.h \
   /usr/include/aarch64-linux-gnu/sys/ttydefaults.h \
   /usr/include/c++/8/thread \
-  /home/edgeboard/car/baolong/src/src/controlcenter.cpp \
-  /home/edgeboard/car/baolong/src/src/recognition/tracking.cpp \
   /home/edgeboard/car/baolong/src/src/detection/bridge.cpp \
+  /home/edgeboard/car/baolong/src/src/recognition/tracking.cpp \
   /home/edgeboard/car/baolong/src/src/detection/obstacle.cpp \
-  /home/edgeboard/car/baolong/src/src/detection/catering.cpp \
-  /home/edgeboard/car/baolong/src/src/detection/layby.cpp \
-  /home/edgeboard/car/baolong/src/src/detection/parking.cpp \
-  /home/edgeboard/car/baolong/src/src/detection/crosswalk.cpp \
-  /home/edgeboard/car/baolong/src/src/motion.cpp \
-  /home/edgeboard/car/baolong/src/include/json.hpp \
-  /home/edgeboard/car/baolong/src/src/preprocess.cpp \
-  /home/edgeboard/car/baolong/src/src/recognition/crossroad.cpp \
-  /home/edgeboard/car/baolong/src/src/recognition/ring.cpp \
-  /usr/include/signal.h \
-  /usr/include/aarch64-linux-gnu/bits/signum.h \
-  /usr/include/aarch64-linux-gnu/bits/signum-generic.h \
-  /usr/include/aarch64-linux-gnu/bits/types/sig_atomic_t.h \
-  /usr/include/aarch64-linux-gnu/bits/types/siginfo_t.h \
-  /usr/include/aarch64-linux-gnu/bits/types/__sigval_t.h \
-  /usr/include/aarch64-linux-gnu/bits/siginfo-arch.h \
-  /usr/include/aarch64-linux-gnu/bits/siginfo-consts.h \
-  /usr/include/aarch64-linux-gnu/bits/siginfo-consts-arch.h \
-  /usr/include/aarch64-linux-gnu/bits/types/sigval_t.h \
-  /usr/include/aarch64-linux-gnu/bits/types/sigevent_t.h \
-  /usr/include/aarch64-linux-gnu/bits/sigevent-consts.h \
-  /usr/include/aarch64-linux-gnu/bits/sigaction.h \
-  /usr/include/aarch64-linux-gnu/bits/sigcontext.h \
-  /usr/include/aarch64-linux-gnu/asm/sigcontext.h \
-  /usr/include/linux/types.h \
-  /usr/include/aarch64-linux-gnu/asm/types.h \
-  /usr/include/asm-generic/types.h \
-  /usr/include/asm-generic/int-ll64.h \
-  /usr/include/aarch64-linux-gnu/asm/bitsperlong.h \
-  /usr/include/asm-generic/bitsperlong.h \
-  /usr/include/linux/posix_types.h \
-  /usr/include/linux/stddef.h \
-  /usr/include/aarch64-linux-gnu/asm/posix_types.h \
-  /usr/include/asm-generic/posix_types.h \
-  /usr/include/aarch64-linux-gnu/bits/types/stack_t.h \
-  /usr/include/aarch64-linux-gnu/sys/ucontext.h \
-  /usr/include/aarch64-linux-gnu/sys/procfs.h \
-  /usr/include/aarch64-linux-gnu/sys/user.h \
-  /usr/include/aarch64-linux-gnu/bits/sigstack.h \
-  /usr/include/aarch64-linux-gnu/bits/ss_flags.h \
-  /usr/include/aarch64-linux-gnu/bits/types/struct_sigstack.h \
-  /usr/include/aarch64-linux-gnu/bits/sigthread.h \
-  /usr/include/unistd.h \
-  /usr/include/aarch64-linux-gnu/bits/posix_opt.h \
-  /usr/include/aarch64-linux-gnu/bits/environments.h \
-  /usr/include/aarch64-linux-gnu/bits/confname.h \
-  /usr/include/aarch64-linux-gnu/bits/getopt_posix.h \
-  /usr/include/aarch64-linux-gnu/bits/getopt_core.h \
-  /usr/include/aarch64-linux-gnu/bits/unistd.h \
   /home/edgeboard/car/baolong/src/src/CAM_cpp/global.hpp \
   /home/edgeboard/car/baolong/src/src/CAM_cpp/GUI/application.cpp \
   /home/edgeboard/car/baolong/src/src/CAM_cpp/GUI/application.hpp \
@@ -574,67 +524,88 @@ CMakeFiles/icar.dir/src/icar.cpp.o: /home/edgeboard/car/baolong/src/src/icar.cpp
   /home/edgeboard/car/baolong/src/src/CAM_cpp/control/integral.hpp \
   /home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/zebra.hpp \
   /home/edgeboard/car/baolong/src/src/CAM_cpp/control/err_calculation.cpp \
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/control/err_calculation.hpp \
   /home/edgeboard/car/baolong/src/src/CAM_cpp/control/mycar.hpp \
   /home/edgeboard/car/baolong/src/src/CAM_cpp/control/err_calculation.hpp \
   /home/edgeboard/car/baolong/src/src/CAM_cpp/control/filter.cpp \
   /home/edgeboard/car/baolong/src/src/CAM_cpp/control/filter.hpp \
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/control/filter.hpp \
   /home/edgeboard/car/baolong/src/src/CAM_cpp/control/fuzzy_pid.cpp \
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/control/fuzzy_pid.hpp \
   /home/edgeboard/car/baolong/src/src/CAM_cpp/control/fuzzy_pid.hpp \
   /home/edgeboard/car/baolong/src/src/CAM_cpp/control/integral.cpp \
   /home/edgeboard/car/baolong/src/src/CAM_cpp/control/integral.hpp \
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/control/integral.hpp \
   /home/edgeboard/car/baolong/src/src/CAM_cpp/control/mycar.cpp \
+  /home/edgeboard/car/baolong/src/src/motion.cpp \
+  /home/edgeboard/car/baolong/src/include/json.hpp \
+  /home/edgeboard/car/baolong/src/src/controlcenter.cpp \
   /home/edgeboard/car/baolong/src/src/CAM_cpp/control/mycar.hpp \
   /home/edgeboard/car/baolong/src/src/CAM_cpp/control/pid.cpp \
   /home/edgeboard/car/baolong/src/src/CAM_cpp/control/pid.hpp \
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/control/pid.hpp \
+  /home/edgeboard/car/baolong/src/src/detection/catering.cpp \
+  /home/edgeboard/car/baolong/src/src/detection/layby.cpp \
+  /home/edgeboard/car/baolong/src/src/detection/parking.cpp \
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/global.hpp \
+  /home/edgeboard/car/baolong/src/src/detection/crosswalk.cpp \
+  /home/edgeboard/car/baolong/src/src/preprocess.cpp \
+  /home/edgeboard/car/baolong/src/src/recognition/crossroad.cpp \
+  /home/edgeboard/car/baolong/src/src/recognition/ring.cpp \
+  /usr/include/signal.h \
+  /usr/include/aarch64-linux-gnu/bits/signum.h \
+  /usr/include/aarch64-linux-gnu/bits/signum-generic.h \
+  /usr/include/aarch64-linux-gnu/bits/types/sig_atomic_t.h \
+  /usr/include/aarch64-linux-gnu/bits/types/siginfo_t.h \
+  /usr/include/aarch64-linux-gnu/bits/types/__sigval_t.h \
+  /usr/include/aarch64-linux-gnu/bits/siginfo-arch.h \
+  /usr/include/aarch64-linux-gnu/bits/siginfo-consts.h \
+  /usr/include/aarch64-linux-gnu/bits/siginfo-consts-arch.h \
+  /usr/include/aarch64-linux-gnu/bits/types/sigval_t.h \
+  /usr/include/aarch64-linux-gnu/bits/types/sigevent_t.h \
+  /usr/include/aarch64-linux-gnu/bits/sigevent-consts.h \
+  /usr/include/aarch64-linux-gnu/bits/sigaction.h \
+  /usr/include/aarch64-linux-gnu/bits/sigcontext.h \
+  /usr/include/aarch64-linux-gnu/asm/sigcontext.h \
+  /usr/include/linux/types.h \
+  /usr/include/aarch64-linux-gnu/asm/types.h \
+  /usr/include/asm-generic/types.h \
+  /usr/include/asm-generic/int-ll64.h \
+  /usr/include/aarch64-linux-gnu/asm/bitsperlong.h \
+  /usr/include/asm-generic/bitsperlong.h \
+  /usr/include/linux/posix_types.h \
+  /usr/include/linux/stddef.h \
+  /usr/include/aarch64-linux-gnu/asm/posix_types.h \
+  /usr/include/asm-generic/posix_types.h \
+  /usr/include/aarch64-linux-gnu/bits/types/stack_t.h \
+  /usr/include/aarch64-linux-gnu/sys/ucontext.h \
+  /usr/include/aarch64-linux-gnu/sys/procfs.h \
+  /usr/include/aarch64-linux-gnu/sys/user.h \
+  /usr/include/aarch64-linux-gnu/bits/sigstack.h \
+  /usr/include/aarch64-linux-gnu/bits/ss_flags.h \
+  /usr/include/aarch64-linux-gnu/bits/types/struct_sigstack.h \
+  /usr/include/aarch64-linux-gnu/bits/sigthread.h \
+  /usr/include/unistd.h \
+  /usr/include/aarch64-linux-gnu/bits/posix_opt.h \
+  /usr/include/aarch64-linux-gnu/bits/environments.h \
+  /usr/include/aarch64-linux-gnu/bits/confname.h \
+  /usr/include/aarch64-linux-gnu/bits/getopt_posix.h \
+  /usr/include/aarch64-linux-gnu/bits/getopt_core.h \
+  /usr/include/aarch64-linux-gnu/bits/unistd.h \
+  /home/edgeboard/car/baolong/src/src/CAM_cpp/global.hpp \
   /usr/include/c++/8/mutex \
   /usr/include/c++/8/bits/std_mutex.h \
   /usr/include/c++/8/condition_variable \
-  /usr/include/c++/8/atomic
+  /usr/include/c++/8/atomic \
+  /usr/include/c++/8/future \
+  /usr/include/c++/8/bits/atomic_futex.h
 
+
+/usr/include/c++/8/future:
 
 /usr/include/c++/8/atomic:
 
 /usr/include/c++/8/condition_variable:
-
-/home/edgeboard/car/baolong/src/src/CAM_cpp/control/pid.cpp:
-
-/home/edgeboard/car/baolong/src/src/CAM_cpp/control/integral.cpp:
-
-/home/edgeboard/car/baolong/src/src/CAM_cpp/control/fuzzy_pid.cpp:
-
-/home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/zebra.cpp:
-
-/home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/patch_line.cpp:
-
-/home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/obstacle.cpp:
-
-/home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/garage.cpp:
-
-/home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/circle.cpp:
-
-/home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/broken_circuit.cpp:
-
-/home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/black_obstacle.cpp:
-
-/home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/act_persp.cpp:
-
-/home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/zebra.hpp:
-
-/home/edgeboard/car/baolong/src/src/CAM_cpp/control/integral.hpp:
-
-/home/edgeboard/car/baolong/src/src/CAM_cpp/control/mycar.hpp:
-
-/home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/slope.hpp:
-
-/home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/act_persp.hpp:
-
-/home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/patch_line.hpp:
-
-/home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/Element_recognition.hpp:
-
-/home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/Element_recognition.cpp:
-
-/home/edgeboard/car/baolong/src/src/CAM_cpp/global.hpp:
 
 /usr/include/aarch64-linux-gnu/bits/unistd.h:
 
@@ -645,10 +616,6 @@ CMakeFiles/icar.dir/src/icar.cpp.o: /home/edgeboard/car/baolong/src/src/icar.cpp
 /usr/include/unistd.h:
 
 /usr/include/aarch64-linux-gnu/bits/ss_flags.h:
-
-/home/edgeboard/car/baolong/src/src/CAM_cpp/GUI/application.cpp:
-
-/usr/include/aarch64-linux-gnu/sys/ucontext.h:
 
 /usr/include/asm-generic/posix_types.h:
 
@@ -682,15 +649,59 @@ CMakeFiles/icar.dir/src/icar.cpp.o: /home/edgeboard/car/baolong/src/src/icar.cpp
 
 /home/edgeboard/car/baolong/src/src/recognition/ring.cpp:
 
-/home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/slope.cpp:
+/home/edgeboard/car/baolong/src/src/detection/layby.cpp:
+
+/home/edgeboard/car/baolong/src/src/CAM_cpp/control/pid.cpp:
+
+/home/edgeboard/car/baolong/src/src/CAM_cpp/control/integral.cpp:
+
+/home/edgeboard/car/baolong/src/src/CAM_cpp/control/fuzzy_pid.cpp:
+
+/home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/zebra.cpp:
 
 /home/edgeboard/car/baolong/src/src/detection/parking.cpp:
 
-/home/edgeboard/car/baolong/src/src/detection/layby.cpp:
+/home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/slope.cpp:
 
-/home/edgeboard/car/baolong/src/src/detection/bridge.cpp:
+/home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/patch_line.cpp:
+
+/home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/obstacle.cpp:
+
+/home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/garage.cpp:
+
+/home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/circle.cpp:
+
+/home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/broken_circuit.cpp:
+
+/home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/black_obstacle.cpp:
+
+/home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/act_persp.cpp:
+
+/home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/zebra.hpp:
+
+/home/edgeboard/car/baolong/src/src/CAM_cpp/control/integral.hpp:
+
+/home/edgeboard/car/baolong/src/src/CAM_cpp/control/mycar.hpp:
+
+/home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/slope.hpp:
+
+/home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/act_persp.hpp:
+
+/home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/patch_line.hpp:
+
+/home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/Element_recognition.hpp:
+
+/home/edgeboard/car/baolong/src/src/CAM_cpp/camera_process/Element_recognition.cpp:
+
+/usr/include/aarch64-linux-gnu/sys/ucontext.h:
+
+/home/edgeboard/car/baolong/src/src/CAM_cpp/GUI/application.cpp:
+
+/home/edgeboard/car/baolong/src/src/CAM_cpp/global.hpp:
 
 /home/edgeboard/car/baolong/src/src/recognition/tracking.cpp:
+
+/home/edgeboard/car/baolong/src/src/detection/bridge.cpp:
 
 /usr/include/aarch64-linux-gnu/sys/ttydefaults.h:
 
@@ -899,6 +910,8 @@ CMakeFiles/icar.dir/src/icar.cpp.o: /home/edgeboard/car/baolong/src/src/icar.cpp
 /usr/include/aarch64-linux-gnu/c++/8/bits/gthr-default.h:
 
 /usr/include/c++/8/bits/locale_classes.h:
+
+/usr/include/c++/8/bits/atomic_futex.h:
 
 /usr/include/aarch64-linux-gnu/bits/types/siginfo_t.h:
 

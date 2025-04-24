@@ -143,7 +143,8 @@ void set_setpara(float turn_PIDkp, float turn_PIDkd, float gyroturn_PIDkp,
                  float camwl, float camwr, float speed_max, float speed_add,
                  float speed_min, float loop_target_speed,
                  float loop_out_distance, float steer_mid,int steer_min,int steer_max,bool is_showimg,
-                 float zebra_distance,float zebra_begin_time,float zebra_line_count,float zebra_speed) {
+                 float zebra_distance,float zebra_begin_time,float zebra_line_count,float zebra_speed,
+                 float catering_speed,float elenable) {
   setpara.com_turn_PID.kp = turn_PIDkp;
   setpara.com_turn_PID.kd = turn_PIDkd;
   setpara.gyro_PID.kp = gyroturn_PIDkp;
@@ -165,6 +166,8 @@ void set_setpara(float turn_PIDkp, float turn_PIDkd, float gyroturn_PIDkp,
   setpara.zebra_begin_time = zebra_begin_time;
   setpara.zebra_line_count = zebra_line_count;
   setpara.zebra_speed = zebra_speed;
+  setpara.catering_speed= catering_speed;
+  setpara.elenable=elenable;
   STEER_MID = steer_mid;
   STEER_MIN=steer_min;STEER_MAX=steer_max;
   Is_showimg=is_showimg;
@@ -190,7 +193,8 @@ void init_setpara() // 各个参数的初始化，不在参数表上的参数仍
   setpara.loop_target_speed = 2; /// 原先为48
   setpara.big_loop_speed =  1.8;   // 大环内的目标速度没用上
   setpara.slope_speed =  1.8;
-  setpara.cross_speed =  1.5;
+  setpara.cross_speed =  1.8;
+  setpara.catering_speed =  1;
   setpara.fuzzy_kp = 90;
   setpara.fuzzy_kd = 110;
   setpara.fuzzy_k = 40; // 50
@@ -221,7 +225,7 @@ void init_setpara() // 各个参数的初始化，不在参数表上的参数仍
   setpara.camwl = 92;    /////////
   setpara.camwr = 82;    ////////97
   setpara.far_line = 70; ////////
-  setpara.bla_obs_speed=0.8;
+  setpara.bla_obs_speed=1.5;
 
 
                          //{&setpara.TextRow,  "TextRow", 1},
@@ -233,10 +237,7 @@ void init_setpara() // 各个参数的初始化，不在参数表上的参数仍
 
 
 
-
-
-
-
+ 
 
 
 
@@ -310,6 +311,9 @@ void init_setpara() // 各个参数的初始化，不在参数表上的参数仍
   setpara.slope_begin_time = 300;
   setpara.stop_over_count = 55;
   setpara.USART_flag = 0;
+  
+  
+
 
 
   // mycar.steer_pwm=4000;

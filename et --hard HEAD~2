@@ -1,0 +1,91 @@
+锥桶y值求解有点问题---加入之后就不动了
+
+[33mcommit ccc03867967a9d6d6cb6974c3b8e35c2806df82f[m[33m ([m[1;36mHEAD -> [m[1;32mfix_bug[m[33m, [m[1;31morigin/fix_bug[m[33m)[m
+Author: iceflamedragon <1466077990@qq.com>
+Date:   Sat Mar 22 08:20:36 2025 +0000
+
+    换上了新的AI模型
+
+[33mcommit 8feb9d78d3f1e97967cd6dd1d05d756089e86824[m
+Author: iceflamedragon <1466077990@qq.com>
+Date:   Thu Mar 20 10:53:21 2025 +0000
+
+    调整了很多的细节，十字还不太好，准备使用祖传的灰度图和二值化
+
+[33mcommit bcd71f05e67ac8e7a5baf2b50cb86a7610a1c92e[m
+Author: iceflamedragon <1466077990@qq.com>
+Date:   Thu Mar 6 19:20:14 2025 +0800
+
+    固定了最新的摄像头，能够120帧运行，20ms一个周期，还没有布置模型
+
+[33mcommit 744050e4ca161cf3bfd7224c85613feff04c850f[m
+Author: iceflamedragon <1466077990@qq.com>
+Date:   Tue Jan 14 13:33:45 2025 +0800
+
+    换上了150度镜头，使用了多线程
+
+[33mcommit 67187570d0384198af26f1cf31e7d98c5e870fe8[m
+Author: iceflamedragon <1466077990@qq.com>
+Date:   Sun Jan 12 11:24:10 2025 +0800
+
+    换上了高帧率摄像头,能够运行
+
+[33mcommit ba2b5ba5e320045f38946ee417d22562b572a846[m
+Author: iceflamedragon <1466077990@qq.com>
+Date:   Sun Dec 1 06:51:17 2024 +0800
+
+    duchenghao永远的神
+
+[33mcommit dce8e582fd14e9137bae5fe88e884c9a91ef63fb[m
+Author: iceflamedragon <1466077990@qq.com>
+Date:   Sun Dec 1 06:50:12 2024 +0800
+
+    完全搞定，校内拿下
+
+[33mcommit 590d29f2f7e725092f401f99aea50cd51998eba5[m
+Author: iceflamedragon <1466077990@qq.com>
+Date:   Sun Dec 1 05:26:02 2024 +0800
+
+    改了二值化128变成255，调了一晚上，杜雪张倾力帮助
+
+[33mcommit bf8829822930edfce6cf0a489fd4c475f7e6d49e[m
+Author: iceflamedragon <1466077990@qq.com>
+Date:   Sat Nov 30 22:46:56 2024 +0800
+
+    2
+
+[33mcommit 0a1b324e146181b6590156be9bfaaa43cbc6ad25[m
+Author: iceflamedragon <1466077990@qq.com>
+Date:   Sat Nov 30 22:46:40 2024 +0800
+
+    1
+
+[33mcommit 409b88d46054f5177b2521b24eba8d49512eef8c[m
+Author: iceflamedragon <1466077990@qq.com>
+Date:   Sat Nov 30 18:52:20 2024 +0800
+
+    可以显示，可以跑的
+
+[33mcommit 3aa30dace1a8ea209eef40aa6179ded253a8308c[m
+Author: iceflamedragon <1466077990@qq.com>
+Date:   Sat Nov 30 18:48:48 2024 +0800
+
+    显示参数，录制
+
+[33mcommit ffd266c072ee7d0a297545a4d29cb09701a7adab[m
+Author: iceflamedragon <1466077990@qq.com>
+Date:   Thu Nov 28 16:04:56 2024 +0800
+
+    目前出现坡道上停车的问题
+
+[33mcommit 7d826b39cd7650f366cb8a05d8176d064cbaa435[m
+Author: iceflamedragon <1466077990@qq.com>
+Date:   Tue Nov 26 20:41:57 2024 +0800
+
+    初步跳了pid，解决了速度取整的问题
+
+[33mcommit db80c57c1bc10c7cc0594b94e54a77220dbe6a06[m[33m ([m[1;34mgrafted[m[33m)[m
+Author: iceflamedragon <1466077990@qq.com>
+Date:   Sun Nov 24 19:54:34 2024 +0800
+
+    增加了config文件，能够跑了

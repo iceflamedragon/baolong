@@ -84,8 +84,8 @@ void left_ring_confirm()
                if(Grayscale[119-y][lineinfo[watch.InLoopAngleL].left]==0)
                   black_count++;
            }
-
-           if(/*(white_count1>=10&&white_count2>=10&&white_count3>=10)&&*/(black_count<10))
+watch.InLoopblackpoint=Conut_blackpoint(watch.InLoopAngleL,lineinfo[watch.InLoopAngleL].left,1);//检查角点右侧黑点数量
+           if(/*(white_count1>=10&&white_count2>=10&&white_count3>=10)&&*/(black_count<10)&&watch.InLoopblackpoint)
            {
             cout<<"进入左环元素了"<<endl<<endl;
                enter_element(Left_ring);    //正式进入左圆环元素
@@ -440,12 +440,13 @@ void right_ring_confirm()
 //                    if(Grayscale[119-watch.InLoopAngleR-2][x]==255)
 //                        white_count3++;
 //                }
+                watch.InLoopblackpoint=Conut_blackpoint(watch.InLoopAngleR,lineinfo[watch.InLoopAngleR].right,187);//检查角点右侧黑点数量
                 for(int y=watch.InLoopAngleR;y>loop_forward_near;y--)
                 {
                     if(Grayscale[119-y][lineinfo[watch.InLoopAngleR].right]==0)
                        black_count++;
                 }
-                if(/*(white_count1>=10&&white_count2>=10&&white_count3>=10)&&*/black_count<10)
+                if(/*(white_count1>=10&&white_count2>=10&&white_count3>=10)&&*/black_count<10&&watch.InLoopblackpoint<10)
                 {
                     //Element=Right_ring;        //正式进入右环元素
                     enter_element(Right_ring);
@@ -945,5 +946,28 @@ void find_angle_right_down(int*angle_x,int*angle_y)
     }
     *angle_x=x;
     *angle_y=y;
+}
+/*
+  @brief     检查两个直线点之间的黑色像素数量
+  @param     起始点xy 结束点x     
+  @return    返回像素数
+*/
+int Conut_blackpoint(int y, int start_x,int end_x)
+{
+    int blackpoint = 0,t=0;
+    if (start_x > end_x) // 都是从下往上计算的，反了就互换一下
+    {
+      t = start_x;
+      start_x = end_x;
+      end_x = t;
+    }
+    for (int x = start_x; x <= end_x; x++)
+    {
+        if (Grayscale[119-y][x] < 5)
+        {
+            blackpoint++;
+        }
+    }
+    return blackpoint;
 }
 

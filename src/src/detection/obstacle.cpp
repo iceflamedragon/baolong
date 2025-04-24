@@ -23,10 +23,11 @@
 #include <iostream>
 #include <cmath>
 #include <opencv2/highgui.hpp>
+#include "../recognition/tracking.cpp"
 #include <opencv2/opencv.hpp>
 #include "../../include/common.hpp"
 #include "../../include/detection.hpp" // Ai模型预测
-
+#include "../global.hpp"
 using namespace std;
 using namespace cv;
 
@@ -34,20 +35,129 @@ using namespace cv;
  * @brief 障碍区AI识别与路径规划类
  *
  */
-class Obstacle
+class Eobstacle
 {
 
 public:
-    /**
-     * @brief 障碍区AI识别与路径规划处理
-     *
-     * @param track 赛道识别结果
-     * @param predict AI检测结果
-     * @return true
-     * @return false
-     */
-    bool process(Tracking &track, vector<PredictResult> predict)
+/**
+ * @brief 障碍区AI识别与路径规划处理
+ *
+ * @param track 赛道识别结果
+ * @param predict AI检测结果
+ * @return true
+ * @return false
+ */
+bool cone_pedestrian_left;      //补线之后要清除标志位
+bool cone_pedestrian_right;
+uint16_t eobstacle_distance;
+int eob_state=0;
+
+bool enable = false;     // 场景检测使能标志
+PredictResult resultObs; // 避障目标锥桶
+    // 选取距离最近的锥桶
+int areaMax = 0; // 框面积
+int index = 0;   // 目标序号
+void process2( vector<PredictResult> predict)
+{       
+    enable = false; // 场景检测使能标志
+    vector<PredictResult> resultsObs; // 锥桶AI检测数据
+    if(watch.watch_lost<ROWSIMAGE / 2) 
+    return ;//检测是否要进弯
+    for (size_t i = 0; i < predict.size(); i++)
     {
+        if ((predict[i].type == LABEL_CONE  || predict[i].type == LABEL_PEDESTRIAN) && (predict[i].y  < ROWSIMAGE * 0.8)) // AI标志距离计算
+                resultsObs.push_back(predict[i]);
+    }
+    if(resultsObs.size() > 0){
+
+    for (size_t i = 0; i < resultsObs.size(); i++)
+    {
+        int area = resultsObs[i].width * resultsObs[i].height;
+        if (area >= areaMax)
+        {
+                index = i;
+                areaMax = area;
+        }
+    }
+
+    
+    if(Element==None&&get_integeral_state(&distance_integral)==0)//后面改改
+    {
+        int disLeft = resultsObs[index].x + resultsObs[index].width/2 - lineinfo[resultsObs[index].y].left;
+        int disRight = lineinfo[resultsObs[index].y].right - resultsObs[index].x;
+        if(disLeft-disRight>3) //判断左右位置
+        { 
+        cone_pedestrian_right = true;
+        cone_pedestrian_left = false;
+        enter_element(eobstacle);
+        enable=true;
+        cout<<"障碍区AI识别与路径规划"<<endl<<endl<<endl<<endl;
+        begin_distant_integeral(eobstacle_distance);
+        }
+        else if(disLeft-disRight<-3)
+        { 
+        cone_pedestrian_left = true;
+        cone_pedestrian_right = false;
+        enter_element(eobstacle);
+        enable=true;
+        cout<<"障碍区AI识别与路径规划"<<endl<<endl<<endl<<endl;
+        begin_distant_integeral(eobstacle_distance);
+        }
+    }   
+    else if(Element== eobstacle&&get_integeral_state(&distance_integral)==1)
+    {
+        // cout<<"开始补线"<<endl<<endl<<endl<<endl;
+        
+        for (int y =forward_near; y <=watch.watch_lost; y++)//补线
+        {
+            //  cout<<"看到的最远端"<<watch.watch_lost<<"  "<<"左侧识别情况"<<cone_pedestrian_left<<"  "<<"右侧识别情况"<<cone_pedestrian_right<<endl;
+            int16_t xl,xr;          // 补线后的结果
+            float slopeTL,slopeTR; // 左右补线斜率
+            // cout<<resultsObs[index].y<<"锥桶y值"<<endl;
+            if(!cone_pedestrian_left&&!cone_pedestrian_right||resultsObs[index].y < ROWSIMAGE*0.10)//开始补线的行数)||resultsObs[index].y<41
+            {
+                // cout<<"进入1"<<endl<<endl;
+                xl = lineinfo[y].left;
+                xr = lineinfo[y].right;
+            }
+            else if(cone_pedestrian_left&&!cone_pedestrian_right)
+            {
+                // cout<<"进入2"<<endl<<endl;
+                slopeTL=(float)(resultsObs[index].x+resultsObs[index].width-lineinfo[0].left)/(resultsObs[index].y-resultsObs[index].height);
+                xl=slopeTL*y+lineinfo[0].left;
+                xr=lineinfo[y].right;
+                // cout<<"左斜线斜率"<<slopeTL<<"  "<<"左下角点x"<<xl<<endl;
+            }
+            else if(!cone_pedestrian_left&&cone_pedestrian_right)
+            {
+                // cout<<"进入3"<<endl<<endl;
+                slopeTR=-(float)(resultsObs[index].x-lineinfo[0].right)/(resultsObs[index].y-resultsObs[index].height);
+                xl=lineinfo[y].left;
+                xr=-slopeTR*y+lineinfo[0].right;
+            }
+                    //记录补线后的结果
+                lineinfo[y].left_adjust=xl;
+                lineinfo[y].right_adjust=xr;
+                    //对补线后的结果进行逆透视变换
+                persp_task(xl,xr,y);
+        }
+        return ;
+        }
+    }
+     if(Element== eobstacle&&get_integeral_state(&distance_integral)==2)//积分完成退出 
+    {
+
+            out_element();
+            clear_distant_integeral();
+            cone_pedestrian_right=false;
+            cone_pedestrian_left=false;
+            clear_all_flags() ;
+            resultsObs.clear();
+    }
+}
+    
+bool process(Tracking &track, vector<PredictResult> predict)
+{
         enable = false; // 场景检测使能标志
         if (track.pointsEdgeLeft.size() < ROWSIMAGE / 2 || track.pointsEdgeRight.size() < ROWSIMAGE / 2)
             return enable;
@@ -188,8 +298,7 @@ public:
     }
 
 private:
-    bool enable = false;     // 场景检测使能标志
-    PredictResult resultObs; // 避障目标锥桶
+ 
 
     /**
      * @brief 缩减优化车道线（双车道→单车道）

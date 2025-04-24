@@ -6,6 +6,7 @@
  */
 #include "black_obstacle.hpp"
 #include "../control/mycar.hpp"
+#include "../include/common.hpp"
 /* 黑色路障尺寸：240mm*115mm*53mm*
    摆放距中心线100mm */
 using namespace std;
@@ -91,7 +92,7 @@ void black_obstacle_confirm()
         }
 
 }
-
+extern Scene scene;
 void black_obstacle_out()
 {
     if(watch.left_obstacle_flag)
@@ -102,7 +103,7 @@ void black_obstacle_out()
     {
         find_angle_right_down(&watch.right_obstacle_x, &watch.black_obstacle_line);
     }
-    if(get_integeral_state(&distance_integral)==2&&watch.black_obstacle_flag==1)
+  if((get_integeral_state(&distance_integral)==2&&watch.black_obstacle_flag==1)||scene!=NormalScene)
     {
         clear_distant_integeral();
         out_element();

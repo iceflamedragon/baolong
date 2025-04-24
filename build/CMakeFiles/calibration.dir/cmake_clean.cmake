@@ -1,8 +1,7 @@
 file(REMOVE_RECURSE
   "CMakeFiles/calibration.dir/tool/calibration.cpp.o"
-  "CMakeFiles/calibration.dir/tool/calibration.cpp.o.d"
-  "calibration"
   "calibration.pdb"
+  "calibration"
 )
 
 # Per-language clean rules from dependency scanning.

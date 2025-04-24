@@ -24,15 +24,21 @@ typedef enum
     None=0,         //无元素      0
     Left_ring,      //左环        1
     Right_ring,     //右环        2
-    Slope,          //斜坡        3
+    Slope,          //坡道        3
     broken_circuit, //断路        4
-    obstacle,       //障碍        5
+    eobstacle,       //障碍        5
     ingarage,       //入库        6
     outgarage,      //出库        7
-    crossing,        //十字        8
-    black_obstacle,  //小型黑色路障  9
-    zebra    ,       //斑马线     10
-    run_protect  //运行保护    11
+    crossing,       //十字        8
+    black_obstacle, //小型黑色路障 9
+    zebra    ,      //斑马线      10
+    run_protect,     //运行保护    11 不是元素，属于运动控制
+    ecatering ,      //餐饮区      12
+    elayby,         //临时停车区    13
+    eparking,        //停车区      14 
+    ebridge          //坡道        15
+
+    
 
 }Element_range;
 struct Element_struct
@@ -91,6 +97,7 @@ struct watch_o
     int InLoopAngle2; //开始转向入环时前方的角点所在行（直道与圆环交接的角点）
     int InLoopAngle2_x;
     int InLoopAngle2_y;//开始转向入环时前方的角点所在列
+    int InLoopblackpoint;//角点两侧黑色点
     int OutLoopAngle2; //出环后直行时前方的角点所在行（直道与圆环交接的角点）
     int OutLoopAngle1; //出环时边上的角点（出左环时在右侧，出右环时在左侧）
     int OutLoop_turn_point_x;//转向点横坐标，根据该点进行补线

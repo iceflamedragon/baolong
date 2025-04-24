@@ -5,7 +5,7 @@
  *      Author: Admin
  */
 #include "mycar.hpp"
-
+#include "../../motion.cpp"
 #include "math.h"
 mycar_STRUCT mycar;
 float Gyro_Z;
@@ -63,10 +63,12 @@ void dir_control() {
 
   // set_steer(STEER_MID+mycar.steer_pwm);
   //        mycar.steer_pwm=PID_Positional(&CAM_Turn,mycar.original_err,0);
-  cout << "err" << mycar.original_err << endl;
-  mycar.steer_pwm =
+  // cout << "err" << mycar.original_err << endl;
+  if(mycar.steer_ctrl==1)
+  {mycar.steer_pwm =
       Steer_PWM_Cal(-mycar.original_err); /////////////////根据情况调整符号
-  mycar.uart_servo = STEER_MID+ mycar.steer_pwm ; // 传入，后面可以考虑加上补偿 + setpara.steer_adjust +mycar.steer_buchang
+  mycar.uart_servo = STEER_MID+ mycar.steer_pwm ;
+  } // 传入，后面可以考虑加上补偿 + setpara.steer_adjust +mycar.steer_buchang
   if (Element == None || Element == crossing)
     steer_buchang_cal();
   else
@@ -96,7 +98,7 @@ void motor_control() {
   //        mycar.steer_pwm=Steer_PWM_Cal(-mycar.original_err)+setpara.steer_adjust;
   //        set_steer(STEER_MID+mycar.steer_pwm);
   //    }
-  if(motion.params.protect==true){running_protect();}// 运行保护
+ if(motion.params.protect==true){running_protect();}// 运行保护
    
   common_running();
   if (mycar.car_running == 0) {
@@ -352,4 +354,9 @@ void set_speed(float speed) {
   mycar.speed_ctrl = 0;
   // cout<<"设置固定速度"<<mycar.target_speed<<endl;
   mycar.target_speed = speed;
+}
+void set_steerpwm(int steerpwm) {
+  mycar.speed_ctrl = 0;
+  // cout<<"设置固定速度"<<mycar.target_speed<<endl;
+  mycar.steer_pwm = steerpwm;
 }
