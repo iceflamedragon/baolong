@@ -88,42 +88,13 @@ public:
    */
   struct Params {
 
-    int submit;
-    float isrising_breakl;
-    float isrising_breakr;
-    float ringinbreakl;
-    float ringinbreakr;
-    float rescueout_distance;
-    float dangerout_distance;
-    float ringout_l;
-    float ringout_r;
-    float rescue_error_l;
-    float rescue_error_r;
+
     int record_video;
-    float runP1_fast;
-    float runP2_fast;
-    float turnD_fast;
     float zebra_distance;
     float zebra_begin_time;
     float zebra_line_count;
     float zebra_speed;
-    float ring_p1b; // 圆环的pid
-    float ring_p2b;
-    float ring_db;
-    float ring_p1s; // 圆环的pid
-    float ring_p2s;
-    float ring_ds;
     bool motion_start;
-    float danger_p1;
-    float danger_p2;
-    float danger_d;
-    int areaMax;
-    double angle_p;
-    float speedLowpro;
-    float speedHighpro;
-    int Danger_distance;
-    int Rescue_distance;
-    int Bridge_distance;
     float turn_PIDkp;
     float turn_PIDkd;
     float gyroturn_PIDkp;
@@ -137,10 +108,49 @@ public:
     float camwl;
     float camwr;
     int show_params_mode;
+    float cross_speed;
+
+
+
+    int submit;
+    float isrising_breakl;
+    float isrising_breakr;
+    float ringinbreakl;
+    float ringinbreakr;
+    float rescueout_distance;
+    float dangerout_distance;
+    float ringout_l;
+    float ringout_r;
+    float rescue_error_l;
+    float rescue_error_r;
+    float runP1_fast;
+    float runP2_fast;
+    float turnD_fast;
+    float ring_p1b; // 圆环的pid
+    float ring_p2b;
+    float ring_db;
+    float ring_p1s; // 圆环的pid
+    float ring_p2s;
+    float ring_ds;
+    float danger_p1;
+    float danger_p2;
+    float danger_d;
+    int areaMax;
+    double angle_p;
+    float speedLowpro;
+    float speedHighpro;
+    int Danger_distance;
+    int Rescue_distance;
+    int Bridge_distance;
+
     int None_distance;
     float speedLow = 1.5;        // 智能车最低速
     float speedHigh = 4;         // 智能车最高速
     float speedBridge = 0.6;     // 坡道速度
+    float speedCatering = 0.6;  // 快餐店速度
+    float speedLayby = 0.6;     // 临时停车区速度
+    float speedObstacle = 0.6;  // 障碍区速度
+    float speedParking = 0.6;   // 停车场速度
     float speedDown = 0.5;       // 特殊区域降速速度
     float runP1 = 0;             // 一阶比例系数：直线控制量
     float runP2 = 0;             // 二阶比例系数：弯道控制量
@@ -148,24 +158,37 @@ public:
     float turnP = 3.5;           // 一阶比例系数：转弯控制量
     float turnD = 0;             // 一阶微分系数：转弯控制量
     float turnI;                 // 积分项--减少漂移情况
+
+
     int debug = false;          // 调试模式使能
     bool saveImg = false;        // 存图使能
     uint16_t rowCutUp = 200;     // 图像顶部切行
     uint16_t rowCutBottom = 200; // 图像顶部切行
-    bool bridge = true;          // 坡道区使能
-    bool danger = true;          // 危险区使能
-    bool rescue = true;          // 救援区使能
-    bool racing = true;          // 追逐区使能
-    bool parking = true;         // 停车区使能
+    bool bridge = true;         // 坡道区使能
+    bool catering = true;       // 快餐店使能
+    bool layby = true;          // 临时停车区使能
+    bool obstacle = true;       // 障碍区使能
+    bool parking = true;        // 停车场使能
     bool ring = true;            // 环岛使能
     bool cross = true;           // 十字道路使能
+    //bool stop = true;           // 停车区使能
     float score = 0.5;           // AI检测置信度
+
+    uint aobstacle_distance;//ai障碍物积分距离
+    uint layby_distance_left0;
+    uint layby_distance_left1;
+    float layby_slope_left;
+    uint layby_distance_right0;
+    uint layby_distance_right1;
+    float layby_slope_right;
+    
     int stop_num;
     float speed_max; /////////////速度决策
     float speed_add; ///////////
     float speed_min;
     float loop_target_speed;
     float loop_out_distance;
+    float catering_speed;
     float STEER_MID;
     int STEER_MIN;
     int STEER_MAX;
@@ -173,18 +196,22 @@ public:
     bool protect;
     bool protect_status;
     bool Is_AI_detection;
+    bool elenable;
     string model = "../res/model/yolov3_mobilenet_v1"; // 模型路径
     string video = "../res/samples/demo.mp4";          // 视频路径
     NLOHMANN_DEFINE_TYPE_INTRUSIVE(
-        Params, speedLow, speedHigh, turn_PIDkp, STEER_MID,STEER_MIN,STEER_MAX,Is_showimg,protect, turn_PIDkd,
+        Params, turn_PIDkp, STEER_MID,STEER_MIN,STEER_MAX,Is_showimg,protect, turn_PIDkd,
         speed_max, speed_add, speed_min, gyroturn_PIDkp, gyroturn_PIDki,
         gyroturn_PIDkd, loop_turn_PIDkp, loop_turn_PIDkd, big_loop_PIDkp,
-        big_loop_PIDkd, camwf, camwl, camwr,speedBridge, speedDown, runP1,
-        runP2, runP3, turnP, turnD, turnI, debug, saveImg, rowCutUp,
-        rowCutBottom, bridge, danger, rescue, racing, parking, ring, cross,
-        score, model, ring_p1b, ring_p2b, ring_db, record_video, video, areaMax,
-        show_params_mode, submit, angle_p, loop_target_speed,
-        loop_out_distance,zebra_distance,zebra_begin_time,zebra_line_count,zebra_speed,Is_AI_detection); // 添加构造函数
+        big_loop_PIDkd,cross_speed, camwf, camwl, camwr,
+        aobstacle_distance, layby_slope_left,layby_distance_right0,layby_distance_right1,layby_slope_right,
+        layby_distance_left0,layby_distance_left1,
+        debug, saveImg, rowCutUp, bridge, catering, layby, obstacle,
+        parking, ring, cross,
+        rowCutBottom, 
+        score, model, record_video, video,
+        show_params_mode, loop_target_speed,
+        loop_out_distance,zebra_distance,zebra_begin_time,zebra_line_count,zebra_speed,Is_AI_detection,elenable,catering_speed); // 添加构造函数
   };
 
   Params params; // 读取控制参数

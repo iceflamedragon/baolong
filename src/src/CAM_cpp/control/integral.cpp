@@ -80,7 +80,7 @@ void distant_integeral(float distance_now)  //路程积分
     {
         if (countdistance==0)
         { 
-            cout<<"始终赋距离值"<<endl<<endl;
+        cout<<"始终赋距离值"<<endl<<endl;
         distance_first=distance_now;//找到初值
         countdistance=1;
         }

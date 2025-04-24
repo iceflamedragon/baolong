@@ -1,10 +1,10 @@
 battery
-block
-bridge
 burger
-car
 company
 cone
-crosswalk
 pedestrian
 school
+crosswalk
+bridge
+block
+car

@@ -22,7 +22,6 @@
  *
  */
 #include "../include/common.hpp"
-#include "recognition/tracking.cpp"
 #include <math.h>
 // #include "../src/recognition/ring.cpp"
 // #include "motion.cpp"
@@ -32,6 +31,7 @@
 #include <iostream>
 #include <opencv2/highgui.hpp>
 #include <opencv2/opencv.hpp>
+#include "../recognition/tracking.cpp"
 // #include "recognition/ring.cpp"      //环岛道路识别与路径规划类
 using namespace cv;
 using namespace std;

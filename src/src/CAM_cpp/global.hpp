@@ -8,6 +8,7 @@
 #ifndef CODE_GLOBAL_HPP_
 #define CODE_GLOBAL_HPP_
 #include <iostream>
+#include "../../include/common.hpp"
 using namespace std;
 #define MYCAR 1
 typedef unsigned char u8;   // 无符号  8 bits
@@ -18,34 +19,42 @@ typedef unsigned long u32;  // 无符号长整形 32bits
 #define _MIN(x, y) (x) < (y) ? (x) : (y)
 #define abs_m(a, b) (a >= b ? a - b : b - a)
 #define abs_f(a) (a > 0 ? a : -a)
+
+
+Scene scene = Scene::NormalScene;     // 初始化场景：常规道路
+Scene sceneLast = Scene::NormalScene; // 记录上一次场景状态
+
 typedef struct PID_para_STRUCT {
   int kp;
   int ki;
   int kd;
 } PID_para_STRUCT;
 struct vofa_struct {
-  float speed[9];
-  float scan_line[9];
-  float dir[9];
-  float turn[9];
-  float cam_err[9];
-  float Element[9];
-  float loop[9];
-  float adc_err[9];
-  float element_rem[9];
-  float obstacle[9];
-  float broken[9];
-  float garage[9];
-  float gyro_pid[9];
-  float cross[9];
-  float speed_differ[9];
-  float fuzzy_pid[9];
-  float fuzzy_speed[9];
-  float adrc[9];
-  float steer_cal[9];
-  float zebra[9];
-  float current[9];
-  float mpu6050[9];
+  int speed[11];
+  int scan_line[11];
+  int dir[11];
+  int turn[11];
+  int cam_err[11];
+  int Element[11];
+  int loop[11];
+  int adc_err[11];
+  int element_rem[11];
+  int obstacle[11];
+  int broken[11];
+  int garage[11];
+  int gyro_pid[11];
+  int cross[11];
+  int speed_differ[11];
+  int fuzzy_pid[11];
+  int fuzzy_speed[11];
+  int adrc[11];
+  int steer_cal[11];
+  int zebra[11];
+  int current[11];
+  int mpu6050[11];
+  int catering[11];
+  int eobstacle[11];
+  int eparking[11];
 };
 typedef struct ADRC_para_STRUCT {
   // TD para

@@ -28,6 +28,8 @@
 #include "../../include/common.hpp"
 #include "../../include/detection.hpp"
 #include "../recognition/tracking.cpp"
+#include <chrono>
+#include "../motion.cpp"
 
 using namespace cv;
 using namespace std;
@@ -35,113 +37,63 @@ using namespace std;
 class Catering
 {
 public:
-
-    bool stopEnable = false;        // 停车使能标志
-    bool noRing = false;            // 用来区分环岛路段
-
-    bool process(Tracking &track, Mat &image, vector<PredictResult> predict)
-    {
-        if (cateringEnable) // 进入岔路
+    uint16_t counterSession = 0;    // 图像场次计数器
+    uint16_t counterRec = 0;        // 汉堡标志检测计数器   
+    bool stopped=false;             // 停车完成标志
+    int stop_time=0;                // 记录停车瞬间的mycar.RUNTIME
+    bool cateringEnable = false;    // 岔路区域使能标志
+    bool burgerLeft = true;         // 汉堡在左侧
+    int burgerY = 0;                // 汉堡高度
+    int state=0;                    // 岔路状态
+    bool found=0;                   // 找到角点
+    
+    //汉堡补线函数//
+    void catering_linefix(){
+        int16_t xl,xr;
+        for (int y =forward_near; y <=watch.watch_lost; y++)
         {   
-            if (!stopEnable && turning)
+            xl = lineinfo[y].left;
+            xr = lineinfo[y].right;
+            if(burgerLeft)
             {
-                for (size_t i = 0; i < predict.size(); i++)
-                {
-                    if (predict[i].type == LABEL_BURGER)
-                    {
-                        burgerY = predict[i].y;   // 计算汉堡最高高度
-                    }
-                }
-
-                // 边缘检测
-                Mat edges;
-                Mat blurred;
-                GaussianBlur(image, blurred, Size(3, 3), 0);  // 添加高斯模糊预处理
-                Canny(blurred, edges, 30, 150, 3);  // 调整Canny参数，使用3x3 Sobel算子
-
-                // 霍夫变换检测直线
-                vector<Vec4i> lines;
-                HoughLinesP(edges, lines, 1, CV_PI / 180, 50, 50, 10);
-
-                // 遍历检测到的直线
-                for (size_t i = 0; i < lines.size(); i++) {
-                    Vec4i line = lines[i];
-                    Point pt1(line[0], line[1]); // 直线起点
-                    Point pt2(line[2], line[3]); // 直线终点
-
-                    // 计算直线的斜率
-                    double slope = static_cast<double>(pt2.y - pt1.y) / (pt2.x - pt1.x + 1e-5); // 避免除零
-                    
-                    int maxY = max(line[1],line[3]); // 直线最左侧(最下方)的Y坐标
-                    // std::cout << "直线最左侧(最下方)的Y坐标: " << maxY << "汉堡Y: " << burgerY << std::endl;
-                    if (maxY > burgerY) // 如果找到的直线低于汉堡则跳过
-                        continue;
-                    
-                    // 限定斜率
-                    if ((slope > -0.3 || slope < -1) && burgerLeft) {
-                        continue; // 跳过不符合斜率条件的直线
-                    }
-                    else if ((slope < 0.3 || slope > 1) && !burgerLeft ) {
-                        continue; // 跳过不符合斜率条件的直线
-                    }
-                    
-                    int y3 = slope * (0 - pt1.x) + pt1.y;        // 延长起点的Y坐标
-                    int y4 = slope * (COLSIMAGE - pt1.x) + pt1.y;// 延长终点的Y坐标
-                        
-                    Point start(0, y3);           // 延长起点
-                    Point end(COLSIMAGE, y4);     // 延长终点
-                    
-                    if (burgerLeft)
-                        track.pointsEdgeLeft.clear(); // 清空原始点集
-                    else
-                        track.pointsEdgeRight.clear(); // 清空原始点集
-
-                    for (int x = start.x; x <= end.x; x++) {
-                        int y = static_cast<int>(start.y + slope * (x - start.x)); // 根据斜率计算 y 值
-                        POINT pt;
-                        pt.x = y; // 将 cv::Point 的 x 赋值给 POINT 的 y
-                        pt.y = x; // 将 cv::Point 的 y 赋值给 POINT 的 x
-                        if (burgerLeft)
-                            track.pointsEdgeLeft.push_back(pt); // 将 POINT 存入点集
-                        else
-                            track.pointsEdgeRight.push_back(pt); // 将 POINT 存入点集
-                    }
-
-                    // 如果找到符合条件的直线，绘制并输出
-                    // Mat imgRes = Mat::zeros(Size(COLSIMAGE, ROWSIMAGE), CV_8UC3); // 创建全黑图像
-                    // cv::line(imgRes, start, end, Scalar(0, 255, 0), 2); // 用黄色绘制符合条件的直线
-                    // std::cout << "检测到符合条件的斜线: (" << pt1.x << "," << pt1.y << ") -> (" << pt2.x << "," << pt2.y << ")" << endl;
-                    // 显示结果
-                    // imshow("Detected Lines", imgRes);
-                    // waitKey(0);
-                }
+                xl=y/0.8;
+                xr=lineinfo[y].right;
             }
-
-            counterSession++;
-            if (counterSession > (truningTime + travelTime + stopTime))  // 结束餐饮区域
+            else if(!burgerLeft)
             {
-                counterRec = 0;
-                counterSession = 0;
-                cateringEnable = false;
-                turning = true;       // 转向标志
-                stopEnable = false;  // 停车使能
-                noRing = false;      // 区分环岛
+                xr=187-y/0.8;
+                xl=lineinfo[y].left;
             }
-            else if (counterSession > (truningTime + travelTime)) // 驶入餐饮区
-                stopEnable = true;  // 停车使能
-            else if (counterSession > truningTime) // 进入岔路
-                turning = false;   // 关闭转向标志
+            cout<<"汉堡补线开始啦"<<endl;               
+            if (burgerLeft)
+            {
+                persp_task(xl,lineinfo[y].right,y);//对补线结果进行逆透视变换和存储
+            }
+                           
+            else
+            {   
+                persp_task(lineinfo[y].left,xr,y);//对补线结果进行逆透视变换和存储
+            }    
+        }  
 
-            return true;
-        }
-        else // 检测汉堡标志
-        {
+    }
+
+    bool process(Mat &image, vector<PredictResult> predict)
+    {   
+        if(!cateringEnable&&state==0) // 开始检测汉堡标志
+        {   
             for (size_t i = 0; i < predict.size(); i++)
             {
-                if (predict[i].type == LABEL_BURGER && predict[i].score > 0.4 && (predict[i].y + predict[i].height) > ROWSIMAGE * 0.3)
+                if (predict[i].type == LABEL_BURGER)
+                {
+                    burgerY = predict[i].y;   
+                }
+            }// 计算汉堡最高高度
+            for (size_t i = 0; i < predict.size(); i++)
+            {
+                if (predict[i].type == LABEL_BURGER && predict[i].score > 0.4 && (predict[i].y ) < ROWSIMAGE * 0.75)
                 {
                     counterRec++;
-                    noRing = true;
                     if (predict[i].x < COLSIMAGE / 2)   // 汉堡在左侧
                         burgerLeft = true;
                     else
@@ -149,7 +101,6 @@ public:
                     break;
                 }
             }
-
             if (counterRec)
             {
                 counterSession++;
@@ -158,6 +109,8 @@ public:
                     counterRec = 0;
                     counterSession = 0;
                     cateringEnable = true; // 检测到汉堡标志
+                    state=1;
+                    begin_distant_integeral(1200);//开始距离积分
                     return true;
                 }
                 else if (counterSession >= 8)
@@ -166,41 +119,124 @@ public:
                     counterSession = 0;
                 }
             }
-
             return false;
         }
-    }
 
-    /**
-     * @brief 识别结果图像绘制
-     *
-     */
-    void drawImage(Tracking track, Mat &image)
-    {
-        // 赛道边缘
-        for (size_t i = 0; i < track.pointsEdgeLeft.size(); i++)
-        {
-            circle(image, Point(track.pointsEdgeLeft[i].y, track.pointsEdgeLeft[i].x), 1,
-                   Scalar(0, 255, 0), -1); // 绿色点
+        if(state==1)  // 开始补线
+        {   
+            catering_linefix();  
+            set_speed(setpara.catering_speed);
+            counterSession++;
+            if(get_integeral_state(&distance_integral)==2) state=2;
         }
-        for (size_t i = 0; i < track.pointsEdgeRight.size(); i++)
+
+        if(state==2)  // 停车过程
+        {   
+            common_linefix();
+            if (!stopped) //开始停车
+            {
+                car_stop();
+                stop_time=mycar.RUNTIME;      
+                stopped=true; 
+            }
+            else if(stopped&&mycar.RUNTIME-stop_time>=600)
+            {
+                mycar.car_running = 1;//重新启动
+                stopped=false;
+                state=3;
+            }
+        }
+
+        if(state==3)  // 结束时的补线
         {
-            circle(image, Point(track.pointsEdgeRight[i].y, track.pointsEdgeRight[i].x), 1,
-                   Scalar(0, 255, 255), -1); // 黄色点
+        for(int y=15;y<87;y++)//逐行扫描
+        {
+        if(lineinfo[y].left>=lineinfo[y+1].left&&
+           lineinfo[y+1].left>=lineinfo[y+2].left&&
+           lineinfo[y+2].left>=lineinfo[y+3].left&&
+           lineinfo[y].left>=lineinfo[y-1].left&&
+           lineinfo[y-1].left>=lineinfo[y-2].left&&
+           lineinfo[y-2].left>=lineinfo[y-3].left&&
+           y<watch.cross_LD_angle&&
+           Grayscale[119-y-2][lineinfo[y].left]==255&&
+           lineinfo[y-2].left>lineinfo[y-4].left&&
+           lineinfo[y-1].left>lineinfo[y-3].left&&
+           lineinfo[y].left>lineinfo[y-2].left&&
+           lineinfo[y].left>lineinfo[y+2].left&&
+           lineinfo[y+1].left>lineinfo[y+3].left&&!burgerLeft)
+        {
+            watch.cross_LD_angle=y;
+            begin_distant_integeral(900);
+            found=true;
+            break;
         }
         
-        if (cateringEnable)
-            putText(image, "[1] Burger - ENABLE", Point(COLSIMAGE / 2 - 30, 10), cv::FONT_HERSHEY_TRIPLEX, 0.3, cv::Scalar(0, 255, 0), 1, CV_AA);
-    }
+        if(lineinfo[y].right<=lineinfo[y+1].right&&
+           lineinfo[y+1].right<=lineinfo[y+2].right&&
+           lineinfo[y+2].right<=lineinfo[y+3].right&&
+           lineinfo[y].right<=lineinfo[y-1].right&&
+           lineinfo[y-1].right<=lineinfo[y-2].right&&
+           lineinfo[y-2].right<=lineinfo[y-3].right&&
+           y<watch.cross_RD_angle&&
+           Grayscale[119-y-2][lineinfo[y].right]==255&&
+           lineinfo[y-2].right<lineinfo[y-4].right&&
+           lineinfo[y-1].right<lineinfo[y-3].right&&
+           lineinfo[y].right<lineinfo[y-2].right&&
+           lineinfo[y].right<lineinfo[y+2].right&&
+           lineinfo[y+1].right<lineinfo[y+3].right&&burgerLeft)
+        {
+            watch.cross_RD_angle=y;
+            begin_distant_integeral(900);
+            found=true;
+            break;
+        }
+        }
 
-private:
-    uint16_t counterSession = 0;    // 图像场次计数器
-    uint16_t counterRec = 0;        // 汉堡标志检测计数器
-    bool cateringEnable = false;    // 岔路区域使能标志
-    bool burgerLeft = true;         // 汉堡在左侧
-    bool turning = true;            // 转向标志
-    int burgerY = 0;                // 汉堡高度
-    int truningTime = 25;           // 转弯时间 25帧
-    int travelTime = 10;            // 行驶时间 10帧 在斜线路段的行驶时间
-    int stopTime = 25;              // 停车时间 25帧
+        if(burgerLeft)
+        {
+            for (int y =watch.cross_RD_angle-40; y <=watch.watch_lost; y++)
+            {   
+            int16_t xl,xr;    
+            xl = lineinfo[y].left;
+            xr = lineinfo[y].right;
+            cout<<"汉堡补线开始啦"<<endl;     
+            xl=y/0.8;
+            xr=lineinfo[y].right;
+            persp_task(xl,lineinfo[y].right,y);//对补线结果进行逆透视变换和存储
+            } 
+        }   
+        else
+        {
+            for (int y =watch.cross_LD_angle-40; y <=watch.watch_lost; y++)
+            { 
+            int16_t xl,xr;  
+            xl = lineinfo[y].left;
+            xr = lineinfo[y].right;
+            cout<<"汉堡补线开始啦"<<endl;     
+            xr=187-y/0.8;
+            xl=lineinfo[y].left;
+            persp_task(lineinfo[y].left,xr,y);//对补线结果进行逆透视变换和存储
+            }   
+        }  
+        
+        if(state==3&&get_integeral_state(&distance_integral)==2&&found) state=4;
+            
+        } 
+
+        if(state==4)  //退出岔路
+        {
+            counterRec = 0;
+            counterSession = 0;
+            cateringEnable = false;
+            Element=None;
+            state=0;
+            watch.cross_LD_angle=120;
+            watch.cross_LD_angle=120;
+            return false;
+        }
+
+        return true;
+        
+    }
 };
+

@@ -46,8 +46,8 @@ struct PredictResult
     int type;          // ID
     std::string label; // 标签
     float score;       // 置信度
-    int x;             // 坐标横坐标？
-    int y;             // 坐标纵坐标？
+    int x;             // 坐标
+    int y;             // 坐标
     int width;         // 尺寸
     int height;        // 尺寸
 };
@@ -55,9 +55,9 @@ struct PredictResult
 class Detection
 {
 public:
-int ai_flag;
+
     std::vector<PredictResult> results; // AI推理结果
-    float score = 0.8;                  // AI检测置信度  原来为0.5
+    float score = 0.3;                  // AI检测置信度
 
     /**
      * @brief Construct a new Detection object
@@ -71,7 +71,7 @@ int ai_flag;
         this->predictor_nms_ = std::make_shared<PPNCPredictor>("../src/config/config_ppncnms.json");
         this->onnx_env_ = Ort::Env(OrtLoggingLevel::ORT_LOGGING_LEVEL_WARNING, "test");
         Ort::SessionOptions session_options;
-        session_options.SetIntraOpNumThreads(4);        // 设置内核线程数
+        session_options.SetIntraOpNumThreads(8);
         session_options.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_ENABLE_EXTENDED);
         std::string onnx_model = pathModel + "/post.onnx";
         this->predictor_onnx_ = std::make_shared<Ort::Session>(this->onnx_env_, onnx_model.c_str(), session_options);
@@ -137,7 +137,7 @@ int ai_flag;
      */
     void inference(cv::Mat img)
     {
-        auto feeds = preprocess(img, {320, 320}); // 图像前处理
+        auto feeds = preprocess(img, {224, 224}); // 图像前处理  原先为320*320
         run(*feeds);                              // 模型推理
         render();                                 // 后处理
     }
@@ -277,7 +277,7 @@ int ai_flag;
         this->predictor_nms_->run();
     }
 
-    NDTensor get_output(int index)
+    NDTensor get_output(int index)  // 找输出张量
     {
         return this->predictor_nms_->get_output(index);
     }
@@ -288,50 +288,54 @@ int ai_flag;
         auto data = res.value();
         auto prod = std::accumulate(res.shape.begin(), res.shape.end(), 1,
                                     std::multiplies<int64_t>());
-
+        // cout<<"识别种类数"<<prod<<endl;      都为600    
         results.clear();
         PredictResult result;
         for (int i = 0; i < prod; i += 6)
         {
             result.type = data[i];
+             
             result.score = data[i + 1];
+            //cout<<"类别数："<<result.type<<"   评估得分："<<result.score<<endl<<endl;
+            //cout<<"识别结果的尺寸："<<static_cast<size_t>(result.type)<<"   label的size："<<labels.size()<<endl;
             if (result.score < score) // 阈值
             {
                 continue;
             }
 
             // turnning....
-            if (result.type < labels.size())
-                result.label = labels[result.type];
+            
+            if (static_cast<size_t>(result.type) < labels.size())  //result.type指的是识别到的种类数 labels.size()指的是总的种类数量
+                {result.label = labels[result.type];
+               // cout<<"标志"<<result.label<<"  type值"<<result.type<<endl; 
+                }
             result.x = data[i + 2];
-            result.y = data[i + 3];
+            result.y =119- data[i + 3];
             result.width = data[i + 4] - data[i + 2];
             result.height = data[i + 5] - data[i + 3];
             results.push_back(result);
-           // cout<<"jiancedaoaibiaozhi"<<endl;
         }
     }
-void set_ai_flag(int num)
-{
-ai_flag=num;
-}
+
     void drawBox(Mat &img)
     {
-        for (int i = 0; i < results.size(); i++)
+        for (size_t i = 0; i < results.size(); i++)
         {
             PredictResult result = results[i];
-            //cout<<"检测到ai标志"<<endl;
-            set_ai_flag(1);
+            float scale=1;//放大显示，必须和icar一样
             auto score = std::to_string(result.score);
-            int pointY = result.y - 20;
+            int pointY = result.y-50 ;
             if (pointY < 0)
                 pointY = 0;
             cv::Rect rectText(result.x, pointY, result.width, 20);
-            cv::rectangle(img, rectText, getCvcolor(result.type), -1);
+            // cv::rectangle(img, rectText, getCvcolor(result.type), -1);
             std::string label_name = result.label + " [" + score.substr(0, score.find(".") + 3) + "]";
-            cv::Rect rect(result.x, result.y, result.width, result.height);
+            // cv::Rect rect(result.x, result.y, result.width, result.height);
+            cout<<"result.X:"<<result.x<<"result.y:"<<result.y<<endl;
+            cv::Rect rect((result.x)*scale,(120-result.y)*scale, result.width*scale, result.height*scale);
+            // cout<<"rect:"<<rect<<endl;
             cv::rectangle(img, rect, getCvcolor(result.type), 1);
-            cv::putText(img, label_name, Point(result.x, result.y), cv::FONT_HERSHEY_PLAIN, 1, cv::Scalar(0, 0, 254), 1);
+            cv::putText(img, label_name, Point(result.x, 120-result.y), cv::FONT_HERSHEY_PLAIN, 1, cv::Scalar(0, 0, 254), 1);
         }
     }
 
@@ -400,7 +404,6 @@ ai_flag=num;
     }
 
 private:
-
     std::vector<std::string> labels;
     // onnx info
     std::pair<std::vector<std::string>, std::vector<const char *>> onnx_input_names_;

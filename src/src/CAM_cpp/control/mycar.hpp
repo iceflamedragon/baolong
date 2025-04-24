@@ -67,6 +67,7 @@ typedef struct mycar_STRUCT {
   uint8_t CircCount;  // 小车当前圈数
   uint8_t speed_ctrl; // 设置当前小车速度(偏差越大，速度越慢)
   uint8_t pid_ctrl;
+  uint8_t steer_ctrl=1;
   uint8_t tracking_mode; // 循迹方式，设1时用电感循迹
 
   float speed_differ;       // 左右轮差速（百分比）

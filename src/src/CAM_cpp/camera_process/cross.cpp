@@ -119,7 +119,7 @@ void cross_enter()
     }
     }
 }
-//车身左倾时找交点函数
+//车身左倾或右倾时找角点函数
 void cross_running2()
 {
     if(watch.cross_flag!=2&&watch.cross_flag!=1)return;

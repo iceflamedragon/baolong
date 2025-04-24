@@ -14,6 +14,7 @@ using namespace std;
 Element_range Element = None;
 struct Element_struct Element_rem;
 struct watch_o watch;
+extern Scene scene;
 // 总的元素判断的代码
 void Element_recognition() {
   // Element=broken_circuit;
@@ -75,9 +76,7 @@ void Element_recognition() {
     broken_circuit_complete_enter();
     broken_circuit_complete_out();
     break;
-  case obstacle:
-    obstacle_stop();
-    break;
+
   case crossing:
   cout<<"元素路口"<<endl;
     cross_running();
@@ -103,6 +102,20 @@ void Element_recognition() {
     zebra_stop();
     zebra_out();
     break;
+    case eobstacle:
+cout<<"AI路障"<<endl;
+    break;
+  case ecatering:
+    cout<<"元素餐饮区"<<endl;
+    break;
+  case elayby:
+    cout<<"临时停车区"<<endl;
+    break;
+  case eparking:
+    cout<<"充电停车场"<<endl;
+    break;
+  case ebridge:
+    cout<<"元素坡道"<<endl;
   default:
     break;
   }
@@ -148,7 +161,10 @@ void enter_task() {
 
       if (setpara.bla_obs_open_flag >= 1) {
          black_obstacle_enter();
+         if(scene!=NormalScene) cout<<"识别到AI"<<endl;
       }
+
+     
 
       zebra_enter();
     }
@@ -208,7 +224,29 @@ void out_element() {
 
 void clear_all_flags() {
   // 清除元素标记
-  Element = None;
+  
+  // switch(scene){
+  //   case 0:
+    //  Element=None; 
+    enter_element(None);
+  //   break;
+  //   case 3:
+  //   Element=ebridge;
+  //   break;
+  //   case 4:
+  //   Element=eobstacle;
+  //   break;
+  //   case 5:
+  //   Element=ecatering;
+  //   break;
+  //   case 6:
+  //   Element=elayby;
+  //   break;
+  //   case 7:
+  //   Element=eparking;
+  //   break;
+  //}
+
   // 清除积分标志位
   clear_angle_integeral();
   clear_distant_integeral();
@@ -253,7 +291,8 @@ void clear_all_flags() {
   // 恢复寻中线模式
   watch.Line_patrol_mode = 0;
   mycar.speed_ctrl = 1;                       // 恢复正常速度
-  mycar.pid_ctrl = 1;                         // 恢复正常PID
+  mycar.pid_ctrl = 1;    
+  mycar.steer_ctrl=1;                     // 恢复正常PID
   change_pid_para(&CAM_Turn, &CAM_FUZZY_PID); // 恢复正常转向PID
   change_pid_para(&Speed_middle, &setpara.com_speed_PID);
   change_pid_para(&Speed_left, &setpara.com_speed_PID);

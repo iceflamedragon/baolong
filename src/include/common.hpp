@@ -33,8 +33,8 @@
 using namespace std;
 using namespace cv;
 
-#define COLSIMAGE 188      // 图像的列数320
-#define ROWSIMAGE 120      // 图像的行数240
+#define COLSIMAGE 188      // 图像的列数188
+#define ROWSIMAGE 120      // 图像的行数120
 #define show_COLSIMAGE 320 // 显示图像的列数320
 #define show_ROWSIMAGE 240 // 显示图像的行数240
 #define COLSIMAGEIPM 320   // IPM图像的列数
@@ -66,12 +66,12 @@ enum Scene {
   CrossScene,      // 十字道路
   RingScene,       // 环岛道路
   BridgeScene,     // 坡道区
-  DangerScene,     // 危险区
-  RescueScene,     // 救援区
-  RacingScene,     // 追逐区
-  BlocksScene,     // 障碍区
-  ParkingScene,    // 停车区
-};
+  ObstacleScene,   // 障碍区
+  CateringScene,   // 快餐店
+  LaybyScene,      // 临时停车区
+  ParkingScene    // 停车区
+  //StopScene        // 停车（结束）
+} ;
 
 /**
  * @brief Get the Scene object
@@ -79,6 +79,7 @@ enum Scene {
  * @param scene
  * @return string
  */
+extern Scene scene;
 string getScene(Scene scene) {
   switch (scene) {
   case Scene::NormalScene:
@@ -89,19 +90,19 @@ string getScene(Scene scene) {
     return "Ring";
   case Scene::BridgeScene:
     return "Bridge";
-  case Scene::DangerScene:
-    return "Danger";
-  case Scene::RescueScene:
-    return "Rescue";
-  case Scene::RacingScene:
-    return "Racing";
-  case Scene::BlocksScene:
-    return "Blocks";
+  case Scene::ObstacleScene:
+    return "Obstacle";
+  case Scene::CateringScene:
+    return "Catering";
+  case Scene::LaybyScene:
+    return "Layby";
   case Scene::ParkingScene:
     return "Parking";
+  //case Scene::StopScene:
+  // return "Stop";
   default:
     return "Error";
-  }
+}
 }
 
 /**
@@ -254,8 +255,7 @@ auto formatDoble2String(double val, int fixed) {
  * @return double
  */
 double distanceForPoint2Line(POINT a, POINT b, POINT p) {
-  int d = 0; // 距离
-
+  
   double ab_distance =
       sqrt((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y));
   double ap_distance =

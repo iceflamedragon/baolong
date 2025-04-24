@@ -41,5 +41,5 @@ void right_ring_complete_out();
 
 void find_angle_left_down(int*angle_x,int*angle_y);
 void find_angle_right_down(int*angle_x,int*angle_y);
-
+int Conut_blackpoint(int y, int start_x,int end_x);
 #endif /* CODE_CAMERA_PROCESS_CIRCLE_H_ */

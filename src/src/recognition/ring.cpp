@@ -1896,7 +1896,7 @@ public: // int leftpoint;
    */
   double Part_stdevEdgeCal(vector<POINT> &v_edge, int img_height,
                            int start_line, int end_line) {
-    int i = 0, t = 0;
+    int t = 0;
        if (start_line < end_line) // 都是从下往上计算的，反了就互换一下
     {
       t = start_line;
@@ -1969,7 +1969,7 @@ cout<<"startline"<<startline<<endl;
       B = 0;
     else
       B = (SumUp / SumDown);
-    A = (SumY - B * SumX) / SumLines; // 截距
+      A = (SumY - B * SumX) / SumLines; // 截距
     }
     return B;                         // 返回斜率
   }
@@ -1986,7 +1986,7 @@ cout<<"startline"<<startline<<endl;
   -------------------------------------------------------------------------------------------------------------------*/
   void K_Add_Boundry_Left(float k, int startY, int startI, int endI,
                           Tracking &track) {
-    int i = 0, t = 0;
+    int i = 0;
     if (startY >= COLSIMAGE) // 减去切行
       startY = COLSIMAGE;
     else if (startY <= 0)
@@ -2037,7 +2037,7 @@ cout<<"startline"<<startline<<endl;
   -------------------------------------------------------------------------------------------------------------------*/
   void K_Add_Boundry_Right(float k, int startY, int startI, int endI,
                            Tracking &track) {
-    int i = 0, t = 0;
+    int i = 0;
     if (startY >= COLSIMAGE) // 减去切行
       startY = COLSIMAGE;
     else if (startY <= 0)

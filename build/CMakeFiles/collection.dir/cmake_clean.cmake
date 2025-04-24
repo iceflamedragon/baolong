@@ -1,8 +1,7 @@
 file(REMOVE_RECURSE
   "CMakeFiles/collection.dir/tool/collection.cpp.o"
-  "CMakeFiles/collection.dir/tool/collection.cpp.o.d"
-  "collection"
   "collection.pdb"
+  "collection"
 )
 
 # Per-language clean rules from dependency scanning.
